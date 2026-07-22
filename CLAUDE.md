@@ -234,6 +234,7 @@ npm run lint / format / types:check
 ## Keputusan arsitektur yang mengikat
 
 - **Multi-tenant satu database**: kolom `tenant_id` + global scope Eloquent. Jangan pernah `withoutGlobalScopes()` pada jalur permintaan pengguna.
+- **Foreign key dari request wajib `App\Rules\TenantExists::in('tabel')`**, bukan `exists:tabel,id`. Aturan `exists` bawaan bertanya langsung ke tabel sehingga melewati global scope dan membuka IDOR lintas lembaga.
 - **Peran**: kolom `role` pada `users` (`admin`, `pengajar`) + Policy Laravel. Tanpa paket permission.
 - **Wali santri bukan user aplikasi** — interaksi lewat bot Telegram dan tautan bertanda tangan.
 - **QR**: payload berupa ULID acak di `students.qr_token`, bukan ID berurutan. Pemindaian memakai `BarcodeDetector` bawaan browser (butuh HTTPS).

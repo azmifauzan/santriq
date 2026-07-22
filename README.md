@@ -82,7 +82,7 @@ curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
   -d "secret_token=<TELEGRAM_SECRET_TOKEN>"
 ```
 
-Di luar environment `local`, webhook menolak semua permintaan bila `TELEGRAM_SECRET_TOKEN` kosong — endpoint ini publik dan dikecualikan dari CSRF.
+`TELEGRAM_SECRET_TOKEN` wajib diisi di semua environment kecuali `testing`: webhook menolak seluruh permintaan bila kosong. Endpoint ini publik dan dikecualikan dari CSRF, dan pengembangan lokal pun biasanya menembus tunnel publik agar Telegram bisa menjangkaunya.
 
 Wali santri menautkan akunnya dengan mengirim `/start <link_token>` ke bot, lalu dapat memakai `/kehadiran`, `/prestasi`, `/tagihan`, dan `/izin`.
 
