@@ -29,6 +29,7 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 
 ### In-scope (V1)
 
+- Halaman publik yang menjelaskan manfaat dan fitur SantriQ
 - Registrasi & manajemen data lembaga (tenant)
 - Manajemen data santri per lembaga
 - Generate & cetak kode QR unik per santri
@@ -38,6 +39,7 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 - Laporan kehadiran & pencapaian yang dapat diakses wali santri
 - Modul pembayaran/SPP
 - Modul perizinan mandiri (sakit/izin)
+- Tema terang dan gelap dengan pilihan awal mengikuti sistem pengguna
 
 ## 5. Functional Requirements
 
@@ -90,6 +92,13 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 - Status kehadiran santri otomatis tercatat sesuai izin yang disetujui
 - Notifikasi Telegram ke wali santri saat pengajuan izin disetujui/ditolak
 
+### 5.9 Halaman Publik & Autentikasi
+
+- Landing page menjelaskan manfaat, fitur utama, cara kerja, dan ajakan registrasi
+- Halaman masuk dan registrasi memakai identitas visual yang konsisten dengan landing page
+- Pengguna dapat mengganti tema terang/gelap dari landing page dan halaman autentikasi
+- Tema awal mengikuti preferensi sistem dan pilihan pengguna disimpan di browser
+
 ## 6. Alur Pengguna Utama
 
 **Alur 1 — Absen Santri**
@@ -124,12 +133,21 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 3. Status kehadiran santri tercatat sesuai keputusan
 4. Wali santri menerima notifikasi hasil pengajuan via Telegram
 
+**Alur 6 — Lembaga Baru Memulai**
+
+1. Pengunjung mempelajari fitur melalui landing page
+2. Pengunjung memilih daftar gratis
+3. Pengunjung mendaftarkan lembaga dan akun admin pertama
+4. Sistem mengarahkan admin ke dasbor lembaganya
+
 ## 7. Non-Functional Requirements
 
 - Data setiap lembaga terisolasi dari lembaga lain (multi-tenant)
 - Dapat diakses melalui browser tanpa instalasi aplikasi tambahan untuk proses absensi
 - Waktu respons pemindaian QR harus cepat agar tidak menghambat antrean santri
 - Mekanisme retry untuk pengiriman notifikasi Telegram bila gagal terkirim
+- Halaman publik dan autentikasi responsif pada perangkat seluler maupun desktop
+- Tema awal mengikuti `prefers-color-scheme` tanpa menghalangi pilihan manual pengguna
 
 ## 8. Model Distribusi
 

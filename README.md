@@ -6,6 +6,7 @@ Situs: [santriq.web.id](https://santriq.web.id) (rencana)
 
 ## Fitur
 
+- **Halaman publik** — landing page responsif, halaman autentikasi konsisten, serta tema terang/gelap yang mengikuti sistem pengguna secara default.
 - **Multi-tenant** — satu instance melayani banyak lembaga, data antar lembaga terisolasi.
 - **Manajemen santri** — data santri, kelas/jenjang, data wali, generate & cetak kartu QR.
 - **Absensi QR** — pemindaian lewat kamera HP/tablet untuk mencatat jam masuk & pulang, dengan proteksi scan ganda.
@@ -21,14 +22,14 @@ Detail kebutuhan produk ada di [docs/SantriQ-PRD.md](docs/SantriQ-PRD.md). Statu
 
 ## Tech Stack
 
-| Lapis     | Teknologi                                          |
-| --------- | -------------------------------------------------- |
-| Backend   | PHP 8.5, Laravel 13, Laravel Fortify (autentikasi) |
-| Frontend  | Inertia.js v3, Vue 3, TypeScript, Tailwind CSS v4  |
-| Routing   | Laravel Wayfinder (route function bertipe)         |
-| Build     | Vite                                                |
-| Database  | SQLite (lokal), MySQL/PostgreSQL (produksi)        |
-| Testing   | Pest 4, PHPStan/Larastan level 7, Pint, ESLint     |
+| Lapis    | Teknologi                                          |
+| -------- | -------------------------------------------------- |
+| Backend  | PHP 8.5, Laravel 13, Laravel Fortify (autentikasi) |
+| Frontend | Inertia.js v3, Vue 3, TypeScript, Tailwind CSS v4  |
+| Routing  | Laravel Wayfinder (route function bertipe)         |
+| Build    | Vite                                               |
+| Database | SQLite (lokal), MySQL/PostgreSQL (produksi)        |
+| Testing  | Pest 4, PHPStan/Larastan level 7, Pint, ESLint     |
 
 ## Persyaratan
 
@@ -64,6 +65,7 @@ php artisan db:seed
 Akun demo: `admin@santriq.test` / `pengajar@santriq.test`, password `password`.
 
 Registrasi lewat halaman `/register` membuat lembaga baru sekaligus akun admin pertamanya.
+Pilihan tema dapat diubah dari landing page, halaman masuk, dan halaman registrasi; preferensi disimpan di browser.
 
 ## Konfigurasi Telegram
 

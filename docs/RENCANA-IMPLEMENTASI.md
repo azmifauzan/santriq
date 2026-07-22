@@ -6,16 +6,16 @@ Domain produksi: **santriq.web.id**
 
 ## 0. Status (diverifikasi 22 Juli 2026)
 
-| Fase                            | Status                                                                     |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| 0 — Fondasi multi-tenant        | Selesai                                                                     |
-| 1 — Master data santri          | Selesai kecuali impor CSV (ditunda)                                        |
-| 2 — Absensi QR                  | Selesai                                                                     |
-| 3 — Integrasi Telegram          | Selesai                                                                     |
-| 4 — Pencapaian & laporan        | Selesai                                                                     |
-| 5 — SPP                         | Selesai                                                                     |
-| 6 — Perizinan mandiri           | Selesai                                                                     |
-| 7 — Rilis                       | Belum: backup terjadwal, deploy santriq.web.id, pendaftaran webhook produksi |
+| Fase                     | Status                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| 0 — Fondasi multi-tenant | Selesai                                                                        |
+| 1 — Master data santri   | Selesai kecuali impor CSV (ditunda)                                            |
+| 2 — Absensi QR           | Selesai                                                                        |
+| 3 — Integrasi Telegram   | Selesai                                                                        |
+| 4 — Pencapaian & laporan | Selesai                                                                        |
+| 5 — SPP                  | Selesai                                                                        |
+| 6 — Perizinan mandiri    | Selesai                                                                        |
+| 7 — Rilis                | Sebagian: halaman publik selesai; tersisa backup, deploy, dan webhook produksi |
 
 Verifikasi: `composer ci:check` hijau (ESLint, Prettier, vue-tsc, Pint, PHPStan level 7, Pest). `php artisan migrate:fresh --seed` berjalan bersih dan menghasilkan 1 lembaga demo, 2 akun, 2 kelas, 10 santri — semuanya punya `qr_token`, semua wali punya `link_token`.
 
@@ -34,17 +34,18 @@ Catatan lain: 2FA punya scaffolding (`TwoFactorAuthenticationRequest`, `RequireP
 
 Keputusan diambil sekali di depan supaya tidak diperdebatkan ulang tiap fase.
 
-| Topik            | Keputusan                                                                                                             | Alasan                                                                                    |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Multi-tenancy    | Satu database, kolom `tenant_id` di setiap tabel milik lembaga + global scope Eloquent                                  | Tanpa dependensi baru; cukup untuk skala TPA/TPQ. Database-per-tenant hanya jika terbukti perlu |
-| Peran pengguna   | Kolom `role` (enum: `admin`, `pengajar`) pada `users` + Policy Laravel                                                  | Paket permission penuh belum dibutuhkan untuk dua peran                                    |
-| Identitas wali   | Wali **bukan** user aplikasi; interaksi lewat Telegram + tautan publik bertanda tangan                                  | Wali tidak perlu password; menurunkan beban dukungan                                       |
-| Payload QR       | ULID acak per santri disimpan di kolom `qr_token` (unik), bukan ID berurutan                                            | Tidak bisa ditebak, bisa dicabut per santri tanpa mengubah ID                              |
-| Pemindai QR      | `BarcodeDetector` API bawaan browser, fallback pesan "gunakan Chrome/Android" bila tidak tersedia                       | Tanpa library JS tambahan; wajib HTTPS untuk akses kamera                                  |
-| Generate gambar QR| `bacon/bacon-qr-code` (SVG, dirender di server oleh `QrCodeService`), dideklarasikan eksplisit di `composer.json`      | Tidak ada cara wajar membuat QR tanpa library; jangan bergantung pada instalasi transitif Fortify |
-| Telegram         | HTTP Client Laravel langsung ke Bot API, dibungkus queued job                                                          | SDK pihak ketiga tidak diperlukan untuk beberapa endpoint                                  |
-| Retry notifikasi | Queue `database` + `$tries`/`backoff` pada job, log status kirim di tabel `telegram_messages`                           | Memenuhi syarat retry di PRD tanpa infrastruktur tambahan                                  |
-| Timezone         | Disimpan UTC, ditampilkan sesuai `tenants.timezone`                                                                     | Lembaga tersebar di WIB/WITA/WIT                                                           |
+| Topik              | Keputusan                                                                                                         | Alasan                                                                                            |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Multi-tenancy      | Satu database, kolom `tenant_id` di setiap tabel milik lembaga + global scope Eloquent                            | Tanpa dependensi baru; cukup untuk skala TPA/TPQ. Database-per-tenant hanya jika terbukti perlu   |
+| Peran pengguna     | Kolom `role` (enum: `admin`, `pengajar`) pada `users` + Policy Laravel                                            | Paket permission penuh belum dibutuhkan untuk dua peran                                           |
+| Identitas wali     | Wali **bukan** user aplikasi; interaksi lewat Telegram + tautan publik bertanda tangan                            | Wali tidak perlu password; menurunkan beban dukungan                                              |
+| Payload QR         | ULID acak per santri disimpan di kolom `qr_token` (unik), bukan ID berurutan                                      | Tidak bisa ditebak, bisa dicabut per santri tanpa mengubah ID                                     |
+| Pemindai QR        | `BarcodeDetector` API bawaan browser, fallback pesan "gunakan Chrome/Android" bila tidak tersedia                 | Tanpa library JS tambahan; wajib HTTPS untuk akses kamera                                         |
+| Generate gambar QR | `bacon/bacon-qr-code` (SVG, dirender di server oleh `QrCodeService`), dideklarasikan eksplisit di `composer.json` | Tidak ada cara wajar membuat QR tanpa library; jangan bergantung pada instalasi transitif Fortify |
+| Telegram           | HTTP Client Laravel langsung ke Bot API, dibungkus queued job                                                     | SDK pihak ketiga tidak diperlukan untuk beberapa endpoint                                         |
+| Retry notifikasi   | Queue `database` + `$tries`/`backoff` pada job, log status kirim di tabel `telegram_messages`                     | Memenuhi syarat retry di PRD tanpa infrastruktur tambahan                                         |
+| Timezone           | Disimpan UTC, ditampilkan sesuai `tenants.timezone`                                                               | Lembaga tersebar di WIB/WITA/WIT                                                                  |
+| Tema antarmuka     | Terang/gelap memakai class `dark`; default `prefers-color-scheme`, pilihan disimpan di browser                    | Mengikuti sistem tanpa dependensi atau pengaturan akun tambahan                                   |
 
 ## 2. Model Data
 
@@ -152,10 +153,11 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 ### Fase 7 — Rilis — belum
 
 1. ~~Rate limit endpoint publik~~ — sudah: `throttle:60,1` pada scan, `throttle:120,1` pada webhook, `throttle:6,1` pada ganti password.
-2. Backup database terjadwal + retensi.
-3. Deploy ke santriq.web.id: HTTPS (wajib untuk kamera), MySQL/PostgreSQL, queue worker sebagai daemon, scheduler cron.
-4. Set webhook Telegram ke domain produksi berikut `TELEGRAM_SECRET_TOKEN` (perintah `setWebhook` ada di README).
-5. ~~Seeder demo + dokumentasi self-hosting di README~~ — sudah.
+2. ~~Landing page publik, tampilan login/registrasi, dan tema terang/gelap responsif~~ — sudah.
+3. Backup database terjadwal + retensi.
+4. Deploy ke santriq.web.id: HTTPS (wajib untuk kamera), MySQL/PostgreSQL, queue worker sebagai daemon, scheduler cron.
+5. Set webhook Telegram ke domain produksi berikut `TELEGRAM_SECRET_TOKEN` (perintah `setWebhook` ada di README).
+6. ~~Seeder demo + dokumentasi self-hosting di README~~ — sudah.
 
 ## 4. Konvensi Pengerjaan
 
@@ -167,12 +169,12 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 
 ## 5. Yang Sengaja Ditunda
 
-| Ditunda                              | Tambahkan bila                                                |
-| ------------------------------------ | ------------------------------------------------------------- |
-| Database per tenant                  | Ada lembaga dengan kebutuhan isolasi/regulasi khusus          |
-| Paket roles & permissions            | Peran bertambah melewati admin/pengajar                       |
-| Payment gateway                      | Lembaga meminta pembayaran otomatis, bukan verifikasi manual  |
-| Aplikasi mobile / PWA offline        | Koneksi di lokasi terbukti jadi penghambat absensi            |
-| Kanal notifikasi selain Telegram (WA)| Data menunjukkan banyak wali tidak memakai Telegram           |
-| SSR Inertia                          | SEO halaman publik jadi kebutuhan nyata                       |
+| Ditunda                                                                                                             | Tambahkan bila                                                             |
+| ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Database per tenant                                                                                                 | Ada lembaga dengan kebutuhan isolasi/regulasi khusus                       |
+| Paket roles & permissions                                                                                           | Peran bertambah melewati admin/pengajar                                    |
+| Payment gateway                                                                                                     | Lembaga meminta pembayaran otomatis, bukan verifikasi manual               |
+| Aplikasi mobile / PWA offline                                                                                       | Koneksi di lokasi terbukti jadi penghambat absensi                         |
+| Kanal notifikasi selain Telegram (WA)                                                                               | Data menunjukkan banyak wali tidak memakai Telegram                        |
+| SSR Inertia                                                                                                         | SEO halaman publik jadi kebutuhan nyata                                    |
 | 2FA (scaffolding Fortify sudah ada, `Features::twoFactorAuthentication()` belum diaktifkan di `config/fortify.php`) | Akun admin lembaga memegang data banyak santri dan butuh proteksi tambahan |
