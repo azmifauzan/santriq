@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Student;
+use App\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,7 +22,7 @@ class StoreStudentRequest extends FormRequest
         $tenantId = $this->user()?->tenant_id;
 
         return [
-            'classroom_id' => ['nullable', 'exists:classrooms,id'],
+            'classroom_id' => ['nullable', TenantExists::in('classrooms')],
             'nis' => [
                 'required',
                 'string',
@@ -33,7 +34,7 @@ class StoreStudentRequest extends FormRequest
             'birth_date' => ['nullable', 'date'],
             'status' => ['nullable', 'string', Rule::in(['active', 'inactive'])],
             'guardian_ids' => ['nullable', 'array'],
-            'guardian_ids.*' => ['exists:guardians,id'],
+            'guardian_ids.*' => [TenantExists::in('guardians')],
         ];
     }
 }

@@ -22,8 +22,10 @@ class TelegramWebhookController extends Controller
 
         if (empty($secretToken)) {
             // The endpoint is public and CSRF-exempt: without a secret anyone could
-            // drive the bot into replying to arbitrary chat ids.
-            if (! app()->environment('local', 'testing')) {
+            // drive the bot into replying to arbitrary chat ids. Local development
+            // is not exempt because reaching this route at all means the app is
+            // already tunnelled to the public internet for Telegram.
+            if (! app()->environment('testing')) {
                 return response()->json(['message' => 'Webhook secret is not configured'], 403);
             }
         } elseif (! hash_equals($secretToken, (string) $request->header('X-Telegram-Bot-Api-Secret-Token'))) {

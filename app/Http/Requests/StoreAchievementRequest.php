@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Achievement;
+use App\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAchievementRequest extends FormRequest
@@ -18,7 +19,7 @@ class StoreAchievementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'student_id' => ['required', 'exists:students,id'],
+            'student_id' => ['required', TenantExists::in('students')],
             'category' => ['required', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:255'],
             'note' => ['nullable', 'string'],

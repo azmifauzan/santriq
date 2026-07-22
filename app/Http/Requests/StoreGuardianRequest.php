@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Guardian;
+use App\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreGuardianRequest extends FormRequest
@@ -21,7 +22,7 @@ class StoreGuardianRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'student_ids' => ['nullable', 'array'],
-            'student_ids.*' => ['exists:students,id'],
+            'student_ids.*' => [TenantExists::in('students')],
         ];
     }
 }

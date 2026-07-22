@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -14,6 +15,8 @@ class ReportController extends Controller
 {
     public function index(Request $request): Response
     {
+        Gate::authorize('viewAny', Attendance::class);
+
         $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', now()->format('Y-m-d'));
         $classroomId = $request->input('classroom_id');
@@ -57,6 +60,8 @@ class ReportController extends Controller
 
     public function exportCsv(Request $request): StreamedResponse
     {
+        Gate::authorize('viewAny', Attendance::class);
+
         $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', now()->format('Y-m-d'));
         $classroomId = $request->input('classroom_id');

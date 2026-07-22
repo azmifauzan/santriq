@@ -6,6 +6,7 @@ use App\Jobs\SendTelegramMessage;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\Student;
+use App\Rules\TenantExists;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -43,7 +44,7 @@ class LeaveRequestController extends Controller
         Gate::authorize('create', LeaveRequest::class);
 
         $validated = $request->validate([
-            'student_id' => ['required', 'exists:students,id'],
+            'student_id' => ['required', TenantExists::in('students')],
             'type' => ['required', 'string', 'in:sakit,izin'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],

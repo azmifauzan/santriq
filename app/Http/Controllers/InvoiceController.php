@@ -7,6 +7,7 @@ use App\Models\Classroom;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Rules\TenantExists;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,7 +50,7 @@ class InvoiceController extends Controller
         Gate::authorize('create', Invoice::class);
 
         $validated = $request->validate([
-            'student_id' => ['required', 'exists:students,id'],
+            'student_id' => ['required', TenantExists::in('students')],
             'period' => ['required', 'string', 'max:20'],
             'amount' => ['required', 'numeric', 'min:0'],
             'due_date' => ['required', 'date'],
@@ -83,7 +84,7 @@ class InvoiceController extends Controller
         Gate::authorize('create', Invoice::class);
 
         $validated = $request->validate([
-            'classroom_id' => ['nullable', 'exists:classrooms,id'],
+            'classroom_id' => ['nullable', TenantExists::in('classrooms')],
             'period' => ['required', 'string', 'max:20'],
             'amount' => ['required', 'numeric', 'min:0'],
             'due_date' => ['required', 'date'],

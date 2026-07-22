@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Student;
+use App\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,7 +25,7 @@ class UpdateStudentRequest extends FormRequest
         $student = $this->route('student');
 
         return [
-            'classroom_id' => ['nullable', 'exists:classrooms,id'],
+            'classroom_id' => ['nullable', TenantExists::in('classrooms')],
             'nis' => [
                 'required',
                 'string',
@@ -38,7 +39,7 @@ class UpdateStudentRequest extends FormRequest
             'birth_date' => ['nullable', 'date'],
             'status' => ['nullable', 'string', Rule::in(['active', 'inactive'])],
             'guardian_ids' => ['nullable', 'array'],
-            'guardian_ids.*' => ['exists:guardians,id'],
+            'guardian_ids.*' => [TenantExists::in('guardians')],
         ];
     }
 }
