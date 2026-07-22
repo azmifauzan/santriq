@@ -33,16 +33,29 @@ defineOptions({
     >
         <div class="grid gap-6">
             <div class="grid gap-2">
-                <Label for="name">Name</Label>
+                <Label for="institution_name">Nama Lembaga (TPA/TPQ)</Label>
                 <Input
-                    id="name"
+                    id="institution_name"
                     type="text"
                     required
                     autofocus
                     :tabindex="1"
+                    name="institution_name"
+                    placeholder="Contoh: TPQ Al-Hidayah"
+                />
+                <InputError :message="errors.institution_name" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="name">Nama Penanggung Jawab</Label>
+                <Input
+                    id="name"
+                    type="text"
+                    required
+                    :tabindex="2"
                     autocomplete="name"
                     name="name"
-                    placeholder="Full name"
+                    placeholder="Nama Lengkap"
                 />
                 <InputError :message="errors.name" />
             </div>

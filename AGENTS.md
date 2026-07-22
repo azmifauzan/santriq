@@ -206,3 +206,45 @@ Vue components must have a single root element.
 - IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
 
 </laravel-boost-guidelines>
+
+# SantriQ
+
+Platform gratis & open source untuk manajemen TPA/TPQ. Domain produksi: santriq.web.id.
+Inti produk: absensi santri via pemindaian QR, notifikasi kehadiran realtime ke wali santri lewat Telegram, pencatatan pencapaian, SPP, dan perizinan mandiri.
+
+- PRD: `docs/SantriQ-PRD.md`
+- Rencana implementasi & keputusan arsitektur: `docs/RENCANA-IMPLEMENTASI.md` — baca sebelum menambah fitur baru.
+
+Fase 0–6 rencana implementasi sudah jalan (tenant, master data, absensi QR, Telegram, prestasi & laporan, SPP, perizinan). Sisa: penerapan produksi (backup, deploy, webhook), impor CSV santri, 2FA.
+
+Peta kode: `app/Concerns/BelongsToTenant.php` (global scope tenant), `app/Policies/` (admin vs pengajar), `app/Jobs/SendTelegramMessage.php` (queued + outbox `telegram_messages`), `app/Services/QrCodeService.php` (SVG kartu santri), `app/Http/Controllers/TelegramWebhookController.php` (perintah bot wali).
+
+## Perintah
+
+```bash
+composer dev           # server + queue worker + log + vite
+composer test          # config:clear + pint --test + phpstan + pest
+composer ci:check      # rangkaian penuh yang dijalankan CI
+php artisan test --compact --filter=NamaTest   # satu test
+composer lint          # pint --parallel
+composer types:check   # phpstan level 7
+npm run lint / format / types:check
+```
+
+## Keputusan arsitektur yang mengikat
+
+- **Multi-tenant satu database**: kolom `tenant_id` + global scope Eloquent. Jangan pernah `withoutGlobalScopes()` pada jalur permintaan pengguna.
+- **Peran**: kolom `role` pada `users` (`admin`, `pengajar`) + Policy Laravel. Tanpa paket permission.
+- **Wali santri bukan user aplikasi** — interaksi lewat bot Telegram dan tautan bertanda tangan.
+- **QR**: payload berupa ULID acak di `students.qr_token`, bukan ID berurutan. Pemindaian memakai `BarcodeDetector` bawaan browser (butuh HTTPS).
+- **Telegram**: HTTP Client Laravel ke Bot API di dalam queued job dengan retry; baris `telegram_messages` dibuat sekali saat dispatch dan dipakai ulang tiap retry — jangan membuat baris log di dalam `handle()`.
+- **Webhook Telegram** publik dan dikecualikan dari CSRF: wajib `TELEGRAM_SECRET_TOKEN` di luar `local`/`testing`. Di jalur ini tidak ada user login, jadi global scope tenant tidak aktif — ambil `tenant_id` dari santri/wali terkait.
+- Waktu disimpan UTC, ditampilkan mengikuti `tenants.timezone`.
+- Seeder tidak boleh memakai `WithoutModelEvents`: `students.qr_token` dan `guardians.link_token` dibuat di hook `creating`.
+
+## Konvensi
+
+- Nama tabel/kolom dan kode dalam bahasa Inggris; label UI dan dokumen dalam Bahasa Indonesia.
+- Validasi di Form Request, otorisasi di Policy — bukan di controller.
+- Frontend memanggil route lewat fungsi Wayfinder (`@/routes`, `@/actions`), bukan URL hardcode.
+- Blok `<laravel-boost-guidelines>` di atas dihasilkan oleh `php artisan boost:update`; edit hanya bagian di bawahnya. CLAUDE.md dan AGENTS.md harus tetap identik.
