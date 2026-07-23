@@ -6,7 +6,8 @@ Situs: [santriq.web.id](https://santriq.web.id) (rencana)
 
 ## Fitur
 
-- **Halaman publik** — landing page responsif, halaman autentikasi konsisten, serta tema terang/gelap yang mengikuti sistem pengguna secara default.
+- **Landing page per lembaga** — tiap lembaga punya subdomain sendiri (`{subdomain}.santriq.web.id`) dengan landing page publik yang kontennya (tagline, deskripsi, logo, galeri, jam operasional, warna aksen) bisa diubah admin lewat `settings/lembaga`.
+- **Portal wali** — wali santri masuk tanpa password lewat tautan magic-link yang dikirim ke Telegram (`/wali/masuk`), lalu memantau kehadiran, pencapaian, dan mengajukan izin dari portal web (`/wali/portal`).
 - **Multi-tenant** — satu instance melayani banyak lembaga, data antar lembaga terisolasi.
 - **Manajemen santri** — data santri, kelas/jenjang, data wali, generate & cetak kartu QR.
 - **Absensi QR** — pemindaian lewat kamera HP/tablet untuk mencatat jam masuk & pulang, dengan proteksi scan ganda.
@@ -16,7 +17,7 @@ Situs: [santriq.web.id](https://santriq.web.id) (rencana)
 - **SPP** — penerbitan tagihan per periode, verifikasi pembayaran, riwayat untuk wali.
 - **Perizinan mandiri** — wali mengajukan izin/sakit, admin menyetujui, status kehadiran tercatat otomatis.
 
-Semua fitur di atas sudah berjalan. Yang belum: penerapan produksi di santriq.web.id (backup terjadwal, deploy, pendaftaran webhook), impor CSV santri, dan 2FA.
+Semua fitur di atas sudah berjalan. Yang belum: wildcard DNS/TLS untuk `*.santriq.web.id` di produksi (jalan sementara lewat mode fallback path, lihat di bawah), backup terjadwal, pendaftaran webhook produksi, impor CSV santri, dan 2FA.
 
 Detail kebutuhan produk ada di [docs/SantriQ-PRD.md](docs/SantriQ-PRD.md). Status per fase dan keputusan arsitektur ada di [docs/RENCANA-IMPLEMENTASI.md](docs/RENCANA-IMPLEMENTASI.md).
 
@@ -64,8 +65,21 @@ php artisan db:seed
 
 Akun demo: `admin@santriq.test` / `pengajar@santriq.test`, password `password`.
 
-Registrasi lewat halaman `/register` membuat lembaga baru sekaligus akun admin pertamanya.
+Registrasi lewat halaman `/register` (domain utama) membuat lembaga baru sekaligus akun admin pertamanya — pendaftar memilih subdomain sendiri (permanen), lalu diarahkan ke halaman masuk lembaganya (`{subdomain}.santriq.web.id/login`) setelah berhasil daftar.
 Pilihan tema dapat diubah dari landing page, halaman masuk, dan halaman registrasi; preferensi disimpan di browser.
+
+### Subdomain lembaga
+
+```dotenv
+APP_TENANT_DOMAIN=santriq.web.id       # domain akar; ganti sesuai environment
+APP_TENANT_SUBDOMAIN_ACTIVE=true       # false = fallback tanpa wildcard DNS (lihat di bawah)
+```
+
+Tiap lembaga dilayani di `{subdomain}.{APP_TENANT_DOMAIN}` — landing page publik, halaman masuk staf, dashboard, dan portal wali semuanya di subdomain itu; domain utama (`APP_TENANT_DOMAIN` tanpa subdomain) hanya melayani landing marketing, `/register`, dan webhook Telegram.
+
+Untuk pengembangan lokal, browser modern otomatis me-resolve `*.localhost` ke loopback tanpa perlu ubah `/etc/hosts` — set `APP_TENANT_DOMAIN=localhost` lalu akses lembaga lewat `http://{subdomain}.localhost:8000`.
+
+Bila wildcard DNS/TLS untuk `*.{APP_TENANT_DOMAIN}` belum tersedia (mis. sebelum deploy produksi), set `APP_TENANT_SUBDOMAIN_ACTIVE=false`: seluruh rute lembaga tetap bisa diakses lewat `{APP_TENANT_DOMAIN}/{subdomain}/...` di domain utama saja, tanpa perlu subdomain. Ganti nilai ini butuh restart aplikasi dan `npm run build` ulang (bentuk rute dibakukan ke berkas JS oleh Wayfinder saat build).
 
 ## Konfigurasi Telegram
 
@@ -117,15 +131,20 @@ CI (GitHub Actions) menjalankan `composer setup` lalu `composer ci:check` pada s
 ```
 app/Concerns/BelongsToTenant.php   Global scope + auto-isi tenant_id
 app/Http/Controllers/              Controller domain (santri, absensi, SPP, dst.)
+app/Http/Middleware/ResolveTenantFromDomain.php   Resolusi tenant dari subdomain/path
+app/Support/CurrentTenant.php      Akses tenant hasil resolusi request saat ini
 app/Policies/                      Otorisasi admin vs pengajar per model
 app/Jobs/SendTelegramMessage.php   Pengiriman Telegram (queued, retry, outbox)
 app/Services/QrCodeService.php     Render QR SVG untuk kartu santri
 resources/js/pages/                Halaman Inertia (Vue)
+resources/js/pages/guardian/       Halaman portal wali
 resources/js/components/ui/        Komponen shadcn-vue
-routes/web.php                     Route aplikasi + webhook Telegram
+routes/web.php                     Route domain utama (marketing, register, webhook Telegram)
+routes/tenant.php                  Route per lembaga (landing, staf, portal wali)
 database/migrations/               Skema database
 tests/Feature/                     Test fitur (Pest)
-docs/                              PRD & rencana implementasi
+tests/PathFallback/                Test mode fallback tanpa wildcard DNS
+docs/                              PRD, rencana implementasi, & spesifikasi desain
 ```
 
 ## Kontribusi

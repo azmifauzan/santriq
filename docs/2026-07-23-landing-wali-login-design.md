@@ -120,6 +120,7 @@ Dokumen `RENCANA-IMPLEMENTASI.md` § 1 dan § 2 (model data) harus diperbarui sa
 - Env baru: `APP_TENANT_DOMAIN`.
 - Migrasi rename `tenants.slug` → `tenants.subdomain` (data seed demo `tpq-demo` tetap valid tanpa perubahan nilai).
 - Update `TenantFactory`, `DatabaseSeeder`, dan test yang mereferensikan `slug`.
+- **Fallback sebelum wildcard DNS aktif**: `config('tenancy.subdomain_active')` (`APP_TENANT_SUBDOMAIN_ACTIVE`, default `true`) memilih bentuk rute `routes/tenant.php` sekali saat boot — `{subdomain}.{domain}/...` kalau `true`, atau `{domain}/{subdomain}/...` kalau `false`. `login`/`register`/reset password tetap di domain utama di kedua mode (tidak butuh subdomain), dan `LoginResponse` custom mengarahkan ke dashboard lewat tenant milik user yang berhasil login (bukan tenant hasil resolusi request) supaya redirect tetap benar meski login terjadi di domain utama. Ganti mode = restart app + `npm run build` (Wayfinder membakukan bentuk rute ke JS saat build, tidak bisa berubah per-request). Diuji di `tests/PathFallback/` (test case khusus yang boot app dengan `subdomain_active=false` — lihat `tests/Support/PathFallbackTestCase.php`, karena rute sudah teregister sebelum `config()` bisa diubah dari dalam badan test).
 
 ## 12. Eksplisit di Luar Scope
 

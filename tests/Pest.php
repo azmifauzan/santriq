@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\PathFallbackTestCase;
 use Tests\TestCase;
 
 /*
@@ -17,6 +18,13 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+// routes/tenant.php's domain-vs-path shape is picked once at boot from
+// config('tenancy.subdomain_active'), so exercising the path-fallback shape needs
+// the app to boot with that config already flipped — see PathFallbackTestCase.
+pest()->extend(PathFallbackTestCase::class)
+    ->use(RefreshDatabase::class)
+    ->in('PathFallback');
 
 /*
 |--------------------------------------------------------------------------

@@ -24,5 +24,7 @@ test('new users can register', function () {
         'password_confirmation' => 'password',
     ]);
 
-    $response->assertRedirect('http://tpa-nurul-huda.santriq.test/login?registered=1');
+    // `login` stays central in both subdomain-active and path-fallback mode
+    // (see App\Http\Responses\RegisterResponse) — no {subdomain} to assert here.
+    $response->assertRedirect(route('login', ['registered' => 1]));
 });

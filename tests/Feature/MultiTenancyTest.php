@@ -21,7 +21,7 @@ test('new registration creates tenant and admin user', function () {
 
     $tenant = Tenant::where('name', 'TPQ Nurul Huda')->first();
 
-    $response->assertRedirect("http://{$tenant->subdomain}.santriq.test/login?registered=1");
+    $response->assertRedirect(route('login', ['registered' => 1]));
 
     $this->assertDatabaseHas('tenants', [
         'name' => 'TPQ Nurul Huda',

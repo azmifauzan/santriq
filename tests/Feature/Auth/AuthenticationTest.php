@@ -21,7 +21,10 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/dashboard');
+    // `login` itself is central (no {subdomain}), so LoginResponse builds the
+    // dashboard redirect from the authenticated user's own tenant instead of
+    // relying on the request having resolved one — see App\Http\Responses\LoginResponse.
+    $response->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {

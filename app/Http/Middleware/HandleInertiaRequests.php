@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\CurrentTenant;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -46,6 +47,14 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
             ],
+            // The lembaga the current request resolved to (subdomain host, or the
+            // {subdomain} path segment in fallback mode — see ResolveTenantFromDomain),
+            // falling back to the logged-in user's own tenant on pages that never
+            // resolve one (the central marketing page). Fed into Wayfinder's client-side
+            // URL defaults in resources/js/lib/tenantUrlDefaults.ts so every generated
+            // route function that needs a `subdomain` keeps working without passing it
+            // explicitly at every call site.
+            'subdomain' => CurrentTenant::resolved() ? CurrentTenant::get()->subdomain : $user?->tenant?->subdomain,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

@@ -12,15 +12,14 @@ class RegisterResponse implements RegisterResponseContract
     public function toResponse($request): RedirectResponse
     {
         /** @var Request $request */
-        $tenant = $request->user()->tenant;
-
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        $scheme = $request->getScheme();
-        $url = "{$scheme}://{$tenant->subdomain}.".config('tenancy.domain').'/login?registered=1';
-
-        return redirect()->away($url);
+        // The `login` route stays central (no {subdomain} parameter) in both
+        // subdomain-active and path-fallback mode — see LoginResponse for why
+        // the dashboard redirect after a successful login still lands on the
+        // right lembaga regardless.
+        return redirect()->away(route('login', ['registered' => 1]));
     }
 }

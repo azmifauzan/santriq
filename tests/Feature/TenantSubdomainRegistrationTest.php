@@ -47,7 +47,7 @@ test('registration redirects to the new subdomain login screen', function () {
         'password_confirmation' => 'password123',
     ]);
 
-    $response->assertRedirect('http://tpq-baru.santriq.test/login?registered=1');
+    $response->assertRedirect(route('login', ['registered' => 1]));
     $this->assertGuest();
 });
 

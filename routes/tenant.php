@@ -21,7 +21,7 @@ use App\Http\Middleware\EnsureStaffTenantMatchesSubdomain;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
-Route::domain('{subdomain?}.'.config('tenancy.domain'))->group(function () {
+$tenantRoutes = function (): void {
     Route::get('/', [TenantLandingController::class, 'show'])->name('tenant.landing');
 
     Route::prefix('wali')->name('guardian.')->group(function () {
@@ -96,4 +96,19 @@ Route::domain('{subdomain?}.'.config('tenancy.domain'))->group(function () {
         Route::get('settings/lembaga', [LembagaController::class, 'edit'])->name('lembaga.edit');
         Route::put('settings/lembaga', [LembagaController::class, 'update'])->name('lembaga.update');
     });
-});
+};
+
+// {subdomain} is marked optional in both branches purely so Wayfinder emits
+// an optional TS argument for pages that call e.g. dashboard() with no tenant
+// in scope (the central marketing page) — see resources/js/lib/tenantUrlDefaults.ts.
+// It does NOT mean these routes work without a subdomain: a request that
+// matches one of these routes with no subdomain segment still can't resolve
+// a Tenant, and any controller that needs one 404s via CurrentTenant::get().
+if (config('tenancy.subdomain_active')) {
+    // Wildcard DNS is live: every lembaga gets {subdomain}.{tenancy.domain}.
+    Route::domain('{subdomain?}.'.config('tenancy.domain'))->group($tenantRoutes);
+} else {
+    // No wildcard DNS yet: serve the same routes as {tenancy.domain}/{subdomain}/...
+    // on the apex, which only needs a plain A record. See config/tenancy.php.
+    Route::domain(config('tenancy.domain'))->prefix('{subdomain?}')->group($tenantRoutes);
+}
