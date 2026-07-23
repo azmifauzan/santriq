@@ -121,10 +121,8 @@ composer types:check   # PHPStan level 7
 npm run lint           # ESLint --fix
 npm run format         # Prettier
 npm run types:check    # vue-tsc
-composer ci:check      # rangkaian yang dijalankan CI
+composer ci:check      # rangkaian pengecekan penuh (jalankan manual sebelum push)
 ```
-
-CI (GitHub Actions) menjalankan `composer setup` lalu `composer ci:check` pada setiap push ke `main` dan setiap pull request.
 
 ## Struktur
 
