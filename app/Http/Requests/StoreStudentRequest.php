@@ -11,7 +11,7 @@ class StoreStudentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', Student::class) ?? false;
+        return $this->user('web')?->can('create', Student::class) ?? false;
     }
 
     /**

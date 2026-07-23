@@ -12,7 +12,7 @@ class UpdateGuardianRequest extends FormRequest
     {
         $guardian = $this->route('guardian');
 
-        return $guardian instanceof Guardian && ($this->user()?->can('update', $guardian) ?? false);
+        return $guardian instanceof Guardian && ($this->user('web')?->can('update', $guardian) ?? false);
     }
 
     /**

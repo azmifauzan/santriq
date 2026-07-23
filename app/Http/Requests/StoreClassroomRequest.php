@@ -9,7 +9,7 @@ class StoreClassroomRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', Classroom::class) ?? false;
+        return $this->user('web')?->can('create', Classroom::class) ?? false;
     }
 
     /**

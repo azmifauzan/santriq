@@ -10,7 +10,7 @@ class StoreAchievementRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', Achievement::class) ?? false;
+        return $this->user('web')?->can('create', Achievement::class) ?? false;
     }
 
     /**

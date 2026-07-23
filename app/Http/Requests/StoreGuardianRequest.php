@@ -10,7 +10,7 @@ class StoreGuardianRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', Guardian::class) ?? false;
+        return $this->user('web')?->can('create', Guardian::class) ?? false;
     }
 
     /**

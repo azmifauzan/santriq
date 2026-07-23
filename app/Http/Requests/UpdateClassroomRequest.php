@@ -11,7 +11,7 @@ class UpdateClassroomRequest extends FormRequest
     {
         $classroom = $this->route('classroom');
 
-        return $classroom instanceof Classroom && ($this->user()?->can('update', $classroom) ?? false);
+        return $classroom instanceof Classroom && ($this->user('web')?->can('update', $classroom) ?? false);
     }
 
     /**

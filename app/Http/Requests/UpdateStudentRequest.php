@@ -13,7 +13,7 @@ class UpdateStudentRequest extends FormRequest
     {
         $student = $this->route('student');
 
-        return $student instanceof Student && ($this->user()?->can('update', $student) ?? false);
+        return $student instanceof Student && ($this->user('web')?->can('update', $student) ?? false);
     }
 
     /**

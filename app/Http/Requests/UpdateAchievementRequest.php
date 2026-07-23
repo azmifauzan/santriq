@@ -10,9 +10,7 @@ class UpdateAchievementRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $achievement = $this->route('achievement');
-
-        return $achievement instanceof Achievement && ($this->user()?->can('update', $achievement) ?? false);
+        return $this->user('web')?->can('update', $this->route('achievement')) ?? false;
     }
 
     /**

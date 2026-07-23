@@ -15,7 +15,7 @@ class UpdateTeacherRequest extends FormRequest
     {
         $teacher = $this->route('teacher');
 
-        return $teacher instanceof User && ($this->user()?->can('update', $teacher) ?? false);
+        return $teacher instanceof User && ($this->user('web')?->can('update', $teacher) ?? false);
     }
 
     /**

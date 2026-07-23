@@ -14,7 +14,7 @@ class LembagaController extends Controller
 {
     public function edit(Request $request): Response
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user('web')?->isAdmin(), 403);
 
         $tenant = CurrentTenant::get();
 
