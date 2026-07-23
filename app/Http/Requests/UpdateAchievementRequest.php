@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Achievement;
 use App\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 
