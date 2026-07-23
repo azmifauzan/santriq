@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { redirect as googleRedirect } from '@/actions/App/Http/Controllers/GoogleAuthController';
+import AlertError from '@/components/AlertError.vue';
+import GoogleAuthButton from '@/components/GoogleAuthButton.vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -23,6 +27,17 @@ defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const page = usePage<{
+    subdomain?: string | null;
+    errors?: Record<string, string>;
+}>();
+const googleLoginUrl = computed(() =>
+    googleRedirect.url({
+        query: { intent: 'login', subdomain: page.props.subdomain ?? '' },
+    }),
+);
+const googleError = computed(() => page.props.errors?.google);
 </script>
 
 <template>
@@ -33,6 +48,24 @@ defineProps<{
         class="mb-4 text-center text-sm font-medium text-green-600"
     >
         {{ status }}
+    </div>
+
+    <AlertError
+        v-if="googleError"
+        :errors="[googleError]"
+        title="Masuk dengan Google gagal"
+        class="mb-6"
+    />
+
+    <GoogleAuthButton
+        :href="googleLoginUrl"
+        label="Masuk dengan Google"
+        class="mb-6"
+    />
+
+    <div class="relative mb-6 text-center text-sm text-muted-foreground">
+        <span class="relative z-10 bg-background px-2">atau</span>
+        <div class="absolute inset-x-0 top-1/2 -z-0 border-t"></div>
     </div>
 
     <Form

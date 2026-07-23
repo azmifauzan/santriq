@@ -1,0 +1,24 @@
+<?php
+
+namespace Laravel\Socialite\Contracts;
+
+/**
+ * The real interface only declares redirect()/user() because some Socialite
+ * drivers are OAuth 1 (no state/PKCE concept). Every driver GoogleAuthController
+ * uses — the real OAuth2 Google provider and Socialite::fake()'s FakeProvider
+ * (which forwards these via __call) — responds to stateless()/with() at
+ * runtime; this stub only fills that gap in for static analysis.
+ */
+interface Provider
+{
+    public function redirect(): \Illuminate\Http\RedirectResponse;
+
+    public function user(): mixed;
+
+    public function stateless(): static;
+
+    /**
+     * @param  array<string, mixed>  $parameters
+     */
+    public function with(array $parameters): static;
+}

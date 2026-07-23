@@ -7,8 +7,10 @@ use App\Concerns\ProfileValidationRules;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Rules\NotReservedSubdomain;
+use App\Support\GoogleOAuthToken;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -22,6 +24,26 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        // A "Daftar dengan Google" signup skips the password fields entirely —
+        // see GoogleAuthController::handleRegister, which mints this token right
+        // after Google confirms the user's identity.
+        $google = isset($input['google_token']) && $input['google_token'] !== ''
+            ? GoogleOAuthToken::decode((string) $input['google_token'])
+            : null;
+
+        if (isset($input['google_token']) && $input['google_token'] !== '' && $google === null) {
+            throw ValidationException::withMessages([
+                'email' => 'Sesi Google sudah kedaluwarsa. Silakan ulangi pendaftaran.',
+            ]);
+        }
+
+        // The client can submit whatever it wants for `email`/`name` — never trust
+        // those fields over the signed token once Google has attested an identity.
+        if ($google !== null) {
+            $input['email'] = $google['email'];
+            $input['name'] = $google['name'];
+        }
+
         Validator::make($input, [
             'institution_name' => ['required', 'string', 'max:255'],
             'subdomain' => [
@@ -31,13 +53,13 @@ class CreateNewUser implements CreatesNewUsers
                 new NotReservedSubdomain,
             ],
             ...$this->profileRules(),
-            'password' => $this->passwordRules(),
+            'password' => $google ? ['nullable'] : $this->passwordRules(),
         ], [], [
             'institution_name' => 'Nama Lembaga',
             'subdomain' => 'Subdomain',
         ])->validate();
 
-        return DB::transaction(function () use ($input) {
+        return DB::transaction(function () use ($input, $google) {
             $tenant = Tenant::create([
                 'name' => $input['institution_name'],
                 'subdomain' => strtolower($input['subdomain']),
@@ -47,7 +69,9 @@ class CreateNewUser implements CreatesNewUsers
                 'tenant_id' => $tenant->id,
                 'name' => $input['name'],
                 'email' => $input['email'],
-                'password' => $input['password'],
+                'password' => $google ? null : $input['password'],
+                'google_id' => $google['sub'] ?? null,
+                'email_verified_at' => $google ? now() : null,
                 'role' => 'admin',
             ]);
         });

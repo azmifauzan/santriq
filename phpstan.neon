@@ -10,4 +10,10 @@ parameters:
         - database/
         - routes/
 
+    stubFiles:
+        - stubs/socialite-provider.stub
+
+    scanFiles:
+        - stubs/socialite-provider.stub
+
     level: 7

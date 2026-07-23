@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TenantSubdomainAvailabilityController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,16 @@ Route::domain(config('tenancy.domain'))->group(function () {
     Route::get('subdomain-availability', [TenantSubdomainAvailabilityController::class, 'check'])
         ->middleware('throttle:30,1')
         ->name('subdomain.availability');
+
+    // The apex domain is the only one that matches GOOGLE_REDIRECT_URI: a request
+    // that started on a tenant subdomain still bounces through here on its way
+    // back from Google (see App\Support\GoogleOAuthToken).
+    Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+        ->middleware('throttle:10,1')
+        ->name('google.redirect');
+    Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
+        ->middleware('throttle:10,1')
+        ->name('google.callback');
 
     Route::post('telegram/webhook', [TelegramWebhookController::class, 'handle'])
         ->middleware('throttle:120,1')

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import { redirect as googleRedirect } from '@/actions/App/Http/Controllers/GoogleAuthController';
+import GoogleAuthButton from '@/components/GoogleAuthButton.vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -14,7 +16,14 @@ import { availability } from '@/routes/subdomain';
 
 defineProps<{
     passwordRules: string;
+    google?: {
+        name: string;
+        email: string;
+        token: string;
+    };
 }>();
+
+const googleRegisterUrl = googleRedirect.url({ query: { intent: 'register' } });
 
 defineOptions({
     layout: {
@@ -55,6 +64,19 @@ watch(subdomain, (value) => {
 
 <template>
     <Head title="Daftar" />
+
+    <template v-if="!google">
+        <GoogleAuthButton
+            :href="googleRegisterUrl"
+            label="Daftar dengan Google"
+            class="mb-6"
+        />
+
+        <div class="relative mb-6 text-center text-sm text-muted-foreground">
+            <span class="relative z-10 bg-background px-2">atau</span>
+            <div class="absolute inset-x-0 top-1/2 -z-0 border-t"></div>
+        </div>
+    </template>
 
     <Form
         v-bind="store.form()"
@@ -121,9 +143,11 @@ watch(subdomain, (value) => {
                     id="name"
                     type="text"
                     required
+                    :readonly="!!google"
                     :tabindex="3"
                     autocomplete="name"
                     name="name"
+                    :value="google?.name"
                     placeholder="Nama Lengkap"
                 />
                 <InputError :message="errors.name" />
@@ -135,41 +159,53 @@ watch(subdomain, (value) => {
                     id="email"
                     type="email"
                     required
+                    :readonly="!!google"
                     :tabindex="4"
                     autocomplete="email"
                     name="email"
+                    :value="google?.email"
                     placeholder="email@example.com"
                 />
                 <InputError :message="errors.email" />
             </div>
 
-            <div class="grid gap-2">
-                <Label for="password">Kata sandi</Label>
-                <PasswordInput
-                    id="password"
-                    required
-                    :tabindex="5"
-                    autocomplete="new-password"
-                    name="password"
-                    placeholder="Kata sandi"
-                    :passwordrules="passwordRules"
-                />
-                <InputError :message="errors.password" />
-            </div>
+            <template v-if="!google">
+                <div class="grid gap-2">
+                    <Label for="password">Kata sandi</Label>
+                    <PasswordInput
+                        id="password"
+                        required
+                        :tabindex="5"
+                        autocomplete="new-password"
+                        name="password"
+                        placeholder="Kata sandi"
+                        :passwordrules="passwordRules"
+                    />
+                    <InputError :message="errors.password" />
+                </div>
 
-            <div class="grid gap-2">
-                <Label for="password_confirmation">Konfirmasi kata sandi</Label>
-                <PasswordInput
-                    id="password_confirmation"
-                    required
-                    :tabindex="6"
-                    autocomplete="new-password"
-                    name="password_confirmation"
-                    placeholder="Ulangi kata sandi"
-                    :passwordrules="passwordRules"
-                />
-                <InputError :message="errors.password_confirmation" />
-            </div>
+                <div class="grid gap-2">
+                    <Label for="password_confirmation"
+                        >Konfirmasi kata sandi</Label
+                    >
+                    <PasswordInput
+                        id="password_confirmation"
+                        required
+                        :tabindex="6"
+                        autocomplete="new-password"
+                        name="password_confirmation"
+                        placeholder="Ulangi kata sandi"
+                        :passwordrules="passwordRules"
+                    />
+                    <InputError :message="errors.password_confirmation" />
+                </div>
+            </template>
+            <input
+                v-else
+                type="hidden"
+                name="google_token"
+                :value="google.token"
+            />
 
             <Button
                 type="submit"
