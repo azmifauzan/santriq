@@ -15,7 +15,7 @@ test('security page is displayed', function () {
 
     $user = User::factory()->create();
 
-    $this->actingAs($user)
+    $this->actingAsStaff($user)
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route('security.edit'))
         ->assertInertia(fn (Assert $page) => $page
@@ -35,7 +35,7 @@ test('security page requires password confirmation when enabled', function () {
         'confirmPassword' => true,
     ]);
 
-    $response = $this->actingAs($user)
+    $response = $this->actingAsStaff($user)
         ->get(route('security.edit'));
 
     $response->assertRedirect(route('password.confirm'));
@@ -48,7 +48,7 @@ test('security page renders without two factor when feature is disabled', functi
 
     $user = User::factory()->create();
 
-    $this->actingAs($user)
+    $this->actingAsStaff($user)
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route('security.edit'))
         ->assertOk()
@@ -64,7 +64,7 @@ test('password can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this
-        ->actingAs($user)
+        ->actingAsStaff($user)
         ->from(route('security.edit'))
         ->put(route('user-password.update'), [
             'current_password' => 'password',
@@ -83,7 +83,7 @@ test('correct password must be provided to update password', function () {
     $user = User::factory()->create();
 
     $response = $this
-        ->actingAs($user)
+        ->actingAsStaff($user)
         ->from(route('security.edit'))
         ->put(route('user-password.update'), [
             'current_password' => 'wrong-password',

@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $tenant = Tenant::firstOrCreate(
-            ['slug' => 'tpq-demo'],
+            ['subdomain' => 'tpq-demo'],
             [
                 'name' => 'TPQ Demo SantriQ',
                 'address' => 'Jl. Contoh No. 1',

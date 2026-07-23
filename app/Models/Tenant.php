@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property string $name
- * @property string $slug
+ * @property string $subdomain
  * @property string|null $address
  * @property string|null $phone
  * @property string $timezone
@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'slug', 'address', 'phone', 'timezone', 'settings'])]
+#[Fillable(['name', 'subdomain', 'address', 'phone', 'timezone', 'settings'])]
 class Tenant extends Model
 {
     /** @use HasFactory<TenantFactory> */

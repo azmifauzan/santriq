@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Concerns\BelongsToTenant;
 use Database\Factories\GuardianFactory;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,10 +25,15 @@ use Illuminate\Support\Str;
  * @property Carbon|null $updated_at
  */
 #[Fillable(['tenant_id', 'name', 'phone', 'telegram_chat_id', 'link_token', 'linked_at'])]
-class Guardian extends Model
+class Guardian extends Model implements AuthenticatableContract
 {
     /** @use HasFactory<GuardianFactory> */
-    use BelongsToTenant, HasFactory;
+    use Authenticatable, BelongsToTenant, HasFactory;
+
+    public function getRememberTokenName(): string
+    {
+        return '';
+    }
 
     protected static function booted(): void
     {

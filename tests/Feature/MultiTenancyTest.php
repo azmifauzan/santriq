@@ -12,19 +12,21 @@ use App\Models\User;
 test('new registration creates tenant and admin user', function () {
     $response = $this->post(route('register.store'), [
         'institution_name' => 'TPQ Nurul Huda',
+        'subdomain' => 'tpq-nurul-huda',
         'name' => 'Ustadz Ahmad',
         'email' => 'ahmad@example.com',
         'password' => 'password123',
         'password_confirmation' => 'password123',
     ]);
 
-    $response->assertRedirect(route('dashboard'));
+    $tenant = Tenant::where('name', 'TPQ Nurul Huda')->first();
+
+    $response->assertRedirect("http://{$tenant->subdomain}.santriq.test/login?registered=1");
 
     $this->assertDatabaseHas('tenants', [
         'name' => 'TPQ Nurul Huda',
+        'subdomain' => 'tpq-nurul-huda',
     ]);
-
-    $tenant = Tenant::where('name', 'TPQ Nurul Huda')->first();
 
     $this->assertDatabaseHas('users', [
         'email' => 'ahmad@example.com',
@@ -40,7 +42,7 @@ test('user from tenant A cannot see users from tenant B', function () {
     $adminA = User::factory()->create(['tenant_id' => $tenantA->id, 'role' => 'admin']);
     $userB = User::factory()->create(['tenant_id' => $tenantB->id]);
 
-    $response = $this->actingAs($adminA)->get(route('teachers.index'));
+    $response = $this->actingAsStaff($adminA)->get(route('teachers.index'));
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
@@ -60,7 +62,7 @@ test('foreign tenant ids are rejected on every request that accepts one', functi
     $foreignStudent = Student::factory()->create(['tenant_id' => $tenantB->id]);
     $foreignGuardian = Guardian::factory()->create(['tenant_id' => $tenantB->id]);
 
-    $this->actingAs($adminA)
+    $this->actingAsStaff($adminA)
         ->post(route('students.store'), [
             'nis' => '99999',
             'name' => 'Santri Uji',
@@ -70,14 +72,14 @@ test('foreign tenant ids are rejected on every request that accepts one', functi
         ])
         ->assertSessionHasErrors(['classroom_id', 'guardian_ids.0']);
 
-    $this->actingAs($adminA)
+    $this->actingAsStaff($adminA)
         ->post(route('guardians.store'), [
             'name' => 'Wali Uji',
             'student_ids' => [$foreignStudent->id],
         ])
         ->assertSessionHasErrors('student_ids.0');
 
-    $this->actingAs($adminA)
+    $this->actingAsStaff($adminA)
         ->post(route('achievements.store'), [
             'student_id' => $foreignStudent->id,
             'category' => 'Hafalan',
@@ -86,7 +88,7 @@ test('foreign tenant ids are rejected on every request that accepts one', functi
         ])
         ->assertSessionHasErrors('student_id');
 
-    $this->actingAs($adminA)
+    $this->actingAsStaff($adminA)
         ->post(route('invoices.store'), [
             'student_id' => $foreignStudent->id,
             'period' => '2026-07',
@@ -95,7 +97,7 @@ test('foreign tenant ids are rejected on every request that accepts one', functi
         ])
         ->assertSessionHasErrors('student_id');
 
-    $this->actingAs($adminA)
+    $this->actingAsStaff($adminA)
         ->post(route('leave-requests.store'), [
             'student_id' => $foreignStudent->id,
             'type' => 'sakit',

@@ -24,7 +24,7 @@ class TenantFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name).'-'.fake()->unique()->randomNumber(4),
+            'subdomain' => Str::slug($name).'-'.fake()->unique()->randomNumber(4),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
             'timezone' => 'Asia/Jakarta',

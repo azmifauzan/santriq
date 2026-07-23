@@ -1,0 +1,37 @@
+<?php
+
+use App\Models\Tenant;
+use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
+test('admin can update landing content', function () {
+    Storage::fake('public');
+
+    $tenant = Tenant::factory()->create();
+    $admin = $this->actingAsStaff(User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']));
+
+    $response = $admin->put(route('lembaga.update'), [
+        'tagline' => 'Belajar Al-Quran sejak dini',
+        'description' => 'Deskripsi lembaga.',
+        'operating_hours' => 'Senin-Jumat 15.00-17.00',
+        'accent_color' => '#059669',
+        'logo' => UploadedFile::fake()->image('logo.png'),
+        'gallery' => [UploadedFile::fake()->image('a.jpg'), UploadedFile::fake()->image('b.jpg')],
+    ]);
+
+    $response->assertRedirect(route('lembaga.edit'));
+
+    $tenant->refresh();
+    expect($tenant->settings['landing']['tagline'])->toBe('Belajar Al-Quran sejak dini');
+    expect($tenant->settings['landing']['gallery'])->toHaveCount(2);
+    Storage::disk('public')->assertExists($tenant->settings['landing']['logo_path']);
+});
+
+test('pengajar cannot update landing content', function () {
+    $tenant = Tenant::factory()->create();
+    $pengajar = $this->actingAsStaff(User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'pengajar']));
+
+    $pengajar->put(route('lembaga.update'), ['tagline' => 'Nope'])
+        ->assertForbidden();
+});

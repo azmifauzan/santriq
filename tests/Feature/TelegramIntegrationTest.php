@@ -63,7 +63,7 @@ test('attendance scan dispatches SendTelegramMessage job when guardian is linked
 
     $student->guardians()->attach($guardian->id, ['relation' => 'Ayah']);
 
-    $this->actingAs($admin)->postJson(route('attendance.scan'), [
+    $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
         'qr_token' => $student->qr_token,
     ])->assertOk();
 

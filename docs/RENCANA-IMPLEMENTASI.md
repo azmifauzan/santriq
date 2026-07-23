@@ -15,9 +15,10 @@ Domain produksi: **santriq.web.id**
 | 4 — Pencapaian & laporan | Selesai                                                                        |
 | 5 — SPP                  | Selesai                                                                        |
 | 6 — Perizinan mandiri    | Selesai                                                                        |
-| 7 — Rilis                | Sebagian: halaman publik selesai; tersisa backup, deploy, dan webhook produksi |
+| 7 — Rilis                | Sebagian: landing page & portal wali per subdomain selesai; tersisa backup, deploy, dan webhook produksi |
 
 Verifikasi: `composer ci:check` hijau (ESLint, Prettier, vue-tsc, Pint, PHPStan level 7, Pest). `php artisan migrate:fresh --seed` berjalan bersih dan menghasilkan 1 lembaga demo, 2 akun, 2 kelas, 10 santri — semuanya punya `qr_token`, semua wali punya `link_token`.
+Fitur landed pada 23 Juli 2026: Subdomain per-lembaga (`{subdomain}.santriq.web.id`), landing page publik lembaga, setting profil landing page admin, magic-link Telegram login wali tanpa password dengan guard `guardian`, portal wali (status kehadiran, prestasi, pengajuan izin). Rencana detail di `docs/2026-07-23-landing-wali-login-design.md` & `docs/superpowers/plans/2026-07-23-landing-wali-login.md`.
 
 Temuan yang sudah diperbaiki saat verifikasi:
 
@@ -40,7 +41,8 @@ Keputusan diambil sekali di depan supaya tidak diperdebatkan ulang tiap fase.
 | ------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Multi-tenancy      | Satu database, kolom `tenant_id` di setiap tabel milik lembaga + global scope Eloquent                            | Tanpa dependensi baru; cukup untuk skala TPA/TPQ. Database-per-tenant hanya jika terbukti perlu   |
 | Peran pengguna     | Kolom `role` (enum: `admin`, `pengajar`) pada `users` + Policy Laravel                                            | Paket permission penuh belum dibutuhkan untuk dua peran                                           |
-| Identitas wali     | Wali **bukan** user aplikasi; interaksi lewat Telegram + tautan publik bertanda tangan                            | Wali tidak perlu password; menurunkan beban dukungan                                              |
+| Identitas wali     | Wali **bukan** user aplikasi dengan password, tapi punya guard `guardian` sendiri — login lewat magic-link Telegram, sesi persisten | Portal bisa dibuka berulang tanpa kembali ke bot tiap kali, tetap tanpa beban dukungan password |
+| Lingkup subdomain | Setiap lembaga punya `{subdomain}.santriq.web.id`: landing publik, login staf, dashboard, dan portal wali semuanya di subdomain; domain utama murni marketing + registrasi | Branding konsisten per lembaga, dipilih eksplisit saat registrasi |
 | Payload QR         | ULID acak per santri disimpan di kolom `qr_token` (unik), bukan ID berurutan                                      | Tidak bisa ditebak, bisa dicabut per santri tanpa mengubah ID                                     |
 | Pemindai QR        | `BarcodeDetector` API bawaan browser, fallback pesan "gunakan Chrome/Android" bila tidak tersedia                 | Tanpa library JS tambahan; wajib HTTPS untuk akses kamera                                         |
 | Generate gambar QR | `bacon/bacon-qr-code` (SVG, dirender di server oleh `QrCodeService`), dideklarasikan eksplisit di `composer.json` | Tidak ada cara wajar membuat QR tanpa library; jangan bergantung pada instalasi transitif Fortify |
@@ -54,7 +56,9 @@ Keputusan diambil sekali di depan supaya tidak diperdebatkan ulang tiap fase.
 Semua tabel lembaga memakai `tenant_id` + index. Nama tabel Inggris, label UI Bahasa Indonesia.
 
 ```
-tenants          id, name, slug, address, phone, timezone, settings(json)
+tenants          id, name, subdomain, address, phone, timezone, settings(json)
+```
+Catatan: `settings.landing` menyimpan konten landing page per-lembaga (`tagline`, `description`, `logo_path`, `accent_color`, `operating_hours`, `gallery`).
 users            + tenant_id (nullable untuk super admin), role
 classrooms       tenant_id, name, level
 students         tenant_id, classroom_id, nis, name, gender, birth_date, qr_token, status

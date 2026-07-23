@@ -10,7 +10,7 @@ test('teacher or admin can manage achievements', function () {
     $teacher = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'pengajar']);
     $student = Student::factory()->create(['tenant_id' => $tenant->id]);
 
-    $this->actingAs($teacher)->post(route('achievements.store'), [
+    $this->actingAsStaff($teacher)->post(route('achievements.store'), [
         'student_id' => $student->id,
         'category' => 'Hafalan Qur\'an',
         'title' => 'Surah Al-Mulk 1-10',
@@ -39,7 +39,7 @@ test('reports calculates aggregate stats correctly', function () {
         'status' => 'hadir',
     ]);
 
-    $response = $this->actingAs($admin)->get(route('reports.index', [
+    $response = $this->actingAsStaff($admin)->get(route('reports.index', [
         'start_date' => now()->startOfMonth()->format('Y-m-d'),
         'end_date' => now()->endOfMonth()->format('Y-m-d'),
     ]));
@@ -56,7 +56,7 @@ test('reports csv export streams csv file', function () {
     $tenant = Tenant::factory()->create();
     $admin = User::factory()->create(['tenant_id' => $tenant->id]);
 
-    $response = $this->actingAs($admin)->get(route('reports.export-csv'));
+    $response = $this->actingAsStaff($admin)->get(route('reports.export-csv'));
     $response->assertOk();
     $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
 });

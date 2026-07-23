@@ -16,7 +16,7 @@ test('admin can batch generate invoices for active students', function () {
     $student1 = Student::factory()->create(['tenant_id' => $tenant->id]);
     $student2 = Student::factory()->create(['tenant_id' => $tenant->id]);
 
-    $response = $this->actingAs($admin)->post(route('invoices.batch'), [
+    $response = $this->actingAsStaff($admin)->post(route('invoices.batch'), [
         'period' => '2026-07',
         'amount' => 50000,
         'due_date' => '2026-07-31',
@@ -50,7 +50,7 @@ test('duplicate invoice for same student and period is rejected', function () {
         'period' => '2026-07',
     ]);
 
-    $response = $this->actingAs($admin)->post(route('invoices.store'), [
+    $response = $this->actingAsStaff($admin)->post(route('invoices.store'), [
         'student_id' => $student->id,
         'period' => '2026-07',
         'amount' => 50000,
@@ -76,7 +76,7 @@ test('admin can verify payment and change status to paid', function () {
         'status' => 'unpaid',
     ]);
 
-    $response = $this->actingAs($admin)->post(route('invoices.verify', $invoice), [
+    $response = $this->actingAsStaff($admin)->post(route('invoices.verify', $invoice), [
         'amount' => 50000,
         'method' => 'cash',
         'note' => 'Diterima tunai',

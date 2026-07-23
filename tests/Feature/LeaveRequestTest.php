@@ -13,7 +13,7 @@ test('admin can create leave request', function () {
     $admin = User::factory()->create(['tenant_id' => $tenant->id]);
     $student = Student::factory()->create(['tenant_id' => $tenant->id]);
 
-    $response = $this->actingAs($admin)->post(route('leave-requests.store'), [
+    $response = $this->actingAsStaff($admin)->post(route('leave-requests.store'), [
         'student_id' => $student->id,
         'type' => 'sakit',
         'start_date' => '2026-07-20',
@@ -49,7 +49,7 @@ test('approving leave request populates attendances for date range and notifies 
         'status' => 'pending',
     ]);
 
-    $response = $this->actingAs($admin)->put(route('leave-requests.review', $leaveRequest), [
+    $response = $this->actingAsStaff($admin)->put(route('leave-requests.review', $leaveRequest), [
         'status' => 'approved',
     ]);
 
@@ -91,7 +91,7 @@ test('rejecting leave request does not create attendance records', function () {
         'status' => 'pending',
     ]);
 
-    $response = $this->actingAs($admin)->put(route('leave-requests.review', $leaveRequest), [
+    $response = $this->actingAsStaff($admin)->put(route('leave-requests.review', $leaveRequest), [
         'status' => 'rejected',
     ]);
 

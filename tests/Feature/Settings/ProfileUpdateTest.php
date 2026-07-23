@@ -6,7 +6,7 @@ test('profile page is displayed', function () {
     $user = User::factory()->create();
 
     $response = $this
-        ->actingAs($user)
+        ->actingAsStaff($user)
         ->get(route('profile.edit'));
 
     $response->assertOk();
@@ -16,7 +16,7 @@ test('profile information can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this
-        ->actingAs($user)
+        ->actingAsStaff($user)
         ->patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -37,7 +37,7 @@ test('email verification status is unchanged when the email address is unchanged
     $user = User::factory()->create();
 
     $response = $this
-        ->actingAs($user)
+        ->actingAsStaff($user)
         ->patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => $user->email,
@@ -54,7 +54,7 @@ test('user can delete their account', function () {
     $user = User::factory()->create();
 
     $response = $this
-        ->actingAs($user)
+        ->actingAsStaff($user)
         ->delete(route('profile.destroy'), [
             'password' => 'password',
         ]);
@@ -71,7 +71,7 @@ test('correct password must be provided to delete account', function () {
     $user = User::factory()->create();
 
     $response = $this
-        ->actingAs($user)
+        ->actingAsStaff($user)
         ->from(route('profile.edit'))
         ->delete(route('profile.destroy'), [
             'password' => 'wrong-password',
