@@ -78,7 +78,7 @@ watch(subdomain, (value) => {
             </div>
 
             <div class="grid gap-2">
-                <Label for="subdomain">Alamat SantriQ Lembaga</Label>
+                <Label for="subdomain">Alamat Website Lembaga</Label>
                 <div class="flex items-center gap-2">
                     <Input
                         id="subdomain"

@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::domain(config('tenancy.domain'))->group(function () {
     Route::inertia('/', 'Welcome')->name('home');
+    Route::inertia('privacy', 'Legal', ['document' => 'privacy'])->name('privacy');
+    Route::inertia('terms', 'Legal', ['document' => 'terms'])->name('terms');
 
     Route::get('subdomain-availability', [TenantSubdomainAvailabilityController::class, 'check'])
         ->middleware('throttle:30,1')

@@ -13,10 +13,11 @@ import {
     ScanLine,
     ShieldCheck,
     Sparkles,
+    Star,
     Users,
 } from '@lucide/vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import { dashboard, login, register } from '@/routes';
+import { dashboard, login, privacy, register, terms } from '@/routes';
 
 const features = [
     {
@@ -131,6 +132,19 @@ const steps = [
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <a
+                        href="https://github.com/azmifauzan/santriq"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Beri bintang SantriQ di GitHub"
+                        class="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-700 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-emerald-400"
+                    >
+                        <Star
+                            class="size-4 text-amber-500"
+                            aria-hidden="true"
+                        />
+                        <span class="hidden lg:inline">GitHub</span>
+                    </a>
                     <ThemeToggle />
                     <Link
                         v-if="$page.props.auth.user"
@@ -656,7 +670,23 @@ const steps = [
                     </span>
                     <span class="font-bold">SantriQ</span>
                 </div>
-                <p>Platform manajemen TPA/TPQ gratis dan open source.</p>
+                <div class="flex flex-col gap-3 sm:items-end">
+                    <nav aria-label="Tautan legal" class="flex gap-5">
+                        <Link
+                            :href="privacy()"
+                            class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                        >
+                            Kebijakan Privasi
+                        </Link>
+                        <Link
+                            :href="terms()"
+                            class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                        >
+                            Syarat & Ketentuan
+                        </Link>
+                    </nav>
+                    <p>Platform manajemen TPA/TPQ gratis dan open source.</p>
+                </div>
             </div>
         </footer>
     </div>
