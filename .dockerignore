@@ -6,6 +6,7 @@ storage/framework/sessions/*
 storage/framework/views/*
 storage/logs/*
 bootstrap/cache/*.php
+public/hot
 database/database.sqlite
 .env
 .env.*
