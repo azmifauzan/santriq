@@ -15,10 +15,12 @@ Domain produksi: **santriq.web.id**
 | 4 — Pencapaian & laporan | Selesai                                                                        |
 | 5 — SPP                  | Selesai                                                                        |
 | 6 — Perizinan mandiri    | Selesai                                                                        |
-| 7 — Rilis                | Sebagian: landing page & portal wali per subdomain selesai; tersisa backup, deploy, dan webhook produksi |
+| 7 — Rilis                | Sebagian: landing page & portal wali per subdomain, deploy produksi (santriq.web.id, wildcard TLS), dan webhook Telegram produksi selesai; tersisa backup terjadwal dan impor CSV |
 
 Verifikasi: `composer ci:check` hijau (ESLint, Prettier, vue-tsc, Pint, PHPStan level 7, Pest). `php artisan migrate:fresh --seed` berjalan bersih dan menghasilkan 1 lembaga demo, 2 akun, 2 kelas, 10 santri — semuanya punya `qr_token`, semua wali punya `link_token`.
 Fitur landed pada 23 Juli 2026: Subdomain per-lembaga (`{subdomain}.santriq.web.id`), landing page publik lembaga, setting profil landing page admin, magic-link Telegram login wali tanpa password dengan guard `guardian`, portal wali (status kehadiran, prestasi, pengajuan izin). Rencana detail di `docs/2026-07-23-landing-wali-login-design.md` & `docs/superpowers/plans/2026-07-23-landing-wali-login.md`.
+
+Deploy produksi (23 Juli 2026): favicon diganti agar serupa mark landing page (emerald + graduation cap, ganti favicon.ico/svg/apple-touch-icon.png default Laravel), dan halaman error 403/404/419/429/500/503 kini dirender lewat `Inertia::handleExceptionsUsing` (`ErrorPage.vue`) alih-alih halaman default Laravel — aktif di semua environment kecuali `local`/`testing`. Prosedur redeploy lengkap di `docs/DEPLOY.md`.
 
 Temuan yang sudah diperbaiki saat verifikasi:
 
@@ -158,14 +160,15 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 
 **Test:** izin disetujui membuat baris kehadiran per hari dalam rentang; izin ditolak tidak mengubah kehadiran; perintah bot dengan tanggal salah tidak membuat pengajuan; wali dengan dua anak diminta menyebutkan NIS.
 
-### Fase 7 — Rilis — belum
+### Fase 7 — Rilis — sebagian
 
 1. ~~Rate limit endpoint publik~~ — sudah: `throttle:60,1` pada scan, `throttle:120,1` pada webhook, `throttle:6,1` pada ganti password.
 2. ~~Landing page publik, tampilan login/registrasi, dan tema terang/gelap responsif~~ — sudah.
-3. Backup database terjadwal + retensi.
-4. Deploy ke santriq.web.id: HTTPS (wajib untuk kamera), MySQL/PostgreSQL, queue worker sebagai daemon, scheduler cron.
-5. Set webhook Telegram ke domain produksi berikut `TELEGRAM_SECRET_TOKEN` (perintah `setWebhook` ada di README).
+3. Backup database terjadwal + retensi — belum.
+4. ~~Deploy ke santriq.web.id~~ — sudah (23 Juli 2026): image `azmifauzan/santriq` (PHP 8.5-apache, multi-stage build) lewat Docker Compose di server produksi, wildcard TLS `*.santriq.web.id` (certbot DNS-01 via Cloudflare), queue worker `database` jalan sebagai daemon lewat `supervisord`. Detail & prosedur redeploy di `docs/DEPLOY.md`. Scheduler cron belum relevan karena belum ada `Schedule::` yang didaftarkan di `routes/console.php`.
+5. ~~Set webhook Telegram ke domain produksi~~ — sudah, `TELEGRAM_SECRET_TOKEN` terpasang.
 6. ~~Seeder demo + dokumentasi self-hosting di README~~ — sudah.
+7. Impor CSV santri — belum (opsional, lihat Fase 1).
 
 ## 4. Konvensi Pengerjaan
 

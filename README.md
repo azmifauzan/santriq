@@ -17,7 +17,7 @@ Situs: [santriq.web.id](https://santriq.web.id) (rencana)
 - **SPP** — penerbitan tagihan per periode, verifikasi pembayaran, riwayat untuk wali.
 - **Perizinan mandiri** — wali mengajukan izin/sakit, admin menyetujui, status kehadiran tercatat otomatis.
 
-Semua fitur di atas sudah berjalan. Yang belum: wildcard DNS/TLS untuk `*.santriq.web.id` di produksi (jalan sementara lewat mode fallback path, lihat di bawah), backup terjadwal, pendaftaran webhook produksi, impor CSV santri, dan 2FA.
+Semua fitur di atas sudah berjalan, termasuk deploy produksi di santriq.web.id (wildcard TLS + webhook Telegram aktif — lihat [docs/DEPLOY.md](docs/DEPLOY.md) untuk prosedur redeploy). Yang belum: backup terjadwal, impor CSV santri, dan 2FA.
 
 Detail kebutuhan produk ada di [docs/SantriQ-PRD.md](docs/SantriQ-PRD.md). Status per fase dan keputusan arsitektur ada di [docs/RENCANA-IMPLEMENTASI.md](docs/RENCANA-IMPLEMENTASI.md).
 
