@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -10,6 +11,36 @@ test('login screen can be rendered', function () {
 
     $response->assertOk()
         ->assertInertia(fn (Assert $page) => $page->component('auth/Login'));
+});
+
+test('tenant login screen uses the configured tenant branding', function () {
+    $tenant = Tenant::factory()->create([
+        'name' => 'TPQ Baitul Ilmi',
+        'subdomain' => 'baitul-ilmi',
+        'settings' => [
+            'landing' => [
+                'tagline' => 'Mengaji, beradab, dan bertumbuh bersama.',
+                'description' => 'Tempat belajar Al-Qur\'an untuk generasi masa depan.',
+                'logo_path' => 'tenants/1/logo/logo.png',
+            ],
+        ],
+    ]);
+
+    $this->get("http://{$tenant->subdomain}.santriq.test/login")
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/Login')
+            ->where('tenantBrand.name', 'TPQ Baitul Ilmi')
+            ->where('tenantBrand.tagline', 'Mengaji, beradab, dan bertumbuh bersama.')
+            ->where('tenantBrand.description', 'Tempat belajar Al-Qur\'an untuk generasi masa depan.')
+            ->where('tenantBrand.logo_path', 'tenants/1/logo/logo.png')
+        );
+
+    $layout = file_get_contents(resource_path('js/layouts/auth/AuthSimpleLayout.vue'));
+
+    expect($layout)
+        ->toContain('Powered by')
+        ->toContain(':href="home.url()"');
 });
 
 test('users can authenticate using the login screen', function () {

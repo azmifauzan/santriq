@@ -49,6 +49,7 @@ test('tenant landing links back to the SantriQ platform', function () {
 
     expect($component)
         ->toContain("import { home, login } from '@/routes';")
-        ->toContain(':href="home()"')
-        ->toContain('Tentang platform SantriQ');
+        ->and(substr_count($component, ':href="home.url()"'))->toBe(2)
+        ->and($component)->not->toContain(':href="home()"')
+        ->toContain('Powered by SantriQ');
 });

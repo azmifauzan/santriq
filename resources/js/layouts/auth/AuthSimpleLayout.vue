@@ -1,8 +1,20 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { Check, GraduationCap, QrCode } from '@lucide/vue';
+import { computed } from 'vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { home } from '@/routes';
+import { landing } from '@/routes/tenant';
+
+interface TenantBrand {
+    name: string;
+    logo_path: string | null;
+    tagline: string;
+    description: string;
+}
+
+const page = usePage<{ tenantBrand?: TenantBrand | null }>();
+const tenantBrand = computed(() => page.props.tenantBrand ?? null);
 
 defineProps<{
     title?: string;
@@ -25,7 +37,27 @@ defineProps<{
             />
 
             <Link
-                :href="home()"
+                v-if="tenantBrand"
+                :href="landing()"
+                class="relative z-10 flex w-fit items-center gap-3 text-xl font-bold tracking-tight"
+            >
+                <img
+                    v-if="tenantBrand.logo_path"
+                    :src="`/storage/${tenantBrand.logo_path}`"
+                    :alt="`Logo ${tenantBrand.name}`"
+                    class="size-10 rounded-xl object-cover shadow-lg shadow-emerald-950/30"
+                />
+                <span
+                    v-else
+                    class="flex size-10 items-center justify-center rounded-xl bg-emerald-500 shadow-lg shadow-emerald-950/30"
+                >
+                    <GraduationCap class="size-5" aria-hidden="true" />
+                </span>
+                {{ tenantBrand.name }}
+            </Link>
+            <a
+                v-else
+                :href="home.url()"
                 class="relative z-10 flex w-fit items-center gap-3 text-xl font-bold tracking-tight"
             >
                 <span
@@ -34,7 +66,7 @@ defineProps<{
                     <GraduationCap class="size-5" aria-hidden="true" />
                 </span>
                 Santri<span class="-ml-3 text-emerald-400">Q</span>
-            </Link>
+            </a>
 
             <div class="relative z-10 max-w-lg">
                 <span
@@ -45,11 +77,16 @@ defineProps<{
                 <h2
                     class="mt-7 text-4xl leading-tight font-bold tracking-tight"
                 >
-                    Kelola santri lebih mudah, dampingi lebih dekat.
+                    {{
+                        tenantBrand?.tagline ??
+                        'Kelola santri lebih mudah, dampingi lebih dekat.'
+                    }}
                 </h2>
                 <p class="mt-5 max-w-md leading-7 text-emerald-100/70">
-                    Semua kebutuhan administrasi TPA/TPQ dalam satu platform
-                    yang sederhana dan aman.
+                    {{
+                        tenantBrand?.description ??
+                        'Semua kebutuhan administrasi TPA/TPQ dalam satu platform yang sederhana dan aman.'
+                    }}
                 </p>
                 <div
                     class="mt-8 flex flex-col gap-3 text-sm text-emerald-50/85"
@@ -59,21 +96,32 @@ defineProps<{
                             class="size-4 text-emerald-300"
                             aria-hidden="true"
                         />
-                        Absensi QR dan notifikasi Telegram
+                        {{
+                            tenantBrand
+                                ? `Portal staf resmi ${tenantBrand.name}`
+                                : 'Absensi QR dan notifikasi Telegram'
+                        }}
                     </span>
                     <span class="flex items-center gap-2.5">
                         <Check
                             class="size-4 text-emerald-300"
                             aria-hidden="true"
                         />
-                        Gratis dan open source
+                        {{
+                            tenantBrand
+                                ? 'Pengelolaan data aman bersama SantriQ'
+                                : 'Gratis dan open source'
+                        }}
                     </span>
                 </div>
             </div>
 
-            <p class="relative z-10 text-xs text-emerald-100/50">
-                Platform manajemen TPA/TPQ Indonesia
-            </p>
+            <a
+                :href="home.url()"
+                class="relative z-10 w-fit text-xs text-emerald-100/60 transition hover:text-emerald-100 hover:underline"
+            >
+                Powered by SantriQ
+            </a>
         </aside>
 
         <main
@@ -85,7 +133,27 @@ defineProps<{
 
             <div class="w-full max-w-md">
                 <Link
-                    :href="home()"
+                    v-if="tenantBrand"
+                    :href="landing()"
+                    class="mb-10 flex w-fit items-center gap-2.5 text-xl font-bold tracking-tight lg:hidden"
+                >
+                    <img
+                        v-if="tenantBrand.logo_path"
+                        :src="`/storage/${tenantBrand.logo_path}`"
+                        :alt="`Logo ${tenantBrand.name}`"
+                        class="size-9 rounded-xl object-cover"
+                    />
+                    <span
+                        v-else
+                        class="flex size-9 items-center justify-center rounded-xl bg-emerald-600 text-white"
+                    >
+                        <GraduationCap class="size-5" aria-hidden="true" />
+                    </span>
+                    {{ tenantBrand.name }}
+                </Link>
+                <a
+                    v-else
+                    :href="home.url()"
                     class="mb-10 flex w-fit items-center gap-2.5 text-xl font-bold tracking-tight lg:hidden"
                 >
                     <span
@@ -94,21 +162,35 @@ defineProps<{
                         <GraduationCap class="size-5" aria-hidden="true" />
                     </span>
                     Santri<span class="-ml-2.5 text-emerald-600">Q</span>
-                </Link>
+                </a>
 
                 <div class="mb-8">
                     <h1 class="text-3xl font-bold tracking-tight" v-if="title">
-                        {{ title }}
+                        {{
+                            tenantBrand ? `Masuk ke ${tenantBrand.name}` : title
+                        }}
                     </h1>
                     <p
                         class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400"
                         v-if="description"
                     >
-                        {{ description }}
+                        {{ tenantBrand?.tagline ?? description }}
                     </p>
                 </div>
 
                 <slot />
+
+                <p
+                    class="mt-8 text-center text-xs text-slate-400 lg:hidden dark:text-slate-500"
+                >
+                    Powered by
+                    <a
+                        :href="home.url()"
+                        class="font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                    >
+                        SantriQ
+                    </a>
+                </p>
             </div>
         </main>
     </div>

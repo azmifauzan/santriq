@@ -106,12 +106,12 @@ const services = [
                         >
                             {{ tenant.name }}
                         </a>
-                        <Link
-                            :href="home()"
+                        <a
+                            :href="home.url()"
                             class="block text-[10px] font-semibold tracking-widest text-emerald-700 uppercase dark:text-emerald-400"
                         >
                             Didukung SantriQ
-                        </Link>
+                        </a>
                     </span>
                 </div>
 
@@ -591,12 +591,12 @@ const services = [
                     </span>
                     <div>
                         <p class="font-bold">{{ tenant.name }}</p>
-                        <Link
-                            :href="home()"
+                        <a
+                            :href="home.url()"
                             class="text-xs text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
                         >
-                            Tentang platform SantriQ →
-                        </Link>
+                            Powered by SantriQ
+                        </a>
                     </div>
                 </div>
                 <div class="flex items-center gap-4 sm:text-right">

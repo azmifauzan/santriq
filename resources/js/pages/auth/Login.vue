@@ -26,6 +26,7 @@ defineOptions({
 defineProps<{
     status?: string;
     canResetPassword: boolean;
+    tenantBrand?: Record<string, unknown> | null;
 }>();
 
 const page = usePage<{

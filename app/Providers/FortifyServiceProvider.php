@@ -8,6 +8,7 @@ use App\Http\Responses\LoginResponse;
 use App\Http\Responses\RegisterResponse;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Support\CurrentTenant;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -78,10 +79,21 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/Login', [
-            'canResetPassword' => Features::enabled(Features::resetPasswords()),
-            'status' => $request->session()->get('status'),
-        ]));
+        Fortify::loginView(function (Request $request) {
+            $tenant = CurrentTenant::resolved() ? CurrentTenant::get() : null;
+            $landing = $tenant?->settings['landing'] ?? [];
+
+            return Inertia::render('auth/Login', [
+                'canResetPassword' => Features::enabled(Features::resetPasswords()),
+                'status' => $request->session()->get('status'),
+                'tenantBrand' => $tenant ? [
+                    'name' => $tenant->name,
+                    'logo_path' => $landing['logo_path'] ?? null,
+                    'tagline' => $landing['tagline'] ?? 'Tumbuh dalam ilmu, dekat dalam kebersamaan.',
+                    'description' => $landing['description'] ?? "{$tenant->name} mendampingi santri belajar Al-Qur'an, bertumbuh dalam adab, dan berkembang bersama.",
+                ] : null,
+            ]);
+        });
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/ResetPassword', [
             'email' => $request->email,
