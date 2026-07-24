@@ -4,7 +4,7 @@ Dokumen kerja untuk mengubah [SantriQ-PRD.md](SantriQ-PRD.md) menjadi urutan pen
 
 Domain produksi: **santriq.web.id**
 
-## 0. Status (diverifikasi 22 Juli 2026)
+## 0. Status (diverifikasi 24 Juli 2026)
 
 | Fase                     | Status                                                                         |
 | ------------------------ | ------------------------------------------------------------------------------ |
@@ -21,6 +21,12 @@ Verifikasi: `composer ci:check` hijau (ESLint, Prettier, vue-tsc, Pint, PHPStan 
 Fitur landed pada 23 Juli 2026: Subdomain per-lembaga (`{subdomain}.santriq.web.id`), landing page publik lembaga, setting profil landing page admin, magic-link Telegram login wali tanpa password dengan guard `guardian`, portal wali (status kehadiran, prestasi, pengajuan izin). Rencana detail di `docs/2026-07-23-landing-wali-login-design.md` & `docs/superpowers/plans/2026-07-23-landing-wali-login.md`.
 
 Deploy produksi (23 Juli 2026): favicon diganti agar serupa mark landing page (emerald + graduation cap, ganti favicon.ico/svg/apple-touch-icon.png default Laravel), dan halaman error 403/404/419/429/500/503 kini dirender lewat `Inertia::handleExceptionsUsing` (`ErrorPage.vue`) alih-alih halaman default Laravel — aktif di semua environment kecuali `local`/`testing`. Prosedur redeploy lengkap di `docs/DEPLOY.md`.
+
+Tenant demo publik (23 Juli 2026): subdomain `demo` (`App\Support\DemoTenant`) berisi data contoh yang bisa dijajal tanpa registrasi. Halaman masuk staf menampilkan kredensial demo (`admin@santriq.test` / `pengajar@santriq.test`, lihat `FortifyServiceProvider::loginView`) hanya saat `DemoTenant::isActive()`; portal wali punya tombol "Masuk sebagai wali demo" (`GuardianAuthController::loginDemo`) yang login otomatis ke wali contoh pertama tanpa lewat alur Telegram. Perintah `php artisan demo:reset` menghapus lalu menabur ulang santri/kelas/wali tenant ini lewat `DemoDataSeeder`, dijadwalkan tiap jam lewat `Schedule::command(ResetDemoTenant::class)->hourly()` di `routes/console.php` — dieksekusi produksi oleh proses `schedule:work` di `docker/supervisord.conf` (lihat § Fase 7 dan `docs/DEPLOY.md`).
+
+Onboarding admin pertama kali (24 Juli 2026): admin yang baru registrasi (manual maupun Google) diarahkan ke wizard dua langkah (`Onboarding.vue`) sebelum menyentuh dashboard — isi info lembaga (alamat, telepon) dan konten landing page (tagline, deskripsi, jam operasional, warna aksen, logo, galeri), atau lewati. Gate memakai kolom `users.onboarded_at` (nullable timestamp, bukan flag sesi) lewat middleware baru `EnsureOnboardingComplete` yang dipasang setelah `auth`+`verified` di `routes/tenant.php`; `onboarded_at` diisi otomatis untuk pengajar yang dibuatkan admin (`TeacherController::store`, mereka tidak pernah melihat wizard ini) dan untuk backfill user lama. Detail: `docs/superpowers/specs/2026-07-24-onboarding-design.md`.
+
+Panel Super Admin (24 Juli 2026): kapabilitas lintas-tenant lewat kolom `users.is_super_admin` (boolean, terpisah dari `role` — super admin tetap admin/pengajar biasa di lembaganya sendiri). `SuperAdminController` (`/super-admin` di domain utama, digerbang `TenantPolicy` lewat `Gate::authorize`, pola sama `TeacherController`) menampilkan daftar seluruh lembaga dengan jumlah santri/pengajar/wali, detail per lembaga, dan tombol suspend/aktifkan (`tenants.suspended_at`, nullable timestamp). Lembaga yang disuspend langsung 403 di seluruh rute subdomainnya — ditegakkan sekali di `ResolveTenantFromDomain` (middleware global), bukan per-controller. Sidebar tenant menampilkan tautan "Panel Super Admin" (lintas domain, `<a>` biasa bukan Inertia `<Link>`) hanya untuk user dengan `is_super_admin=true`, lewat prop `superAdminUrl` yang dibagikan `HandleInertiaRequests`. Belum ada UI untuk memberi/mencabut status super admin — sengaja manual lewat `tinker` (lihat `docs/superpowers/specs/2026-07-24-super-admin-design.md`), supaya kapabilitas sensitif ini tidak self-serve tanpa audit trail.
 
 Login & registrasi dengan Google (23 Juli 2026, disempurnakan 24 Juli 2026): tombol "Masuk/Daftar dengan Google" di atas form `auth/Login.vue`/`auth/Register.vue`, lewat `laravel/socialite`. `GoogleAuthController` (`auth/google/redirect`, `auth/google/callback`) selalu ada di domain utama karena `GOOGLE_REDIRECT_URI` tetap (satu redirect URI terdaftar di Google Cloud Console, tidak bisa per-subdomain) — konteks tenant/intent dibawa lewat `state` yang ditandatangani (`App\Support\GoogleOAuthToken`), bukan session, karena `SESSION_DOMAIN` kosong (cookie tidak lintas subdomain↔domain utama). Registrasi via Google tetap mengharuskan mengisi `institution_name`/`subdomain` (institusi baru butuh itu, Google cuma memberi identitas) — `CreateNewUser` menerima `google_token` sebagai pengganti password dan **selalu memakai email dari token, bukan dari form** (mencegah token Google milik penyerang dipasangkan dengan email korban); nama tetap bisa diedit user karena hanya label tampilan, bukan klaim identitas. Login via Google mencocokkan berdasarkan email (unik global) + `tenant_id` cocok dengan subdomain saat ini; auto-link `google_id` ke akun password yang sudah ada hanya jika Google melaporkan `email_verified=true`. Kalau subdomain kosong (login dari domain utama) atau lembaga tidak ditemukan, `handleLogin` mencoba mencocokkan `google_id` lintas tenant dulu (login pusat) sebelum jatuh ke `handleRegister` — form registrasi tampil dengan email/nama sudah terisi dari identitas Google. **Prasyarat operasional**: redirect URI produksi (`https://santriq.web.id/auth/google/callback`) harus terdaftar di Google Cloud Console sebelum fitur ini jalan di domain produksi — kalau belum, Google akan menolak dengan `redirect_uri_mismatch`.
 
@@ -59,16 +65,19 @@ Keputusan diambil sekali di depan supaya tidak diperdebatkan ulang tiap fase.
 | Retry notifikasi   | Queue `database` + `$tries`/`backoff` pada job, log status kirim di tabel `telegram_messages`                     | Memenuhi syarat retry di PRD tanpa infrastruktur tambahan                                         |
 | Timezone           | Disimpan UTC, ditampilkan sesuai `tenants.timezone`                                                               | Lembaga tersebar di WIB/WITA/WIT                                                                  |
 | Tema antarmuka     | Terang/gelap memakai class `dark`; default `prefers-color-scheme`, pilihan disimpan di browser                    | Mengikuti sistem tanpa dependensi atau pengaturan akun tambahan                                   |
+| Super admin        | Kolom `users.is_super_admin` (boolean), terpisah dari `role` per-tenant — bukan `tenant_id` nullable            | Super admin tetap admin/pengajar biasa di lembaganya sendiri, plus kapabilitas lintas-tenant; menghindari kasus khusus "user tanpa tenant" di kode yang sudah asumsi `tenant_id` selalu ada |
+| Suspend lembaga    | `tenants.suspended_at` (nullable timestamp), ditegakkan sekali di `ResolveTenantFromDomain`                       | Satu titik penegakan untuk seluruh rute subdomain (staf, wali, landing) tanpa flag per-controller |
+| Onboarding admin   | Gate via `users.onboarded_at` (nullable timestamp, persisten), bukan flag sesi                                   | Bertahan lintas sesi/perangkat; admin yang belum lengkapi profil lembaga tetap diarahkan ulang lain kali login |
 
 ## 2. Model Data
 
 Semua tabel lembaga memakai `tenant_id` + index. Nama tabel Inggris, label UI Bahasa Indonesia.
 
 ```
-tenants          id, name, subdomain, address, phone, timezone, settings(json)
+tenants          id, name, subdomain, address, phone, timezone, settings(json), suspended_at
 ```
 Catatan: `settings.landing` menyimpan konten landing page per-lembaga (`tagline`, `description`, `logo_path`, `accent_color`, `operating_hours`, `gallery`).
-users            + tenant_id (nullable untuk super admin), role
+users            + tenant_id, role, is_super_admin, onboarded_at
 classrooms       tenant_id, name, level
 students         tenant_id, classroom_id, nis, name, gender, birth_date, qr_token, status
 guardians        tenant_id, name, phone, telegram_chat_id, link_token, linked_at
@@ -169,18 +178,20 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 
 1. ~~Rate limit endpoint publik~~ — sudah: `throttle:60,1` pada scan, `throttle:120,1` pada webhook, `throttle:6,1` pada ganti password.
 2. ~~Landing page publik, tampilan login/registrasi, dan tema terang/gelap responsif~~ — sudah.
-3. Backup database terjadwal + retensi — belum.
-4. ~~Deploy ke santriq.web.id~~ — sudah (23 Juli 2026): image `azmifauzan/santriq` (PHP 8.5-apache, multi-stage build) lewat Docker Compose di server produksi, wildcard TLS `*.santriq.web.id` (certbot DNS-01 via Cloudflare), queue worker `database` jalan sebagai daemon lewat `supervisord`. Detail & prosedur redeploy di `docs/DEPLOY.md`. Scheduler cron belum relevan karena belum ada `Schedule::` yang didaftarkan di `routes/console.php`.
+3. Backup database terjadwal + retensi — belum, lihat § Backup di `docs/DEPLOY.md`.
+4. ~~Deploy ke santriq.web.id~~ — sudah (23 Juli 2026): image `azmifauzan/santriq` (PHP 8.5-apache, multi-stage build) lewat Docker Compose di server produksi, wildcard TLS `*.santriq.web.id` (certbot DNS-01 via Cloudflare), queue worker `database` dan scheduler (`schedule:work`, dipakai untuk reset tenant demo tiap jam) jalan sebagai daemon lewat `supervisord`. Detail & prosedur redeploy di `docs/DEPLOY.md`.
 5. ~~Set webhook Telegram ke domain produksi~~ — sudah, `TELEGRAM_SECRET_TOKEN` terpasang.
-6. ~~Seeder demo + dokumentasi self-hosting di README~~ — sudah.
-7. Impor CSV santri — belum (opsional, lihat Fase 1).
+6. ~~Seeder demo + dokumentasi self-hosting di README~~ — sudah. Tenant demo publik (subdomain `demo`, reset otomatis tiap jam) ditambahkan 23 Juli 2026, lihat § 0.
+7. ~~Onboarding admin pertama kali~~ — sudah (24 Juli 2026), lihat § 0.
+8. ~~Panel super admin (lintas-tenant: list lembaga, suspend/aktifkan)~~ — sudah (24 Juli 2026), lihat § 0. Provisioning super admin pertama masih manual lewat `tinker`, sengaja belum ada UI.
+9. Impor CSV santri — belum (opsional, lihat Fase 1).
 
 ## 4. Konvensi Pengerjaan
 
 - Setiap perubahan disertai test Pest; jalankan `php artisan test --compact --filter=...` untuk iterasi cepat.
 - Route frontend memakai fungsi Wayfinder (`@/routes`, `@/actions`), bukan URL hardcode.
 - Validasi di Form Request, otorisasi di Policy — bukan di controller.
-- Query lintas tenant hanya lewat scope; jangan pernah `withoutGlobalScopes()` di jalur permintaan pengguna. Webhook Telegram berjalan tanpa sesi login sehingga scope tidak aktif — di sana `tenant_id` diambil dari data santri/wali yang bersangkutan, bukan dari user.
+- Query lintas tenant hanya lewat scope; jangan pernah `withoutGlobalScopes()` di jalur permintaan pengguna biasa. Webhook Telegram berjalan tanpa sesi login sehingga scope tidak aktif — di sana `tenant_id` diambil dari data santri/wali yang bersangkutan, bukan dari user. Satu-satunya jalur permintaan pengguna yang sengaja memakai `withoutGlobalScopes()` adalah `SuperAdminController` (dijaga `TenantPolicy`, lihat § 0) — global scope `BelongsToTenant` mengikuti `tenant_id` user yang login, dan super admin tetap terikat ke lembaganya sendiri, jadi tanpa ini hitungan santri/wali di panel lintas-lembaga akan salah (ter-filter ke lembaganya sendiri).
 - Jangan menambah dependensi tanpa persetujuan (kecuali library QR yang sudah dicatat di atas).
 
 ## 5. Yang Sengaja Ditunda
@@ -194,3 +205,5 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 | Kanal notifikasi selain Telegram (WA)                                                                               | Data menunjukkan banyak wali tidak memakai Telegram                        |
 | SSR Inertia                                                                                                         | SEO halaman publik jadi kebutuhan nyata                                    |
 | 2FA (scaffolding Fortify sudah ada, `Features::twoFactorAuthentication()` belum diaktifkan di `config/fortify.php`) | Akun admin lembaga memegang data banyak santri dan butuh proteksi tambahan |
+| UI untuk memberi/mencabut status super admin (`users.is_super_admin`)                                              | Lebih dari satu orang perlu mengelola lembaga di platform dan butuh audit trail siapa memberi akses ke siapa |
+| Impersonate/login-as lembaga dari panel super admin                                                                | Dukungan/debugging lintas lembaga jadi kebutuhan rutin, bukan sesekali |

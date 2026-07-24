@@ -7,6 +7,7 @@ Situs: [santriq.web.id](https://santriq.web.id) (rencana)
 ## Fitur
 
 - **Landing page per lembaga** — tiap lembaga punya subdomain sendiri (`{subdomain}.santriq.web.id`) dengan landing page publik yang kontennya (tagline, deskripsi, logo, galeri, jam operasional, warna aksen) bisa diubah admin lewat `settings/lembaga`.
+- **Onboarding admin** — admin yang baru registrasi diarahkan ke wizard dua langkah (info lembaga + konten landing page) sebelum masuk dashboard, bisa dilewati.
 - **Portal wali** — wali santri masuk tanpa password lewat tautan magic-link yang dikirim ke Telegram (`/wali/masuk`), lalu memantau kehadiran, pencapaian, dan mengajukan izin dari portal web (`/wali/portal`).
 - **Multi-tenant** — satu instance melayani banyak lembaga, data antar lembaga terisolasi.
 - **Manajemen santri** — data santri, kelas/jenjang, data wali, generate & cetak kartu QR.
@@ -16,6 +17,9 @@ Situs: [santriq.web.id](https://santriq.web.id) (rencana)
 - **Laporan** — rekap kehadiran dan pencapaian per santri maupun per lembaga.
 - **SPP** — penerbitan tagihan per periode, verifikasi pembayaran, riwayat untuk wali.
 - **Perizinan mandiri** — wali mengajukan izin/sakit, admin menyetujui, status kehadiran tercatat otomatis.
+- **Panel super admin** — pengelola platform memantau seluruh lembaga terdaftar (jumlah santri/pengajar/wali) dan bisa menonaktifkan lembaga bermasalah dari `/super-admin` di domain utama.
+- **Login/registrasi dengan Google** — alternatif form email/password lewat `laravel/socialite`.
+- **Tenant demo publik** — subdomain `demo.santriq.web.id` bisa dijajal tanpa registrasi (kredensial demo tampil otomatis di halaman masuk), data direset ulang tiap jam.
 
 Semua fitur di atas sudah berjalan, termasuk deploy produksi di santriq.web.id (wildcard TLS + webhook Telegram aktif — lihat [docs/DEPLOY.md](docs/DEPLOY.md) untuk prosedur redeploy). Yang belum: backup terjadwal, impor CSV santri, dan 2FA.
 
@@ -129,9 +133,12 @@ composer ci:check      # rangkaian pengecekan penuh (jalankan manual sebelum pus
 ```
 app/Concerns/BelongsToTenant.php   Global scope + auto-isi tenant_id
 app/Http/Controllers/              Controller domain (santri, absensi, SPP, dst.)
-app/Http/Middleware/ResolveTenantFromDomain.php   Resolusi tenant dari subdomain/path
+app/Http/Controllers/SuperAdminController.php     Panel lintas-tenant (list, detail, suspend lembaga)
+app/Http/Controllers/OnboardingController.php     Wizard onboarding admin pertama kali
+app/Http/Middleware/ResolveTenantFromDomain.php   Resolusi tenant dari subdomain/path + gerbang suspend
 app/Support/CurrentTenant.php      Akses tenant hasil resolusi request saat ini
-app/Policies/                      Otorisasi admin vs pengajar per model
+app/Support/DemoTenant.php         Deteksi & konstanta subdomain tenant demo publik
+app/Policies/                      Otorisasi admin vs pengajar per model, TenantPolicy untuk super admin
 app/Jobs/SendTelegramMessage.php   Pengiriman Telegram (queued, retry, outbox)
 app/Services/QrCodeService.php     Render QR SVG untuk kartu santri
 resources/js/pages/                Halaman Inertia (Vue)

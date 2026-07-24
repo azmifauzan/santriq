@@ -24,6 +24,7 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 | Admin Lembaga   | Pengurus TPA/TPQ; mengelola data santri dan pengaturan lembaga                |
 | Pengajar/Ustadz | Mencatat pencapaian/prestasi santri                                           |
 | Wali Santri     | Menerima notifikasi kehadiran & melihat laporan prestasi anaknya via Telegram |
+| Super Admin (Platform) | Pengelola platform SantriQ; memantau seluruh lembaga terdaftar dan dapat menonaktifkan lembaga bermasalah — bukan pengurus satu lembaga tertentu |
 
 ## 4. Ruang Lingkup
 
@@ -39,6 +40,7 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 - Laporan kehadiran & pencapaian yang dapat diakses wali santri
 - Modul pembayaran/SPP
 - Modul perizinan mandiri (sakit/izin)
+- Panel super admin untuk memantau dan menonaktifkan lembaga bermasalah
 - Tema terang dan gelap dengan pilihan awal mengikuti sistem pengguna
 
 ## 5. Functional Requirements
@@ -47,6 +49,7 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 
 - Registrasi lembaga baru dengan data profil lembaga
 - Admin lembaga dapat menambahkan pengajar
+- Admin yang baru registrasi diarahkan ke wizard onboarding singkat (info lembaga + konten landing page) sebelum masuk dashboard, bisa dilewati
 
 ### 5.2 Manajemen Santri
 
@@ -92,7 +95,13 @@ Lembaga TPA/TPQ pada umumnya masih mencatat kehadiran santri secara manual, sehi
 - Status kehadiran santri otomatis tercatat sesuai izin yang disetujui
 - Notifikasi Telegram ke wali santri saat pengajuan izin disetujui/ditolak
 
-### 5.9 Halaman Publik & Autentikasi
+### 5.9 Manajemen Platform (Super Admin)
+
+- Super admin melihat daftar seluruh lembaga terdaftar beserta jumlah santri, pengajar, dan wali santri masing-masing
+- Super admin dapat melihat detail satu lembaga
+- Super admin dapat menonaktifkan (suspend) dan mengaktifkan kembali sebuah lembaga; lembaga nonaktif tidak bisa diakses sama sekali oleh staf maupun wali santrinya
+
+### 5.10 Halaman Publik & Autentikasi
 
 - Landing page menjelaskan manfaat, fitur utama, cara kerja, dan ajakan registrasi
 - Halaman masuk dan registrasi memakai identitas visual yang konsisten dengan landing page

@@ -11,7 +11,7 @@ Server ini melayani beberapa aplikasi sekaligus lewat satu reverse proxy bersama
 - **redis** (`redis:8-alpine`, satu instance untuk semua aplikasi) — dipakai bersama, password sama untuk semua (lihat `/home/docker/redis/.env` di server).
 - Aplikasi SantriQ sendiri hidup di `/home/ubuntu/santriq` (image `azmifauzan/santriq` dari Docker Hub, dibangun dari `Dockerfile` di root repo ini) dan terhubung ke tiga network Docker: `santriq` (dipakai bareng nginx), `postgres`, `redis` (masing-masing `external: true`, sudah ada di server).
 
-Queue Telegram (`database` driver, sesuai keputusan arsitektur di `docs/RENCANA-IMPLEMENTASI.md`) dan Apache jalan dalam satu container lewat `supervisord` (lihat `docker/supervisord.conf`).
+Queue Telegram (`database` driver, sesuai keputusan arsitektur di `docs/RENCANA-IMPLEMENTASI.md`), Apache, dan scheduler Laravel (`schedule:work` — saat ini cuma dipakai untuk `demo:reset` tiap jam, lihat `routes/console.php`) jalan dalam satu container lewat `supervisord` (lihat `docker/supervisord.conf`).
 
 ## Redeploy setelah ada perubahan kode
 
@@ -130,6 +130,16 @@ sudo docker compose up -d
 ```
 
 Migrasi database **tidak otomatis di-rollback** — kalau versi baru menambah migrasi yang perlu dibatalkan, jalankan `php artisan migrate:rollback` manual sebelum downgrade image.
+
+## Super admin
+
+Tidak ada UI untuk memberi status super admin (sengaja, lihat `docs/RENCANA-IMPLEMENTASI.md` § 5). Beri lewat tinker di container produksi:
+
+```bash
+sudo docker exec santriq-app php artisan tinker --execute 'App\Models\User::where("email", "you@example.com")->update(["is_super_admin" => true]);'
+```
+
+Panel ada di `https://santriq.web.id/super-admin` (domain utama, bukan subdomain lembaga).
 
 ## Backup
 

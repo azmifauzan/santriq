@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout.vue';
@@ -12,7 +12,7 @@ type TenantDetail = Tenant & {
     guardians_count: number;
 };
 
-defineProps<{
+const props = defineProps<{
     tenant: TenantDetail;
     staff: User[];
 }>();
@@ -20,6 +20,16 @@ defineProps<{
 defineOptions({
     layout: SuperAdminLayout,
 });
+
+function toggleTenant() {
+    const question = props.tenant.suspended_at
+        ? `Aktifkan kembali lembaga ${props.tenant.name}?`
+        : `Suspend lembaga ${props.tenant.name}? Lembaga ini tidak akan bisa diakses sama sekali sampai diaktifkan kembali.`;
+
+    if (confirm(question)) {
+        router.patch(toggleStatus(props.tenant.id).url);
+    }
+}
 </script>
 
 <template>
@@ -42,16 +52,12 @@ defineOptions({
                 </p>
             </div>
             <Button
-                as-child
                 :variant="tenant.suspended_at ? 'default' : 'destructive'"
+                @click="toggleTenant"
             >
-                <Link :href="toggleStatus(tenant.id)" method="patch">
-                    {{
-                        tenant.suspended_at
-                            ? 'Aktifkan Lembaga'
-                            : 'Suspend Lembaga'
-                    }}
-                </Link>
+                {{
+                    tenant.suspended_at ? 'Aktifkan Lembaga' : 'Suspend Lembaga'
+                }}
             </Button>
         </div>
 

@@ -216,9 +216,9 @@ Inti produk: absensi santri via pemindaian QR, notifikasi kehadiran realtime ke 
 - PRD: `docs/SantriQ-PRD.md`
 - Rencana implementasi & keputusan arsitektur: `docs/RENCANA-IMPLEMENTASI.md` — baca sebelum menambah fitur baru.
 
-Fase 0–6 rencana implementasi sudah jalan (tenant, master data, absensi QR, Telegram, prestasi & laporan, SPP, perizinan). Sisa: penerapan produksi (backup, deploy, webhook), impor CSV santri, 2FA.
+Fase 0–7 rencana implementasi sudah jalan (tenant, master data, absensi QR, Telegram, prestasi & laporan, SPP, perizinan, deploy produksi), plus onboarding admin, tenant demo publik, dan panel super admin. Sisa: backup database terjadwal, impor CSV santri, 2FA.
 
-Peta kode: `app/Concerns/BelongsToTenant.php` (global scope tenant), `app/Policies/` (admin vs pengajar), `app/Jobs/SendTelegramMessage.php` (queued + outbox `telegram_messages`), `app/Services/QrCodeService.php` (SVG kartu santri), `app/Http/Controllers/TelegramWebhookController.php` (perintah bot wali).
+Peta kode: `app/Concerns/BelongsToTenant.php` (global scope tenant), `app/Policies/` (admin vs pengajar; `TenantPolicy` untuk super admin), `app/Jobs/SendTelegramMessage.php` (queued + outbox `telegram_messages`), `app/Services/QrCodeService.php` (SVG kartu santri), `app/Http/Controllers/TelegramWebhookController.php` (perintah bot wali), `app/Http/Controllers/SuperAdminController.php` (panel lintas-tenant, gerbang `TenantPolicy`), `app/Http/Controllers/OnboardingController.php` (wizard onboarding admin pertama kali), `app/Support/DemoTenant.php` (tenant demo, reset otomatis via `demo:reset`).
 
 ## Perintah
 
@@ -234,9 +234,9 @@ npm run lint / format / types:check
 
 ## Keputusan arsitektur yang mengikat
 
-- **Multi-tenant satu database**: kolom `tenant_id` + global scope Eloquent. Jangan pernah `withoutGlobalScopes()` pada jalur permintaan pengguna.
+- **Multi-tenant satu database**: kolom `tenant_id` + global scope Eloquent. Jangan pernah `withoutGlobalScopes()` pada jalur permintaan pengguna biasa — satu-satunya pengecualian yang disengaja adalah `SuperAdminController` (dijaga `TenantPolicy`), yang justru butuh menghitung data lintas semua lembaga.
 - **Foreign key dari request wajib `App\Rules\TenantExists::in('tabel')`**, bukan `exists:tabel,id`. Aturan `exists` bawaan bertanya langsung ke tabel sehingga melewati global scope dan membuka IDOR lintas lembaga.
-- **Peran**: kolom `role` pada `users` (`admin`, `pengajar`) + Policy Laravel. Tanpa paket permission.
+- **Peran**: kolom `role` pada `users` (`admin`, `pengajar`) + Policy Laravel. Tanpa paket permission. **Super admin** (`users.is_super_admin`, boolean) terpisah dari `role` — kapabilitas lintas-tenant tambahan, bukan pengganti peran; panel di `/super-admin` (domain utama). Lembaga bisa disuspend (`tenants.suspended_at`), ditegakkan sekali di `ResolveTenantFromDomain`.
 - **Wali santri bukan user aplikasi** — interaksi lewat bot Telegram dan tautan bertanda tangan.
 - **QR**: payload berupa ULID acak di `students.qr_token`, bukan ID berurutan. Pemindaian memakai `BarcodeDetector` bawaan browser (butuh HTTPS).
 - **Telegram**: HTTP Client Laravel ke Bot API di dalam queued job dengan retry; baris `telegram_messages` dibuat sekali saat dispatch dan dipakai ulang tiap retry — jangan membuat baris log di dalam `handle()`.

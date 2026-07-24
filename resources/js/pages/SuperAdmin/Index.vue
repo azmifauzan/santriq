@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout.vue';
@@ -19,6 +19,16 @@ defineProps<{
 defineOptions({
     layout: SuperAdminLayout,
 });
+
+function toggleTenant(tenant: TenantWithStats) {
+    const question = tenant.suspended_at
+        ? `Aktifkan kembali lembaga ${tenant.name}?`
+        : `Suspend lembaga ${tenant.name}? Lembaga ini tidak akan bisa diakses sama sekali sampai diaktifkan kembali.`;
+
+    if (confirm(question)) {
+        router.patch(toggleStatus(tenant.id).url);
+    }
+}
 </script>
 
 <template>
@@ -88,24 +98,17 @@ defineOptions({
                         </td>
                         <td class="px-4 py-3 text-right">
                             <Button
-                                as-child
                                 :variant="
                                     tenant.suspended_at
                                         ? 'default'
                                         : 'destructive'
                                 "
                                 size="sm"
+                                @click="toggleTenant(tenant)"
                             >
-                                <Link
-                                    :href="toggleStatus(tenant.id)"
-                                    method="patch"
-                                >
-                                    {{
-                                        tenant.suspended_at
-                                            ? 'Aktifkan'
-                                            : 'Suspend'
-                                    }}
-                                </Link>
+                                {{
+                                    tenant.suspended_at ? 'Aktifkan' : 'Suspend'
+                                }}
                             </Button>
                         </td>
                     </tr>
