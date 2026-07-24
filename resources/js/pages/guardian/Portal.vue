@@ -17,7 +17,7 @@ defineProps<{
     <Head title="Portal Wali" />
 
     <div class="mx-auto max-w-2xl space-y-6 p-4">
-        <header class="flex items-center justify-between">
+        <header class="flex flex-wrap items-start justify-between gap-2">
             <h1 class="text-xl font-semibold">Halo, {{ guardian.name }}</h1>
             <Link
                 href="/wali/keluar"

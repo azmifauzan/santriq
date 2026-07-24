@@ -13,3 +13,9 @@ test('authenticated users can visit the dashboard', function () {
     $response = $this->actingAsStaff($user)->get(route('dashboard'));
     $response->assertOk();
 });
+
+test('user panel header includes the theme toggle', function () {
+    $header = file_get_contents(resource_path('js/components/AppSidebarHeader.vue'));
+
+    expect($header)->toContain('<ThemeToggle class="ml-auto" />');
+});

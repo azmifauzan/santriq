@@ -88,7 +88,9 @@ function reviewRequest(
     <Head title="Manajemen Perizinan Mandiri" />
 
     <div class="flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+        <div
+            class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
                     Manajemen Perizinan Santri
@@ -98,7 +100,9 @@ function reviewRequest(
                     wali santri.
                 </p>
             </div>
-            <Button @click="openCreateModal"> + Input Izin Manual </Button>
+            <Button class="w-full sm:w-auto" @click="openCreateModal">
+                + Input Izin Manual
+            </Button>
         </div>
 
         <!-- Table -->
@@ -207,10 +211,10 @@ function reviewRequest(
         <!-- Modal Form -->
         <div
             v-if="isModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
         >
             <div
-                class="w-full max-w-md rounded-lg border bg-background p-6 shadow-lg"
+                class="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
             >
                 <h2 class="mb-4 text-lg font-semibold">
                     Input Perizinan Santri
@@ -253,7 +257,7 @@ function reviewRequest(
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <Label for="start_date">Mulai Tanggal</Label>
                             <Input

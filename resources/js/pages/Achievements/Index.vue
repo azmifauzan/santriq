@@ -105,7 +105,9 @@ function deleteAchievement(ach: Achievement) {
     <Head title="Pencapaian & Prestasi Santri" />
 
     <div class="flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+        <div
+            class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
                     Pencapaian & Prestasi Santri
@@ -115,7 +117,9 @@ function deleteAchievement(ach: Achievement) {
                     prestasi santri.
                 </p>
             </div>
-            <Button @click="openCreateModal"> + Tambah Pencapaian </Button>
+            <Button class="w-full sm:w-auto" @click="openCreateModal">
+                + Tambah Pencapaian
+            </Button>
         </div>
 
         <!-- Table -->
@@ -196,10 +200,10 @@ function deleteAchievement(ach: Achievement) {
         <!-- Modal Form -->
         <div
             v-if="isModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
         >
             <div
-                class="w-full max-w-md rounded-lg border bg-background p-6 shadow-lg"
+                class="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
             >
                 <h2 class="mb-4 text-lg font-semibold">
                     {{
@@ -232,7 +236,7 @@ function deleteAchievement(ach: Achievement) {
                         <InputError :message="form.errors.student_id" />
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <Label for="category">Kategori</Label>
                             <select

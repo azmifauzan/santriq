@@ -117,7 +117,9 @@ function formatCurrency(val: number): string {
     <Head title="Manajemen SPP & Tagihan" />
 
     <div class="flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+        <div
+            class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
                     Manajemen SPP & Tagihan
@@ -127,7 +129,7 @@ function formatCurrency(val: number): string {
                     pembayaran wali santri.
                 </p>
             </div>
-            <Button @click="openBatchModal">
+            <Button class="w-full sm:w-auto" @click="openBatchModal">
                 ⚡ Menerbitkan Tagihan Massal
             </Button>
         </div>
@@ -216,10 +218,10 @@ function formatCurrency(val: number): string {
         <!-- Modal Batch Generate -->
         <div
             v-if="isBatchModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
         >
             <div
-                class="w-full max-w-md rounded-lg border bg-background p-6 shadow-lg"
+                class="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
             >
                 <h2 class="mb-4 text-lg font-semibold">
                     Terbitkan Tagihan SPP Massal
@@ -298,10 +300,10 @@ function formatCurrency(val: number): string {
         <!-- Modal Verify Payment -->
         <div
             v-if="isVerifyModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
         >
             <div
-                class="w-full max-w-sm rounded-lg border bg-background p-6 shadow-lg"
+                class="max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
             >
                 <h2 class="mb-2 text-lg font-semibold">
                     Verifikasi Pembayaran SPP

@@ -100,7 +100,9 @@ function copyStartCommand(token: string) {
     <Head title="Data Wali Santri" />
 
     <div class="flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+        <div
+            class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
                     Data Wali Santri
@@ -109,10 +111,12 @@ function copyStartCommand(token: string) {
                     Kelola data wali santri dan status penautan bot Telegram.
                 </p>
             </div>
-            <Button @click="openCreateModal"> + Tambah Wali Santri </Button>
+            <Button class="w-full sm:w-auto" @click="openCreateModal">
+                + Tambah Wali Santri
+            </Button>
         </div>
 
-        <div class="rounded-md border bg-card">
+        <div class="overflow-x-auto rounded-md border bg-card">
             <table class="w-full text-left text-sm">
                 <thead
                     class="border-b bg-muted/50 text-xs font-medium text-muted-foreground uppercase"
@@ -205,10 +209,10 @@ function copyStartCommand(token: string) {
         <!-- Modal Form -->
         <div
             v-if="isModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
         >
             <div
-                class="w-full max-w-md rounded-lg border bg-background p-6 shadow-lg"
+                class="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
             >
                 <h2 class="mb-4 text-lg font-semibold">
                     {{

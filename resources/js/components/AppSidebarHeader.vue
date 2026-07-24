@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
 
@@ -23,5 +24,6 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
+        <ThemeToggle class="ml-auto" />
     </header>
 </template>

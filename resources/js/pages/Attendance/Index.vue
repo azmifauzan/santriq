@@ -107,7 +107,9 @@ function formatTime(dateTimeStr: string | null): string {
     <Head title="Daftar & Koreksi Presensi" />
 
     <div class="flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+        <div
+            class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
                     Rekap & Koreksi Presensi Harian
@@ -149,7 +151,7 @@ function formatTime(dateTimeStr: string | null): string {
         </div>
 
         <!-- Table -->
-        <div class="rounded-md border bg-card">
+        <div class="overflow-x-auto rounded-md border bg-card">
             <table class="w-full text-left text-sm">
                 <thead
                     class="border-b bg-muted/50 text-xs font-medium text-muted-foreground uppercase"
@@ -227,10 +229,10 @@ function formatTime(dateTimeStr: string | null): string {
         <!-- Modal Correction -->
         <div
             v-if="isModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
         >
             <div
-                class="w-full max-w-sm rounded-lg border bg-background p-6 shadow-lg"
+                class="max-h-[calc(100dvh-2rem)] w-full max-w-sm overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
             >
                 <h2 class="mb-2 text-lg font-semibold">
                     Koreksi Status Presensi

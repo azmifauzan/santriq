@@ -66,7 +66,7 @@ defineProps<{
                 <InputError :message="errors.type" />
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid gap-4 sm:grid-cols-2">
                 <div class="grid gap-2">
                     <Label for="start_date">Mulai</Label>
                     <Input id="start_date" name="start_date" type="date" />
@@ -105,7 +105,7 @@ defineProps<{
                 <li
                     v-for="lr in leaveRequests"
                     :key="lr.id"
-                    class="flex items-center justify-between rounded-lg border p-3 text-sm"
+                    class="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 text-sm"
                 >
                     <div>
                         <p class="font-medium">

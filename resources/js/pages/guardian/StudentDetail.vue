@@ -57,7 +57,7 @@ defineProps<{
                     :key="i"
                     class="space-y-1 rounded border p-2"
                 >
-                    <div class="flex justify-between">
+                    <div class="flex flex-wrap justify-between gap-2">
                         <span class="font-medium"
                             >{{ ach.category }}: {{ ach.title }}</span
                         >

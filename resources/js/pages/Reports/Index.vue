@@ -66,7 +66,9 @@ function exportCsv() {
     <Head title="Laporan & Rekap Kehadiran" />
 
     <div class="flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+        <div
+            class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
                     Laporan & Rekap Kehadiran Santri
@@ -76,7 +78,11 @@ function exportCsv() {
                     tanggal.
                 </p>
             </div>
-            <Button variant="outline" @click="exportCsv">
+            <Button
+                variant="outline"
+                class="w-full sm:w-auto"
+                @click="exportCsv"
+            >
                 📥 Ekspor CSV
             </Button>
         </div>

@@ -130,7 +130,9 @@ function printSelectedCards() {
     <Head title="Master Data Santri" />
 
     <div class="flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+        <div
+            class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
                     Master Data Santri
@@ -140,7 +142,9 @@ function printSelectedCards() {
                     QR absensi.
                 </p>
             </div>
-            <div class="flex items-center gap-2">
+            <div
+                class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+            >
                 <Button variant="outline" @click="printSelectedCards">
                     🖨️ Cetak Kartu QR
                 </Button>
@@ -281,17 +285,17 @@ function printSelectedCards() {
         <!-- Modal Form -->
         <div
             v-if="isModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
         >
             <div
-                class="w-full max-w-lg rounded-lg border bg-background p-6 shadow-lg"
+                class="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
             >
                 <h2 class="mb-4 text-lg font-semibold">
                     {{ editingStudent ? 'Edit Santri' : 'Tambah Santri Baru' }}
                 </h2>
 
                 <form @submit.prevent="submitForm" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <Label for="nis">NIS (Nomor Induk)</Label>
                             <Input id="nis" v-model="form.nis" required />
@@ -304,7 +308,7 @@ function printSelectedCards() {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <Label for="gender">Jenis Kelamin</Label>
                             <select
