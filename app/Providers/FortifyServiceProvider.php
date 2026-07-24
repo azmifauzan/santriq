@@ -9,6 +9,7 @@ use App\Http\Responses\RegisterResponse;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\CurrentTenant;
+use App\Support\DemoTenant;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -91,6 +92,10 @@ class FortifyServiceProvider extends ServiceProvider
                     'logo_path' => $landing['logo_path'] ?? null,
                     'tagline' => $landing['tagline'] ?? 'Tumbuh dalam ilmu, dekat dalam kebersamaan.',
                     'description' => $landing['description'] ?? "{$tenant->name} mendampingi santri belajar Al-Qur'an, bertumbuh dalam adab, dan berkembang bersama.",
+                ] : null,
+                'demoHint' => DemoTenant::isActive() ? [
+                    'admin' => ['email' => 'admin@santriq.test', 'password' => 'password'],
+                    'pengajar' => ['email' => 'pengajar@santriq.test', 'password' => 'password'],
                 ] : null,
             ]);
         });

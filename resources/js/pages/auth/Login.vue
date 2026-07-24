@@ -2,6 +2,7 @@
 import { Form, Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { redirect as googleRedirect } from '@/actions/App/Http/Controllers/GoogleAuthController';
+import GuardianAuthController from '@/actions/App/Http/Controllers/GuardianAuthController';
 import AlertError from '@/components/AlertError.vue';
 import GoogleAuthButton from '@/components/GoogleAuthButton.vue';
 import InputError from '@/components/InputError.vue';
@@ -27,6 +28,10 @@ defineProps<{
     status?: string;
     canResetPassword: boolean;
     tenantBrand?: Record<string, unknown> | null;
+    demoHint?: {
+        admin: { email: string; password: string };
+        pengajar: { email: string; password: string };
+    } | null;
 }>();
 
 const page = usePage<{
@@ -39,6 +44,7 @@ const googleLoginUrl = computed(() =>
     }),
 );
 const googleError = computed(() => page.props.errors?.google);
+const guardianLoginUrl = computed(() => GuardianAuthController.create());
 </script>
 
 <template>
@@ -49,6 +55,38 @@ const googleError = computed(() => page.props.errors?.google);
         class="mb-4 text-center text-sm font-medium text-green-600"
     >
         {{ status }}
+    </div>
+
+    <div
+        v-if="demoHint"
+        class="mb-6 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm dark:border-emerald-900 dark:bg-emerald-950"
+    >
+        <p class="font-semibold text-emerald-800 dark:text-emerald-300">
+            Coba SantriQ tanpa daftar
+        </p>
+        <p class="text-emerald-700 dark:text-emerald-400">
+            Admin:
+            <code class="rounded bg-white/60 px-1 dark:bg-black/20">{{
+                demoHint.admin.email
+            }}</code>
+            /
+            <code class="rounded bg-white/60 px-1 dark:bg-black/20">{{
+                demoHint.admin.password
+            }}</code>
+        </p>
+        <p class="text-emerald-700 dark:text-emerald-400">
+            Pengajar:
+            <code class="rounded bg-white/60 px-1 dark:bg-black/20">{{
+                demoHint.pengajar.email
+            }}</code>
+            /
+            <code class="rounded bg-white/60 px-1 dark:bg-black/20">{{
+                demoHint.pengajar.password
+            }}</code>
+        </p>
+        <TextLink :href="guardianLoginUrl" class="inline-block font-semibold">
+            Coba sebagai Wali Santri &rarr;
+        </TextLink>
     </div>
 
     <AlertError
