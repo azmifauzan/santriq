@@ -17,7 +17,7 @@ import {
 } from '@lucide/vue';
 import type { CSSProperties } from 'vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import { login } from '@/routes';
+import { home, login } from '@/routes';
 import { login as guardianLogin } from '@/routes/guardian';
 
 const { tenant, landing, stats } = defineProps<{
@@ -84,30 +84,36 @@ const services = [
                 aria-label="Navigasi utama"
                 class="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10"
             >
-                <a href="#beranda" class="flex min-w-0 items-center gap-3">
-                    <img
-                        v-if="landing.logo_path"
-                        :src="`/storage/${landing.logo_path}`"
-                        :alt="`Logo ${tenant.name}`"
-                        class="size-10 shrink-0 rounded-xl object-cover shadow-sm"
-                    />
-                    <span
-                        v-else
-                        class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm shadow-emerald-900/20"
-                    >
-                        <GraduationCap class="size-5" aria-hidden="true" />
-                    </span>
-                    <span class="min-w-0">
-                        <span class="block truncate font-bold tracking-tight">
-                            {{ tenant.name }}
-                        </span>
+                <div class="flex min-w-0 items-center gap-3">
+                    <a href="#beranda" class="shrink-0">
+                        <img
+                            v-if="landing.logo_path"
+                            :src="`/storage/${landing.logo_path}`"
+                            :alt="`Logo ${tenant.name}`"
+                            class="size-10 rounded-xl object-cover shadow-sm"
+                        />
                         <span
+                            v-else
+                            class="flex size-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm shadow-emerald-900/20"
+                        >
+                            <GraduationCap class="size-5" aria-hidden="true" />
+                        </span>
+                    </a>
+                    <span class="min-w-0">
+                        <a
+                            href="#beranda"
+                            class="block truncate font-bold tracking-tight"
+                        >
+                            {{ tenant.name }}
+                        </a>
+                        <Link
+                            :href="home()"
                             class="block text-[10px] font-semibold tracking-widest text-emerald-700 uppercase dark:text-emerald-400"
                         >
                             Didukung SantriQ
-                        </span>
+                        </Link>
                     </span>
-                </a>
+                </div>
 
                 <div class="flex shrink-0 items-center gap-2">
                     <ThemeToggle />
@@ -585,9 +591,12 @@ const services = [
                     </span>
                     <div>
                         <p class="font-bold">{{ tenant.name }}</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">
-                            Tumbuh bersama SantriQ
-                        </p>
+                        <Link
+                            :href="home()"
+                            class="text-xs text-emerald-700 transition hover:text-emerald-800 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
+                        >
+                            Tentang platform SantriQ →
+                        </Link>
                     </div>
                 </div>
                 <div class="flex items-center gap-4 sm:text-right">

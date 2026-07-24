@@ -43,3 +43,12 @@ test('landing page has useful defaults before its content is configured', functi
             ->where('landing.gallery', [])
         );
 });
+
+test('tenant landing links back to the SantriQ platform', function () {
+    $component = file_get_contents(resource_path('js/pages/Tenant/Landing.vue'));
+
+    expect($component)
+        ->toContain("import { home, login } from '@/routes';")
+        ->toContain(':href="home()"')
+        ->toContain('Tentang platform SantriQ');
+});
