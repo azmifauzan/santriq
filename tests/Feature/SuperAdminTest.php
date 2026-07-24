@@ -4,6 +4,7 @@ use App\Models\Guardian;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 
 test('is_super_admin flag and tenant suspension helpers work', function () {
     $tenant = Tenant::factory()->create();
@@ -97,5 +98,69 @@ test('superAdminUrl prop is shared only with super admins', function () {
 
     $this->actingAsStaff($superAdmin)
         ->get(route('dashboard', ['subdomain' => $tenant->subdomain]))
-        ->assertInertia(fn ($page) => $page->where('superAdminUrl', route('super-admin.index')));
+        ->assertInertia(fn ($page) => $page->where('superAdminUrl', route('super-admin.redirect', ['subdomain' => $tenant->subdomain])));
+});
+
+test('non-super-admin cannot start the apex handoff', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']);
+
+    $this->actingAsStaff($admin)
+        ->get(route('super-admin.redirect', ['subdomain' => $tenant->subdomain]))
+        ->assertForbidden();
+});
+
+test('super admin handoff redirects to a signed apex verify link', function () {
+    $tenant = Tenant::factory()->create();
+    $superAdmin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    $response = $this->actingAsStaff($superAdmin)
+        ->get(route('super-admin.redirect', ['subdomain' => $tenant->subdomain]));
+
+    $response->assertRedirect();
+    $location = $response->headers->get('Location');
+
+    expect($location)->toContain('/super-admin/verify/'.$superAdmin->id);
+    expect($location)->toContain('signature=');
+});
+
+test('visiting a valid signed verify link logs the super admin in on the apex domain without a prior session', function () {
+    $tenant = Tenant::factory()->create();
+    $superAdmin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    $signedUrl = URL::temporarySignedRoute(
+        'super-admin.verify',
+        now()->addMinutes(5),
+        ['user' => $superAdmin->id]
+    );
+
+    $this->assertGuest();
+
+    $response = $this->get($signedUrl);
+
+    $response->assertRedirect(route('super-admin.index'));
+    $this->assertAuthenticatedAs($superAdmin);
+});
+
+test('verify link rejects a non-super-admin even with a validly signed url', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']);
+
+    $signedUrl = URL::temporarySignedRoute(
+        'super-admin.verify',
+        now()->addMinutes(5),
+        ['user' => $admin->id]
+    );
+
+    $this->get($signedUrl)->assertForbidden();
+    $this->assertGuest();
+});
+
+test('verify link rejects a tampered signature', function () {
+    $tenant = Tenant::factory()->create();
+    $superAdmin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    $this->get('http://santriq.test/super-admin/verify/'.$superAdmin->id.'?expires=9999999999&signature=invalid')
+        ->assertForbidden();
+    $this->assertGuest();
 });

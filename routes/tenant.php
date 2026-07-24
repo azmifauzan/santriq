@@ -17,6 +17,7 @@ use App\Http\Controllers\Settings\LembagaController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TenantLandingController;
 use App\Http\Middleware\EnsureOnboardingComplete;
@@ -58,6 +59,7 @@ $tenantRoutes = function (): void {
 
     Route::middleware(['auth', 'verified', EnsureStaffTenantMatchesSubdomain::class, EnsureOnboardingComplete::class])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
+        Route::get('super-admin/redirect', [SuperAdminController::class, 'redirectHandoff'])->name('super-admin.redirect');
         Route::resource('teachers', TeacherController::class)->except(['create', 'edit', 'show']);
         Route::resource('classrooms', ClassroomController::class)->except(['create', 'edit', 'show']);
 

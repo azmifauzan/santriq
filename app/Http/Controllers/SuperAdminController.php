@@ -3,13 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SuperAdminController extends Controller
 {
+    /**
+     * `SESSION_DOMAIN` is deliberately null (see docs/RENCANA-IMPLEMENTASI.md),
+     * so a session started on a tenant subdomain is invisible to the apex
+     * domain where this panel lives. Hand off through a signed link the apex
+     * verifies, same pattern as GoogleAuthController::redirectToTenantLogin.
+     */
+    public function redirectHandoff(Request $request): RedirectResponse
+    {
+        $user = $request->user('web');
+        abort_unless($user?->isSuperAdmin(), 403);
+
+        $link = URL::temporarySignedRoute(
+            'super-admin.verify',
+            now()->addMinutes(5),
+            ['user' => $user->id]
+        );
+
+        return redirect($link);
+    }
+
+    public function verifyHandoff(Request $request, User $user): RedirectResponse
+    {
+        abort_unless($request->hasValidSignature(), 403);
+        abort_unless($user->isSuperAdmin(), 403);
+
+        Auth::guard('web')->login($user);
+
+        return redirect()->route('super-admin.index');
+    }
+
     public function index(): Response
     {
         Gate::authorize('viewAny', Tenant::class);

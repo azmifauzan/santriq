@@ -29,6 +29,10 @@ Route::domain(config('tenancy.domain'))->group(function () {
         ->middleware('throttle:120,1')
         ->name('telegram.webhook');
 
+    Route::get('super-admin/verify/{user}', [SuperAdminController::class, 'verifyHandoff'])
+        ->middleware('signed')
+        ->name('super-admin.verify');
+
     Route::middleware(['auth', 'verified'])->prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/', [SuperAdminController::class, 'index'])->name('index');
         Route::get('{tenant}', [SuperAdminController::class, 'show'])->name('show');
