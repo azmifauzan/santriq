@@ -63,11 +63,19 @@ function onGalleryChange(event: Event) {
             <div class="mb-6 flex items-center gap-2">
                 <span
                     class="h-1.5 flex-1 rounded-full"
-                    :class="step >= 1 ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-800'"
+                    :class="
+                        step >= 1
+                            ? 'bg-emerald-600'
+                            : 'bg-slate-200 dark:bg-slate-800'
+                    "
                 />
                 <span
                     class="h-1.5 flex-1 rounded-full"
-                    :class="step >= 2 ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-800'"
+                    :class="
+                        step >= 2
+                            ? 'bg-emerald-600'
+                            : 'bg-slate-200 dark:bg-slate-800'
+                    "
                 />
             </div>
 
@@ -80,7 +88,11 @@ function onGalleryChange(event: Event) {
                 <div class="mt-6 space-y-4">
                     <div class="grid gap-2">
                         <Label for="address">Alamat</Label>
-                        <Input id="address" v-model="form.address" maxlength="255" />
+                        <Input
+                            id="address"
+                            v-model="form.address"
+                            maxlength="255"
+                        />
                         <InputError :message="form.errors.address" />
                     </div>
 
@@ -112,7 +124,11 @@ function onGalleryChange(event: Event) {
                 <div class="mt-6 space-y-4">
                     <div class="grid gap-2">
                         <Label for="tagline">Tagline</Label>
-                        <Input id="tagline" v-model="form.tagline" maxlength="150" />
+                        <Input
+                            id="tagline"
+                            v-model="form.tagline"
+                            maxlength="150"
+                        />
                         <InputError :message="form.errors.tagline" />
                     </div>
 
@@ -130,7 +146,10 @@ function onGalleryChange(event: Event) {
 
                     <div class="grid gap-2">
                         <Label for="operating_hours">Jam Operasional</Label>
-                        <Input id="operating_hours" v-model="form.operating_hours" />
+                        <Input
+                            id="operating_hours"
+                            v-model="form.operating_hours"
+                        />
                         <InputError :message="form.errors.operating_hours" />
                     </div>
 
@@ -147,7 +166,12 @@ function onGalleryChange(event: Event) {
 
                     <div class="grid gap-2">
                         <Label for="logo">Logo</Label>
-                        <Input id="logo" type="file" accept="image/*" @change="onLogoChange" />
+                        <Input
+                            id="logo"
+                            type="file"
+                            accept="image/*"
+                            @change="onLogoChange"
+                        />
                         <InputError :message="form.errors.logo" />
                     </div>
 
@@ -173,7 +197,11 @@ function onGalleryChange(event: Event) {
                         Lewati
                     </button>
                     <div class="flex gap-2">
-                        <Button type="button" variant="outline" @click="step = 1">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            @click="step = 1"
+                        >
                             Kembali
                         </Button>
                         <Button type="submit" :disabled="form.processing">
