@@ -24,7 +24,8 @@ test('new users can register', function () {
         'password_confirmation' => 'password',
     ]);
 
-    // `login` stays central in both subdomain-active and path-fallback mode
-    // (see App\Http\Responses\RegisterResponse) — no {subdomain} to assert here.
-    $response->assertRedirect(route('login', ['registered' => 1]));
+    // A manual (password) signup isn't Google-attested, so it still needs to
+    // click the link Fortify just emailed — see App\Http\Responses\RegisterResponse.
+    $response->assertRedirect(route('verification.notice'));
+    $this->assertAuthenticated();
 });

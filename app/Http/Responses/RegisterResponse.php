@@ -2,9 +2,9 @@
 
 namespace App\Http\Responses;
 
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
 
 class RegisterResponse implements RegisterResponseContract
@@ -12,14 +12,17 @@ class RegisterResponse implements RegisterResponseContract
     public function toResponse($request): RedirectResponse
     {
         /** @var Request $request */
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        /** @var User $user */
+        $user = $request->user();
 
-        // The `login` route stays central (no {subdomain} parameter) in both
-        // subdomain-active and path-fallback mode — see LoginResponse for why
-        // the dashboard redirect after a successful login still lands on the
-        // right lembaga regardless.
-        return redirect()->away(route('login', ['registered' => 1]));
+        // A Google signup already has its email attested by Google (see
+        // CreateNewUser), so there's nothing to verify — go straight in.
+        // A manual signup still needs to click the link Fortify just emailed;
+        // Fortify's controller already logged them in before this response
+        // runs, so send them to the (host-agnostic, see route:list) email
+        // verification prompt instead of back out to /login.
+        return $user->hasVerifiedEmail()
+            ? redirect()->intended(route('dashboard', ['subdomain' => $user->tenant->subdomain]))
+            : redirect()->route('verification.notice');
     }
 }

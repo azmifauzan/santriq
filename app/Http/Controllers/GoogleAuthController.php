@@ -57,6 +57,14 @@ class GoogleAuthController extends Controller
         $tenant = $subdomain !== null ? Tenant::where('subdomain', $subdomain)->first() : null;
 
         if (! $tenant) {
+            $user = User::where('google_id', $googleUser->getId())->first();
+
+            if ($user) {
+                Auth::guard('web')->login($user);
+
+                return redirect()->intended(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+            }
+
             return $this->handleRegister($googleUser);
         }
 

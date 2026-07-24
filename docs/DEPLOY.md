@@ -35,7 +35,9 @@ Lalu di server (ganti `$TAG` dengan tag yang baru dibuat):
 ```bash
 ssh ubuntu@43.129.52.206
 cd /home/ubuntu/santriq
-sed -i "s/santriq:[^ ]*/santriq:$TAG/" docker-compose.yml   # atau edit manual "image:" di docker-compose.yml
+# Anchor pada baris "image:" saja — pola tanpa anchor sempat menimpa key
+# "santriq:" di services/networks juga dan merusak file (lihat git blame).
+sed -i "s|^\( *image: *\)azmifauzan/santriq:.*|\1azmifauzan/santriq:$TAG|" docker-compose.yml   # atau edit manual "image:" di docker-compose.yml
 sudo docker compose pull
 sudo docker compose up -d
 ```

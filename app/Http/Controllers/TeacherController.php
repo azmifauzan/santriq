@@ -37,6 +37,10 @@ class TeacherController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
+            // Admin-created accounts skip self-registration entirely, so there's
+            // no Registered event and no verification email to click — the admin
+            // vouches for the email address by typing it in here.
+            'email_verified_at' => now(),
         ]);
 
         return redirect()->back()->with('success', 'Pengajar berhasil ditambahkan.');

@@ -30,6 +30,22 @@ test('google login authenticates an already linked user', function () {
     $response->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
 });
 
+test('google login authenticates an already linked user from the central login screen', function () {
+    $tenant = Tenant::factory()->create();
+    $user = User::factory()->for($tenant)->create(['google_id' => 'g-123']);
+
+    Socialite::fake('google', SocialiteUser::fake([
+        'id' => 'g-123',
+        'email' => $user->email,
+    ]));
+
+    $state = GoogleOAuthToken::encode(['intent' => 'login', 'subdomain' => '']);
+    $response = $this->get(route('google.callback', ['state' => $state]));
+
+    $this->assertAuthenticatedAs($user);
+    $response->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
+});
+
 test('google login auto-links a verified google email to a matching password account', function () {
     $tenant = Tenant::factory()->create();
     $user = User::factory()->for($tenant)->create(['google_id' => null]);
@@ -155,12 +171,13 @@ test('submitting the register form with a google token creates a passwordless li
         'google_token' => $token,
     ]);
 
-    $response->assertRedirect(route('login', ['registered' => 1]));
-
     $user = User::where('email', 'new-admin@example.com')->firstOrFail();
+    $response->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+
     expect($user->google_id)->toBe('g-999')
         ->and($user->password)->toBeNull()
         ->and($user->email_verified_at)->not->toBeNull();
+    $this->assertAuthenticatedAs($user);
 });
 
 test('submitting the register form with a google token ignores a spoofed email but keeps the edited name', function () {
@@ -178,11 +195,11 @@ test('submitting the register form with a google token ignores a spoofed email b
         'google_token' => $token,
     ]);
 
-    $response->assertRedirect(route('login', ['registered' => 1]));
-
     expect(User::where('email', 'victim@example.com')->exists())->toBeFalse();
 
     $user = User::where('email', 'real-owner@example.com')->firstOrFail();
+    $response->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+
     expect($user->name)->toBe('Edited Name')
         ->and($user->google_id)->toBe('g-999');
 });

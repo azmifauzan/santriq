@@ -8,8 +8,11 @@ use App\Http\Responses\LoginResponse;
 use App\Http\Responses\RegisterResponse;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -40,6 +43,11 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+
+        // Not registered by default in this app's bootstrap/app.php (no
+        // app/Listeners scan) — without this, MustVerifyEmail users never
+        // get their verification email after Fortify's Registered event.
+        Event::listen(Registered::class, SendEmailVerificationNotification::class);
     }
 
     /**

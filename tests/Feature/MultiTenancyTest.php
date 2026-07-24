@@ -21,7 +21,7 @@ test('new registration creates tenant and admin user', function () {
 
     $tenant = Tenant::where('name', 'TPQ Nurul Huda')->first();
 
-    $response->assertRedirect(route('login', ['registered' => 1]));
+    $response->assertRedirect(route('verification.notice'));
 
     $this->assertDatabaseHas('tenants', [
         'name' => 'TPQ Nurul Huda',

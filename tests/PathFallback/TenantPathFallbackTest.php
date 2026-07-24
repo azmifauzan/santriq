@@ -58,10 +58,14 @@ test('registration and login stay on the apex regardless of fallback mode', func
         'password_confirmation' => 'password123',
     ]);
 
-    $response->assertRedirect(route('login', ['registered' => 1]));
+    $response->assertRedirect(route('verification.notice'));
 
     $tenant = Tenant::where('subdomain', 'tpq-fallback-register')->first();
     $user = User::where('email', 'fallback-admin@example.com')->first();
+
+    // Registration leaves the user authenticated (pending verification) —
+    // log out to exercise a fresh login, same as a user returning later.
+    $this->post(route('logout'));
 
     $loginResponse = $this->post(route('login.store'), [
         'email' => $user->email,

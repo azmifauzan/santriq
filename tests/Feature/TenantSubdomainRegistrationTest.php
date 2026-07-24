@@ -47,8 +47,8 @@ test('registration redirects to the new subdomain login screen', function () {
         'password_confirmation' => 'password123',
     ]);
 
-    $response->assertRedirect(route('login', ['registered' => 1]));
-    $this->assertGuest();
+    $response->assertRedirect(route('verification.notice'));
+    $this->assertAuthenticated();
 });
 
 test('subdomain availability check reports taken and free values', function () {
