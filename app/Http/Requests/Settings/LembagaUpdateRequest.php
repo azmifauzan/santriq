@@ -17,6 +17,8 @@ class LembagaUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'address' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
             'tagline' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:2000'],
             'operating_hours' => ['nullable', 'string', 'max:255'],

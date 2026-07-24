@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $google_id
  * @property string $role
  * @property Carbon|null $email_verified_at
+ * @property Carbon|null $onboarded_at
  * @property string|null $password
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
@@ -28,7 +29,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'tenant_id', 'role'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'tenant_id', 'role', 'onboarded_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -44,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'onboarded_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

@@ -10,6 +10,10 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { update } from '@/routes/lembaga';
 
 defineProps<{
+    tenant: {
+        address?: string;
+        phone?: string;
+    };
     landing: {
         tagline?: string;
         description?: string;
@@ -37,6 +41,28 @@ defineProps<{
                 v-slot="{ errors, processing }"
                 class="space-y-6"
             >
+                <div class="grid gap-2">
+                    <Label for="address">Alamat</Label>
+                    <Input
+                        id="address"
+                        name="address"
+                        :default-value="tenant.address"
+                        maxlength="255"
+                    />
+                    <InputError :message="errors.address" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="phone">Telepon</Label>
+                    <Input
+                        id="phone"
+                        name="phone"
+                        :default-value="tenant.phone"
+                        maxlength="30"
+                    />
+                    <InputError :message="errors.phone" />
+                </div>
+
                 <div class="grid gap-2">
                     <Label for="tagline">Tagline</Label>
                     <Input

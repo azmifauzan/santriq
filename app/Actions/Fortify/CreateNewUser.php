@@ -73,6 +73,7 @@ class CreateNewUser implements CreatesNewUsers
                 'google_id' => $google['sub'] ?? null,
                 'email_verified_at' => $google ? now() : null,
                 'role' => 'admin',
+                'onboarded_at' => null,
             ]);
         });
     }

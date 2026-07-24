@@ -41,6 +41,7 @@ class TeacherController extends Controller
             // no Registered event and no verification email to click — the admin
             // vouches for the email address by typing it in here.
             'email_verified_at' => now(),
+            'onboarded_at' => now(),
         ]);
 
         return redirect()->back()->with('success', 'Pengajar berhasil ditambahkan.');

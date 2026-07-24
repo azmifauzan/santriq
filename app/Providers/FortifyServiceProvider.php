@@ -6,6 +6,7 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\LoginResponse;
 use App\Http\Responses\RegisterResponse;
+use App\Http\Responses\VerifyEmailResponse;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\CurrentTenant;
@@ -23,6 +24,7 @@ use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
+use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -35,6 +37,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->app->singleton(RegisterResponseContract::class, RegisterResponse::class);
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+        $this->app->singleton(VerifyEmailResponseContract::class, VerifyEmailResponse::class);
     }
 
     /**

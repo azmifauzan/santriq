@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
@@ -28,4 +29,19 @@ test('new users can register', function () {
     // click the link Fortify just emailed — see App\Http\Responses\RegisterResponse.
     $response->assertRedirect(route('verification.notice'));
     $this->assertAuthenticated();
+});
+
+test('newly registered admin has not completed onboarding', function () {
+    $this->post(route('register.store'), [
+        'institution_name' => 'TPA Nurul Huda',
+        'subdomain' => 'tpa-nurul-huda',
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $user = User::where('email', 'test@example.com')->firstOrFail();
+
+    expect($user->onboarded_at)->toBeNull();
 });

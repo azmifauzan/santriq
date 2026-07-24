@@ -57,3 +57,18 @@ test('admin can update and delete teacher in their tenant', function () {
     $deleteResponse->assertRedirect();
     $this->assertDatabaseMissing('users', ['id' => $teacher->id]);
 });
+
+test('admin-created pengajar is immediately onboarded', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = $this->actingAsStaff(User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']));
+
+    $admin->post(route('teachers.store'), [
+        'name' => 'Pengajar Baru',
+        'email' => 'pengajar-baru@example.com',
+        'password' => 'password',
+        'role' => 'pengajar',
+    ]);
+
+    $pengajar = User::where('email', 'pengajar-baru@example.com')->firstOrFail();
+    expect($pengajar->onboarded_at)->not->toBeNull();
+});

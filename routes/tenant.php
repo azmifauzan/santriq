@@ -11,6 +11,7 @@ use App\Http\Controllers\GuardianLeaveRequestController;
 use App\Http\Controllers\GuardianPortalController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeaveRequestController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Settings\LembagaController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TenantLandingController;
+use App\Http\Middleware\EnsureOnboardingComplete;
 use App\Http\Middleware\EnsureStaffTenantMatchesSubdomain;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
@@ -54,7 +56,7 @@ $tenantRoutes = function (): void {
         });
     });
 
-    Route::middleware(['auth', 'verified', EnsureStaffTenantMatchesSubdomain::class])->group(function () {
+    Route::middleware(['auth', 'verified', EnsureStaffTenantMatchesSubdomain::class, EnsureOnboardingComplete::class])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::resource('teachers', TeacherController::class)->except(['create', 'edit', 'show']);
         Route::resource('classrooms', ClassroomController::class)->except(['create', 'edit', 'show']);
@@ -91,6 +93,12 @@ $tenantRoutes = function (): void {
     });
 
     Route::middleware(['auth', 'verified', EnsureStaffTenantMatchesSubdomain::class])->group(function () {
+        Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+        Route::put('onboarding', [OnboardingController::class, 'update'])->name('onboarding.update');
+        Route::post('onboarding/skip', [OnboardingController::class, 'skip'])->name('onboarding.skip');
+    });
+
+    Route::middleware(['auth', 'verified', EnsureStaffTenantMatchesSubdomain::class, EnsureOnboardingComplete::class])->group(function () {
         Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         Route::get('settings/security', [SecurityController::class, 'edit'])

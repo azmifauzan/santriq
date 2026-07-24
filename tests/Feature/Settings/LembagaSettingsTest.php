@@ -35,3 +35,19 @@ test('pengajar cannot update landing content', function () {
     $pengajar->put(route('lembaga.update'), ['tagline' => 'Nope'])
         ->assertForbidden();
 });
+
+test('admin can update institution address and phone', function () {
+    $tenant = Tenant::factory()->create(['address' => 'Alamat lama', 'phone' => '0800000000']);
+    $admin = $this->actingAsStaff(User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']));
+
+    $response = $admin->put(route('lembaga.update'), [
+        'address' => 'Jl. Merdeka No. 1',
+        'phone' => '0812345678',
+    ]);
+
+    $response->assertRedirect(route('lembaga.edit'));
+
+    $tenant->refresh();
+    expect($tenant->address)->toBe('Jl. Merdeka No. 1');
+    expect($tenant->phone)->toBe('0812345678');
+});
