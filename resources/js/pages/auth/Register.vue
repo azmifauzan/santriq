@@ -143,11 +143,10 @@ watch(subdomain, (value) => {
                     id="name"
                     type="text"
                     required
-                    :readonly="!!google"
                     :tabindex="3"
                     autocomplete="name"
                     name="name"
-                    :value="google?.name"
+                    :default-value="google?.name"
                     placeholder="Nama Lengkap"
                 />
                 <InputError :message="errors.name" />
@@ -163,7 +162,7 @@ watch(subdomain, (value) => {
                     :tabindex="4"
                     autocomplete="email"
                     name="email"
-                    :value="google?.email"
+                    :default-value="google?.email"
                     placeholder="email@example.com"
                 />
                 <InputError :message="errors.email" />

@@ -65,6 +65,25 @@ test('google login does not auto-link when google reports an unverified email', 
     $response->assertRedirect(route('login'));
 });
 
+test('google login redirects to the registration form prefilled when the tenant is not found', function () {
+    Socialite::fake('google', SocialiteUser::fake([
+        'id' => 'g-321',
+        'email' => 'no-tenant@example.com',
+        'name' => 'No Tenant',
+    ]));
+
+    $state = GoogleOAuthToken::encode(['intent' => 'login', 'subdomain' => 'unknown-subdomain']);
+    $response = $this->get(route('google.callback', ['state' => $state]));
+
+    $this->assertGuest();
+    $response->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('auth/Register')
+        ->where('google.email', 'no-tenant@example.com')
+        ->where('google.name', 'No Tenant')
+        ->has('google.token')
+    );
+});
+
 test('google login rejects a user from a different tenant', function () {
     $tenant = Tenant::factory()->create();
     $otherTenant = Tenant::factory()->create();
@@ -144,7 +163,7 @@ test('submitting the register form with a google token creates a passwordless li
         ->and($user->email_verified_at)->not->toBeNull();
 });
 
-test('submitting the register form with a google token ignores a spoofed email and name', function () {
+test('submitting the register form with a google token ignores a spoofed email but keeps the edited name', function () {
     $token = GoogleOAuthToken::encode([
         'sub' => 'g-999',
         'email' => 'real-owner@example.com',
@@ -154,7 +173,7 @@ test('submitting the register form with a google token ignores a spoofed email a
     $response = $this->post(route('register.store'), [
         'institution_name' => 'TPA Nurul Huda',
         'subdomain' => 'tpa-nurul-huda',
-        'name' => 'Attacker Chosen Name',
+        'name' => 'Edited Name',
         'email' => 'victim@example.com',
         'google_token' => $token,
     ]);
@@ -164,6 +183,6 @@ test('submitting the register form with a google token ignores a spoofed email a
     expect(User::where('email', 'victim@example.com')->exists())->toBeFalse();
 
     $user = User::where('email', 'real-owner@example.com')->firstOrFail();
-    expect($user->name)->toBe('Real Owner')
+    expect($user->name)->toBe('Edited Name')
         ->and($user->google_id)->toBe('g-999');
 });

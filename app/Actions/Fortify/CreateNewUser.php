@@ -37,11 +37,11 @@ class CreateNewUser implements CreatesNewUsers
             ]);
         }
 
-        // The client can submit whatever it wants for `email`/`name` — never trust
-        // those fields over the signed token once Google has attested an identity.
+        // The client can submit whatever it wants for `email` — never trust that
+        // field over the signed token once Google has attested an identity. The
+        // name stays user-editable; it's just a display label, not an identity claim.
         if ($google !== null) {
             $input['email'] = $google['email'];
-            $input['name'] = $google['name'];
         }
 
         Validator::make($input, [

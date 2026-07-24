@@ -52,14 +52,12 @@ class GoogleAuthController extends Controller
             : $this->handleLogin($googleUser, $state['subdomain'] ?? null);
     }
 
-    private function handleLogin(SocialiteUser $googleUser, ?string $subdomain): RedirectResponse
+    private function handleLogin(SocialiteUser $googleUser, ?string $subdomain): RedirectResponse|InertiaResponse
     {
         $tenant = $subdomain !== null ? Tenant::where('subdomain', $subdomain)->first() : null;
 
         if (! $tenant) {
-            return redirect()->route('login')->withErrors([
-                'google' => 'Lembaga tidak ditemukan.',
-            ]);
+            return $this->handleRegister($googleUser);
         }
 
         $user = User::where('email', $googleUser->getEmail())->first();
