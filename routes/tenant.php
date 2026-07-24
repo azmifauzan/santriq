@@ -38,6 +38,7 @@ $tenantRoutes = function (): void {
         Route::post('masuk', [GuardianAuthController::class, 'requestLink'])
             ->middleware('throttle:5,1')
             ->name('login.request');
+        Route::post('masuk-demo', [GuardianAuthController::class, 'loginDemo'])->name('login.demo');
         Route::get('masuk/verifikasi/{guardian}', [GuardianAuthController::class, 'verify'])
             ->middleware('signed')
             ->name('login.verify');

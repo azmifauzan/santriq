@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
+import GuardianAuthController from '@/actions/App/Http/Controllers/GuardianAuthController';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,10 @@ defineOptions({
             'Masuk dengan nomor HP yang terdaftar untuk melihat kehadiran dan pencapaian anak Anda.',
     },
 });
+
+defineProps<{
+    isDemo?: boolean;
+}>();
 </script>
 
 <template>
@@ -26,6 +31,28 @@ defineOptions({
                     Masukkan nomor HP yang terdaftar untuk menerima tautan masuk
                     via Telegram.
                 </p>
+            </div>
+
+            <div
+                v-if="isDemo"
+                class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center text-sm dark:border-emerald-900 dark:bg-emerald-950"
+            >
+                <p class="mb-3 text-emerald-800 dark:text-emerald-300">
+                    Ini tenant demo — coba masuk sebagai wali tanpa Telegram.
+                </p>
+                <Form
+                    v-bind="GuardianAuthController.loginDemo.form()"
+                    v-slot="{ processing }"
+                >
+                    <Button
+                        type="submit"
+                        class="w-full bg-emerald-600 hover:bg-emerald-700"
+                        :disabled="processing"
+                    >
+                        <Spinner v-if="processing" />
+                        Masuk sebagai Wali Demo
+                    </Button>
+                </Form>
             </div>
 
             <Form

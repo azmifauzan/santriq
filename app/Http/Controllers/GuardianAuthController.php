@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\SendTelegramMessage;
 use App\Models\Guardian;
 use App\Support\CurrentTenant;
+use App\Support\DemoTenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,22 @@ class GuardianAuthController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('guardian/Login');
+        return Inertia::render('guardian/Login', [
+            'isDemo' => DemoTenant::isActive(),
+        ]);
+    }
+
+    public function loginDemo(): RedirectResponse
+    {
+        abort_unless(DemoTenant::isActive(), 404);
+
+        $guardian = Guardian::where('tenant_id', CurrentTenant::get()->id)
+            ->oldest('id')
+            ->firstOrFail();
+
+        Auth::guard('guardian')->login($guardian, remember: true);
+
+        return redirect()->route('guardian.portal.index');
     }
 
     public function requestLink(Request $request): RedirectResponse
