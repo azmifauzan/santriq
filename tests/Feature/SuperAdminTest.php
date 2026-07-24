@@ -85,3 +85,17 @@ test('super admin can suspend and reactivate a tenant', function () {
 
     expect($target->fresh()->isSuspended())->toBeFalse();
 });
+
+test('superAdminUrl prop is shared only with super admins', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']);
+    $superAdmin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    $this->actingAsStaff($admin)
+        ->get(route('dashboard', ['subdomain' => $tenant->subdomain]))
+        ->assertInertia(fn ($page) => $page->where('superAdminUrl', null));
+
+    $this->actingAsStaff($superAdmin)
+        ->get(route('dashboard', ['subdomain' => $tenant->subdomain]))
+        ->assertInertia(fn ($page) => $page->where('superAdminUrl', route('super-admin.index')));
+});

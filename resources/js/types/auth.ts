@@ -1,11 +1,12 @@
 export type Tenant = {
     id: number;
     name: string;
-    slug: string;
+    subdomain: string;
     address: string | null;
     phone: string | null;
     timezone: string;
     settings: Record<string, unknown> | null;
+    suspended_at: string | null;
 };
 
 export type User = {
@@ -14,6 +15,7 @@ export type User = {
     name: string;
     email: string;
     role: 'admin' | 'pengajar';
+    is_super_admin: boolean;
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;

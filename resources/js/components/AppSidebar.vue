@@ -9,6 +9,7 @@ import {
     GraduationCap,
     LayoutGrid,
     QrCode,
+    ShieldCheck,
     UserCheck,
     UserCog,
     Users,
@@ -31,6 +32,7 @@ import type { User } from '@/types/auth';
 
 const page = usePage();
 const currentUser = computed(() => page.props.auth?.user as User | undefined);
+const superAdminUrl = computed(() => page.props.superAdminUrl as string | null);
 
 const mainNavItems = computed<NavItem[]>(() => {
     const isAdmin = currentUser.value?.role === 'admin';
@@ -119,6 +121,16 @@ const mainNavItems = computed<NavItem[]>(() => {
         </SidebarContent>
 
         <SidebarFooter>
+            <SidebarMenu v-if="superAdminUrl">
+                <SidebarMenuItem>
+                    <SidebarMenuButton as-child>
+                        <a :href="superAdminUrl">
+                            <ShieldCheck />
+                            <span>Panel Super Admin</span>
+                        </a>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
             <NavUser />
         </SidebarFooter>
     </Sidebar>
