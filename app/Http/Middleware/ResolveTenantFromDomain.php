@@ -24,6 +24,7 @@ class ResolveTenantFromDomain
             $tenant = Tenant::where('subdomain', $subdomain)->first();
 
             abort_unless($tenant !== null, 404);
+            abort_if($tenant->isSuspended(), 403);
 
             app()->instance(Tenant::class, $tenant);
             URL::defaults(['subdomain' => $subdomain]);
