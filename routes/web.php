@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TenantSubdomainAvailabilityController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,12 @@ Route::domain(config('tenancy.domain'))->group(function () {
     Route::post('telegram/webhook', [TelegramWebhookController::class, 'handle'])
         ->middleware('throttle:120,1')
         ->name('telegram.webhook');
+
+    Route::middleware(['auth', 'verified'])->prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/', [SuperAdminController::class, 'index'])->name('index');
+        Route::get('{tenant}', [SuperAdminController::class, 'show'])->name('show');
+        Route::patch('{tenant}/toggle-status', [SuperAdminController::class, 'toggleStatus'])->name('toggle-status');
+    });
 });
 
 require __DIR__.'/tenant.php';
