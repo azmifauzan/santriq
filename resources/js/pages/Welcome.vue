@@ -17,7 +17,7 @@ import {
 } from '@lucide/vue';
 import { onMounted, ref } from 'vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import { dashboard, login, privacy, register, terms } from '@/routes';
+import { login, privacy, register, terms } from '@/routes';
 
 const githubStars = ref<number>();
 
@@ -178,27 +178,17 @@ const steps = [
                     </a>
                     <ThemeToggle />
                     <Link
-                        v-if="$page.props.auth.user"
-                        :href="dashboard()"
-                        class="inline-flex h-10 items-center gap-2 rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                        :href="login()"
+                        class="hidden h-10 items-center rounded-full px-4 text-sm font-semibold text-slate-700 transition hover:text-emerald-700 sm:inline-flex dark:text-slate-200 dark:hover:text-emerald-400"
                     >
-                        Buka dasbor
-                        <ArrowRight class="size-4" aria-hidden="true" />
+                        Masuk
                     </Link>
-                    <template v-else>
-                        <Link
-                            :href="login()"
-                            class="hidden h-10 items-center rounded-full px-4 text-sm font-semibold text-slate-700 transition hover:text-emerald-700 sm:inline-flex dark:text-slate-200 dark:hover:text-emerald-400"
-                        >
-                            Masuk
-                        </Link>
-                        <Link
-                            :href="register()"
-                            class="inline-flex h-10 items-center rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
-                        >
-                            Daftar gratis
-                        </Link>
-                    </template>
+                    <Link
+                        :href="register()"
+                        class="inline-flex h-10 items-center rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                    >
+                        Daftar gratis
+                    </Link>
                 </div>
             </nav>
         </header>
@@ -235,18 +225,10 @@ const steps = [
                         </p>
                         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link
-                                :href="
-                                    $page.props.auth.user
-                                        ? dashboard()
-                                        : register()
-                                "
+                                :href="register()"
                                 class="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 text-sm font-semibold text-white shadow-lg shadow-emerald-900/15 transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
                             >
-                                {{
-                                    $page.props.auth.user
-                                        ? 'Buka dasbor'
-                                        : 'Mulai gratis'
-                                }}
+                                Mulai gratis
                                 <ArrowRight class="size-4" aria-hidden="true" />
                             </Link>
                             <a
@@ -670,16 +652,10 @@ const steps = [
                             SantriQ.
                         </p>
                         <Link
-                            :href="
-                                $page.props.auth.user ? dashboard() : register()
-                            "
+                            :href="register()"
                             class="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-emerald-700 transition hover:-translate-y-0.5 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                         >
-                            {{
-                                $page.props.auth.user
-                                    ? 'Buka dasbor'
-                                    : 'Daftar sekarang'
-                            }}
+                            Daftar sekarang
                             <ArrowRight class="size-4" aria-hidden="true" />
                         </Link>
                     </div>
