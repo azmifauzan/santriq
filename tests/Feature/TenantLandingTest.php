@@ -25,3 +25,21 @@ test('landing page only counts this tenant students, teachers, and classrooms', 
             ->where('stats.classrooms', 2)
         );
 });
+
+test('landing page has useful defaults before its content is configured', function () {
+    $tenant = Tenant::factory()->create([
+        'name' => 'TPQ Nurul Ilmi',
+        'subdomain' => 'tpq-default',
+        'settings' => [],
+    ]);
+
+    $this->get("http://{$tenant->subdomain}.santriq.test/")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Tenant/Landing')
+            ->where('landing.tagline', 'Tumbuh dalam ilmu, dekat dalam kebersamaan.')
+            ->where('landing.description', "TPQ Nurul Ilmi mendampingi santri belajar Al-Qur'an, bertumbuh dalam adab, dan berkembang bersama.")
+            ->where('landing.accent_color', '#059669')
+            ->where('landing.gallery', [])
+        );
+});
