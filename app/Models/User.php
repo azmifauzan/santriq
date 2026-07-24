@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property string $email
  * @property string|null $google_id
  * @property string $role
+ * @property bool $is_super_admin
  * @property Carbon|null $email_verified_at
  * @property Carbon|null $onboarded_at
  * @property string|null $password
@@ -29,7 +30,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'tenant_id', 'role', 'onboarded_at'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'tenant_id', 'role', 'is_super_admin', 'onboarded_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -47,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'onboarded_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
         ];
     }
 
@@ -68,5 +70,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isPengajar(): bool
     {
         return $this->role === 'pengajar';
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_super_admin;
     }
 }

@@ -17,10 +17,11 @@ use Illuminate\Support\Carbon;
  * @property string|null $phone
  * @property string $timezone
  * @property array<string, mixed>|null $settings
+ * @property Carbon|null $suspended_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'subdomain', 'address', 'phone', 'timezone', 'settings'])]
+#[Fillable(['name', 'subdomain', 'address', 'phone', 'timezone', 'settings', 'suspended_at'])]
 class Tenant extends Model
 {
     /** @use HasFactory<TenantFactory> */
@@ -35,6 +36,7 @@ class Tenant extends Model
     {
         return [
             'settings' => 'array',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -46,5 +48,30 @@ class Tenant extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get students belonging to this tenant.
+     *
+     * @return HasMany<Student, $this>
+     */
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    /**
+     * Get guardians belonging to this tenant.
+     *
+     * @return HasMany<Guardian, $this>
+     */
+    public function guardians(): HasMany
+    {
+        return $this->hasMany(Guardian::class);
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
     }
 }
