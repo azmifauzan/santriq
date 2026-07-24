@@ -63,3 +63,8 @@ test('subdomain availability check reports taken and free values', function () {
     $this->getJson(route('subdomain.availability', ['value' => 'admin']))
         ->assertJson(['available' => false]);
 });
+
+test('subdomain availability check reports the demo subdomain as reserved', function () {
+    $this->getJson(route('subdomain.availability', ['value' => 'demo']))
+        ->assertJson(['available' => false]);
+});
