@@ -3,6 +3,7 @@
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\GoogleOAuthToken;
+use Illuminate\Support\Facades\URL;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
@@ -26,6 +27,12 @@ test('google login authenticates an already linked user', function () {
     $state = GoogleOAuthToken::encode(['intent' => 'login', 'subdomain' => $tenant->subdomain]);
     $response = $this->get(route('google.callback', ['state' => $state]));
 
+    $this->assertGuest();
+    $verifyLink = $response->headers->get('Location');
+    expect($verifyLink)->toContain(route('google.login.verify', ['subdomain' => $tenant->subdomain, 'user' => $user->id], absolute: false));
+
+    $response = $this->get($verifyLink);
+
     $this->assertAuthenticatedAs($user);
     $response->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
 });
@@ -42,6 +49,9 @@ test('google login authenticates an already linked user from the central login s
     $state = GoogleOAuthToken::encode(['intent' => 'login', 'subdomain' => '']);
     $response = $this->get(route('google.callback', ['state' => $state]));
 
+    $this->assertGuest();
+    $response = $this->get($response->headers->get('Location'));
+
     $this->assertAuthenticatedAs($user);
     $response->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
 });
@@ -57,7 +67,8 @@ test('google login auto-links a verified google email to a matching password acc
     ]));
 
     $state = GoogleOAuthToken::encode(['intent' => 'login', 'subdomain' => $tenant->subdomain]);
-    $this->get(route('google.callback', ['state' => $state]));
+    $response = $this->get(route('google.callback', ['state' => $state]));
+    $this->get($response->headers->get('Location'));
 
     $this->assertAuthenticatedAs($user);
     expect($user->refresh()->google_id)->toBe('g-456');
@@ -115,6 +126,39 @@ test('google login rejects a user from a different tenant', function () {
 
     $this->assertGuest();
     $response->assertRedirect(route('login'));
+});
+
+test('google login verify rejects a tampered signature', function () {
+    $tenant = Tenant::factory()->create();
+    $user = User::factory()->for($tenant)->create(['google_id' => 'g-123']);
+
+    $link = URL::temporarySignedRoute(
+        'google.login.verify',
+        now()->addMinutes(5),
+        ['subdomain' => $tenant->subdomain, 'user' => $user->id]
+    );
+
+    $response = $this->get($link.'&tampered=1');
+
+    $response->assertForbidden();
+    $this->assertGuest();
+});
+
+test('google login verify rejects a user from a different tenant subdomain', function () {
+    $tenant = Tenant::factory()->create();
+    $otherTenant = Tenant::factory()->create();
+    $user = User::factory()->for($otherTenant)->create(['google_id' => 'g-123']);
+
+    $link = URL::temporarySignedRoute(
+        'google.login.verify',
+        now()->addMinutes(5),
+        ['subdomain' => $tenant->subdomain, 'user' => $user->id]
+    );
+
+    $response = $this->get($link);
+
+    $response->assertForbidden();
+    $this->assertGuest();
 });
 
 test('google callback rejects an expired or tampered state', function () {

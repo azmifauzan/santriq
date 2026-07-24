@@ -4,6 +4,7 @@ use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GuardianAuthController;
 use App\Http\Controllers\GuardianController;
 use App\Http\Controllers\GuardianLeaveRequestController;
@@ -23,6 +24,14 @@ use Illuminate\Support\Facades\Route;
 
 $tenantRoutes = function (): void {
     Route::get('/', [TenantLandingController::class, 'show'])->name('tenant.landing');
+
+    // Hands off a login already verified by GoogleAuthController on the apex
+    // domain (see GoogleAuthController::redirectToTenantLogin) — the session
+    // has to be established here, on the tenant subdomain itself, because
+    // SESSION_DOMAIN is deliberately null.
+    Route::get('auth/google/verify/{user}', [GoogleAuthController::class, 'verifyLogin'])
+        ->middleware('signed')
+        ->name('google.login.verify');
 
     Route::prefix('wali')->name('guardian.')->group(function () {
         Route::get('masuk', [GuardianAuthController::class, 'create'])->name('login');
