@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Tenant;
+use App\Models\User;
 
 test('unknown subdomain returns 404', function () {
     $this->get('http://ghost.santriq.test/')->assertNotFound();
@@ -10,6 +11,22 @@ test('bare apex domain is left untouched', function () {
     $this->get('http://santriq.test/')
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Welcome'));
+});
+
+test('stale apex authentication does not redirect auth pages to an empty tenant domain', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get('http://santriq.test/login')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('auth/Login'));
+
+    $this->actingAs($user)
+        ->get('http://santriq.test/register')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('auth/Register'));
+
+    $this->assertGuest();
 });
 
 test('known subdomain resolves the matching tenant', function () {

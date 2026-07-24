@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Tenant;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -26,6 +27,8 @@ class ResolveTenantFromDomain
 
             app()->instance(Tenant::class, $tenant);
             URL::defaults(['subdomain' => $subdomain]);
+        } elseif ($request->user('web') && $request->is('login', 'register')) {
+            Auth::guard('web')->logout();
         }
 
         // {subdomain} is a route parameter on every tenant route (domain segment
