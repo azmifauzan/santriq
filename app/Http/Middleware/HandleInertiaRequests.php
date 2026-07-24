@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use App\Support\CurrentTenant;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -55,7 +56,7 @@ class HandleInertiaRequests extends Middleware
             // route function that needs a `subdomain` keeps working without passing it
             // explicitly at every call site.
             'subdomain' => CurrentTenant::resolved() ? CurrentTenant::get()->subdomain : $user?->tenant?->subdomain,
-            'superAdminUrl' => $user?->isSuperAdmin() ? route('super-admin.index') : null,
+            'superAdminUrl' => ($user instanceof User && $user->isSuperAdmin()) ? route('super-admin.index') : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
