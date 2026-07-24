@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import TenantGrowthChart from '@/components/TenantGrowthChart.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout.vue';
@@ -12,13 +14,37 @@ type TenantWithStats = Tenant & {
     guardians_count: number;
 };
 
-defineProps<{
+type PlatformStats = {
+    tenants: number;
+    active_tenants: number;
+    suspended_tenants: number;
+    students: number;
+    teachers: number;
+    guardians: number;
+    registered_users: number;
+    verified_users: number;
+};
+
+const props = defineProps<{
     tenants: TenantWithStats[];
+    stats: PlatformStats;
+    monthlyTenants: { label: string; count: number }[];
 }>();
 
 defineOptions({
     layout: SuperAdminLayout,
 });
+
+const statTiles = computed(() => [
+    { label: 'Total Lembaga', value: props.stats.tenants },
+    { label: 'Lembaga Aktif', value: props.stats.active_tenants },
+    { label: 'Lembaga Disuspend', value: props.stats.suspended_tenants },
+    { label: 'Total Santri', value: props.stats.students },
+    { label: 'Total Pengajar', value: props.stats.teachers },
+    { label: 'Total Wali Santri', value: props.stats.guardians },
+    { label: 'Akun Terdaftar', value: props.stats.registered_users },
+    { label: 'Akun Terverifikasi', value: props.stats.verified_users },
+]);
 
 function toggleTenant(tenant: TenantWithStats) {
     const question = tenant.suspended_at
@@ -41,6 +67,19 @@ function toggleTenant(tenant: TenantWithStats) {
                 Semua lembaga yang terdaftar di SantriQ.
             </p>
         </div>
+
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div
+                v-for="tile in statTiles"
+                :key="tile.label"
+                class="rounded-md border bg-card p-4"
+            >
+                <p class="text-sm text-muted-foreground">{{ tile.label }}</p>
+                <p class="text-2xl font-bold">{{ tile.value }}</p>
+            </div>
+        </div>
+
+        <TenantGrowthChart :data="monthlyTenants" />
 
         <div class="overflow-x-auto rounded-md border bg-card">
             <table class="w-full text-left text-sm">

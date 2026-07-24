@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guardian;
+use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -56,7 +58,47 @@ class SuperAdminController extends Controller
 
         return Inertia::render('SuperAdmin/Index', [
             'tenants' => $tenants,
+            'stats' => [
+                'tenants' => Tenant::count(),
+                'active_tenants' => Tenant::whereNull('suspended_at')->count(),
+                'suspended_tenants' => Tenant::whereNotNull('suspended_at')->count(),
+                'students' => Student::withoutGlobalScopes()->count(),
+                'teachers' => User::where('role', 'pengajar')->count(),
+                'guardians' => Guardian::withoutGlobalScopes()->count(),
+                'registered_users' => User::count(),
+                'verified_users' => User::whereNotNull('email_verified_at')->count(),
+            ],
+            'monthlyTenants' => $this->monthlyTenantGrowth(),
         ]);
+    }
+
+    /**
+     * @var array<int, string>
+     */
+    private const MONTH_LABELS_ID = [
+        1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
+        7 => 'Jul', 8 => 'Agt', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des',
+    ];
+
+    /**
+     * Lembaga baru per bulan, 12 bulan terakhir. Dihitung dari `tenants.created_at`
+     * lewat query per bulan (bukan `GROUP BY` SQL) supaya portable antara SQLite
+     * (lokal/testing) dan PostgreSQL (produksi) tanpa fungsi tanggal spesifik-dialek.
+     *
+     * @return array<int, array{label: string, count: int}>
+     */
+    private function monthlyTenantGrowth(): array
+    {
+        return collect(range(11, 0))
+            ->map(function (int $monthsAgo) {
+                $start = now()->subMonths($monthsAgo)->startOfMonth();
+
+                return [
+                    'label' => self::MONTH_LABELS_ID[$start->month].' '.$start->year,
+                    'count' => Tenant::whereBetween('created_at', [$start, $start->copy()->endOfMonth()])->count(),
+                ];
+            })
+            ->all();
     }
 
     public function show(Tenant $tenant): Response

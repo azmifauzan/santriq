@@ -1,31 +1,28 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import AppLogo from '@/components/AppLogo.vue';
-import { Button } from '@/components/ui/button';
-import { logout } from '@/routes';
-import { index } from '@/routes/super-admin';
+import AppContent from '@/components/AppContent.vue';
+import AppShell from '@/components/AppShell.vue';
+import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
+import SuperAdminSidebar from '@/components/SuperAdminSidebar.vue';
+import { Toaster } from '@/components/ui/sonner';
+import type { BreadcrumbItem } from '@/types';
+
+withDefaults(
+    defineProps<{
+        breadcrumbs?: BreadcrumbItem[];
+    }>(),
+    {
+        breadcrumbs: () => [],
+    },
+);
 </script>
 
 <template>
-    <div class="flex min-h-svh flex-col bg-background">
-        <header class="border-b">
-            <div
-                class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4"
-            >
-                <Link :href="index()" class="flex items-center gap-2">
-                    <AppLogo />
-                    <span class="text-sm font-medium text-muted-foreground">
-                        Super Admin
-                    </span>
-                </Link>
-                <Button as-child variant="outline" size="sm">
-                    <Link :href="logout()" method="post">Keluar</Link>
-                </Button>
-            </div>
-        </header>
-
-        <main class="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
+    <AppShell variant="sidebar">
+        <SuperAdminSidebar />
+        <AppContent variant="sidebar" class="overflow-x-hidden">
+            <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <slot />
-        </main>
-    </div>
+        </AppContent>
+        <Toaster />
+    </AppShell>
 </template>

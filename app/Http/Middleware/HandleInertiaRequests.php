@@ -63,6 +63,13 @@ class HandleInertiaRequests extends Middleware
             'superAdminUrl' => (CurrentTenant::resolved() && $user instanceof User && $user->isSuperAdmin())
                 ? route('super-admin.redirect')
                 : null,
+            // The reverse of superAdminUrl: on the apex-domain super admin panel,
+            // links back to the user's own tenant dashboard on their subdomain
+            // (that session was never touched — only the apex one was freshly
+            // established via the signed handoff, see SuperAdminController).
+            'ownDashboardUrl' => (! CurrentTenant::resolved() && $user instanceof User && $user->isSuperAdmin() && $user->tenant !== null)
+                ? route('dashboard', ['subdomain' => $user->tenant->subdomain])
+                : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

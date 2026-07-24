@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Classroom;
 use App\Models\Guardian;
 use App\Models\Student;
 use App\Models\Tenant;
@@ -53,6 +54,39 @@ test('super admin sees all tenants with stats on the index page', function () {
     );
 });
 
+test('index page includes platform-wide stats and monthly tenant growth', function () {
+    $ownTenant = Tenant::factory()->create();
+    $superAdmin = User::factory()->create(['tenant_id' => $ownTenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    $suspended = Tenant::factory()->create(['suspended_at' => now()]);
+    // `for()` binds tenant/classroom directly instead of letting Student's own
+    // factory (`classroom_id => Classroom::factory()`, which itself defaults
+    // `tenant_id => Tenant::factory()`) spin up throwaway tenants that would
+    // inflate the global Tenant::count() this test asserts.
+    $classroom = Classroom::factory()->for($suspended, 'tenant')->create();
+    Student::factory()->count(2)->for($suspended, 'tenant')->for($classroom, 'classroom')->create();
+    Guardian::factory()->count(1)->for($suspended, 'tenant')->create();
+    User::factory()->create(['tenant_id' => $suspended->id, 'role' => 'pengajar']);
+    User::factory()->unverified()->create(['tenant_id' => $suspended->id, 'role' => 'pengajar']);
+
+    $response = $this->actingAsStaff($superAdmin)->get(route('super-admin.index'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->where('stats.tenants', 2)
+        ->where('stats.active_tenants', 1)
+        ->where('stats.suspended_tenants', 1)
+        ->where('stats.students', 2)
+        ->where('stats.teachers', 2)
+        ->where('stats.guardians', 1)
+        ->where('stats.registered_users', 3)
+        ->where('stats.verified_users', 2)
+        ->has('monthlyTenants', 12)
+        ->where('monthlyTenants.11.label', ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'][now()->month - 1].' '.now()->year)
+        ->where('monthlyTenants', fn ($monthly) => collect($monthly)->sum('count') === 2)
+    );
+});
+
 test('super admin sees tenant detail with staff list', function () {
     $ownTenant = Tenant::factory()->create();
     $superAdmin = User::factory()->create(['tenant_id' => $ownTenant->id, 'role' => 'admin', 'is_super_admin' => true]);
@@ -99,6 +133,29 @@ test('superAdminUrl prop is shared only with super admins', function () {
     $this->actingAsStaff($superAdmin)
         ->get(route('dashboard', ['subdomain' => $tenant->subdomain]))
         ->assertInertia(fn ($page) => $page->where('superAdminUrl', route('super-admin.redirect', ['subdomain' => $tenant->subdomain])));
+});
+
+test('ownDashboardUrl prop is absent on the super admin\'s own tenant subdomain', function () {
+    $tenant = Tenant::factory()->create();
+    $superAdmin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    // CurrentTenant is already resolved there — no need for a link back to itself.
+    $this->actingAsStaff($superAdmin)
+        ->get(route('dashboard', ['subdomain' => $tenant->subdomain]))
+        ->assertInertia(fn ($page) => $page->where('ownDashboardUrl', null));
+});
+
+test('ownDashboardUrl prop points back to the super admin\'s own tenant on the apex domain', function () {
+    $tenant = Tenant::factory()->create();
+    $superAdmin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    // CurrentTenant never resolves on the apex domain (see ResolveTenantFromDomain).
+    $this->actingAs($superAdmin)
+        ->get(route('super-admin.index'))
+        ->assertInertia(fn ($page) => $page->where(
+            'ownDashboardUrl',
+            route('dashboard', ['subdomain' => $tenant->subdomain])
+        ));
 });
 
 test('non-super-admin cannot start the apex handoff', function () {
