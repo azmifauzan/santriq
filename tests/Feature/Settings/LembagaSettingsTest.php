@@ -28,6 +28,19 @@ test('admin can update landing content', function () {
     Storage::disk('public')->assertExists($tenant->settings['landing']['logo_path']);
 });
 
+test('logo upload rejects svg to prevent stored xss', function () {
+    Storage::fake('public');
+
+    $tenant = Tenant::factory()->create();
+    $admin = $this->actingAsStaff(User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']));
+
+    $response = $admin->put(route('lembaga.update'), [
+        'logo' => UploadedFile::fake()->create('logo.svg', 10, 'image/svg+xml'),
+    ]);
+
+    $response->assertSessionHasErrors('logo');
+});
+
 test('pengajar cannot update landing content', function () {
     $tenant = Tenant::factory()->create();
     $pengajar = $this->actingAsStaff(User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'pengajar']));

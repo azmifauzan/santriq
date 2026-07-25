@@ -23,9 +23,9 @@ class LembagaUpdateRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:2000'],
             'operating_hours' => ['nullable', 'string', 'max:255'],
             'accent_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
-            'logo' => ['nullable', 'image', 'max:1024'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
             'gallery' => ['nullable', 'array', 'max:6'],
-            'gallery.*' => ['image', 'max:2048'],
+            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 }

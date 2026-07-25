@@ -102,11 +102,11 @@ const steps = [
     <div
         class="min-h-screen overflow-hidden bg-[#fbfdf9] text-slate-950 dark:bg-slate-950 dark:text-white"
     >
-        <Head title="Manajemen TPA/TPQ yang Lebih Mudah">
+        <Head title="SantriQ — Manajemen TPA/TPQ yang Lebih Mudah">
             <meta
                 head-key="description"
                 name="description"
-                content="SantriQ adalah platform gratis dan open source untuk absensi QR, notifikasi Telegram, pencapaian, SPP, dan perizinan santri."
+                content="SantriQ adalah platform gratis dan open source untuk manajemen TPA/TPQ: absensi QR, notifikasi kehadiran ke wali santri via Telegram, pencatatan pencapaian, SPP, dan perizinan santri."
             />
         </Head>
 
