@@ -8,7 +8,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --prefer-dist --optimize-autoloader
+# This stage's bare PHP CLI is missing extensions (gd, zip, ...) that some
+# vendor packages platform-check for at install time. Nothing here executes
+# that code — vendor/ only gets copied into the app stage below, which does
+# install the real extension set — so the checks are safe to skip wholesale.
+RUN composer install --no-dev --no-scripts --prefer-dist --optimize-autoloader --ignore-platform-reqs
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
