@@ -112,3 +112,18 @@ test('users are rate limited', function () {
 
     $response->assertTooManyRequests();
 });
+
+test('a successful login clears the login rate limiter', function () {
+    $user = User::factory()->create();
+    $throttleKey = md5('login'.implode('|', [$user->email, '127.0.0.1']));
+
+    RateLimiter::increment($throttleKey, amount: 4);
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticated();
+    expect(RateLimiter::attempts($throttleKey))->toBe(0);
+});

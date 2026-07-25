@@ -85,6 +85,27 @@ test('verified user is redirected to dashboard from verification prompt', functi
     $response->assertRedirect('/dashboard');
 });
 
+test('expired verification link redirects to the notice screen with a status', function () {
+    app()->detectEnvironment(fn () => 'production');
+
+    $user = User::factory()->unverified()->create();
+
+    Event::fake();
+
+    $expiredVerificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->subMinute(),
+        ['id' => $user->id, 'hash' => sha1($user->email)],
+    );
+
+    $response = $this->actingAsStaff($user)->get($expiredVerificationUrl);
+
+    Event::assertNotDispatched(Verified::class);
+    expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
+    $response->assertRedirect(route('verification.notice'));
+    $response->assertSessionHas('status', 'verification-link-expired');
+});
+
 test('already verified user visiting verification link is redirected without firing event again', function () {
     $user = User::factory()->create();
 

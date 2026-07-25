@@ -25,6 +25,23 @@ test('reset password link can be requested', function () {
     Notification::assertSentTo($user, ResetPassword::class);
 });
 
+test('reset password email is sent in indonesian with a santriq-branded subject', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    $this->post(route('password.email'), ['email' => $user->email]);
+
+    Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
+        $mail = $notification->toMail($user);
+
+        expect($mail->subject)->toBe('Reset Kata Sandi - SantriQ')
+            ->and(implode(' ', $mail->introLines))->toContain('reset kata sandi');
+
+        return true;
+    });
+});
+
 test('reset password screen can be rendered', function () {
     Notification::fake();
 
