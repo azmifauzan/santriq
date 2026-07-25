@@ -124,7 +124,7 @@ function reviewRequest(
                     <tr
                         v-for="reqItem in leaveRequests"
                         :key="reqItem.id"
-                        class="hover:bg-muted/30"
+                        class="hover:bg-accent/60"
                     >
                         <td class="px-4 py-3 font-medium">
                             {{ reqItem.student?.name || '-' }}
