@@ -72,5 +72,6 @@ test('registration and login stay on the apex regardless of fallback mode', func
         'password' => 'password123',
     ]);
 
-    $loginResponse->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
+    followTenantHandoff($loginResponse)
+        ->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
 });

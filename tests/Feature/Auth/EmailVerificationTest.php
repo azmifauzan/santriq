@@ -34,7 +34,10 @@ test('email can be verified', function () {
     Event::assertDispatched(Verified::class);
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
-    $response->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+    // The emailed link is opened on the apex, so the dashboard is reached
+    // through a signed handoff — see App\Support\TenantSessionHandoff.
+    followTenantHandoff($response)
+        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 });
 
 test('email is not verified with invalid hash', function () {
@@ -93,7 +96,7 @@ test('already verified user visiting verification link is redirected without fir
         ['id' => $user->id, 'hash' => sha1($user->email)],
     );
 
-    $this->actingAsStaff($user)->get($verificationUrl)
+    followTenantHandoff($this->actingAsStaff($user)->get($verificationUrl))
         ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 
     Event::assertNotDispatched(Verified::class);

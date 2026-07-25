@@ -4,7 +4,6 @@ use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GuardianAuthController;
 use App\Http\Controllers\GuardianController;
 use App\Http\Controllers\GuardianLeaveRequestController;
@@ -20,6 +19,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TenantLandingController;
+use App\Http\Controllers\TenantSessionController;
 use App\Http\Middleware\EnsureOnboardingComplete;
 use App\Http\Middleware\EnsureStaffTenantMatchesSubdomain;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -28,13 +28,13 @@ use Illuminate\Support\Facades\Route;
 $tenantRoutes = function (): void {
     Route::get('/', [TenantLandingController::class, 'show'])->name('tenant.landing');
 
-    // Hands off a login already verified by GoogleAuthController on the apex
-    // domain (see GoogleAuthController::redirectToTenantLogin) — the session
-    // has to be established here, on the tenant subdomain itself, because
-    // SESSION_DOMAIN is deliberately null.
-    Route::get('auth/google/verify/{user}', [GoogleAuthController::class, 'verifyLogin'])
+    // Hands off an identity already established on the apex domain — Google
+    // login, registration, and email verification all land there. The session
+    // has to be created here, on the tenant subdomain itself, because
+    // SESSION_DOMAIN is deliberately null (see App\Support\TenantSessionHandoff).
+    Route::get('auth/verify-session/{user}', [TenantSessionController::class, 'verify'])
         ->middleware('signed')
-        ->name('google.login.verify');
+        ->name('tenant.session.verify');
 
     Route::prefix('wali')->name('guardian.')->group(function () {
         Route::get('masuk', [GuardianAuthController::class, 'create'])->name('login');

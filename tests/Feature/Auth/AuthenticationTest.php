@@ -52,10 +52,11 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    // `login` itself is central (no {subdomain}), so LoginResponse builds the
-    // dashboard redirect from the authenticated user's own tenant instead of
-    // relying on the request having resolved one — see App\Http\Responses\LoginResponse.
-    $response->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+    // `login` itself is central (no {subdomain}), so the session was created on
+    // the apex and cannot follow the user to their subdomain — LoginResponse
+    // hands it over through a signed link instead of redirecting straight in.
+    followTenantHandoff($response)
+        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {

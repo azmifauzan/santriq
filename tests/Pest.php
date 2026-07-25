@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\Support\PathFallbackTestCase;
 use Tests\TestCase;
 
@@ -52,7 +53,16 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Follow the signed handoff link that carries an identity from the apex domain
+ * onto the tenant subdomain (see App\Support\TenantSessionHandoff), and return
+ * the response of the subdomain that consumed it.
+ */
+function followTenantHandoff(TestResponse $response): TestResponse
 {
-    // ..
+    $location = $response->headers->get('Location');
+
+    expect($location)->toContain('/auth/verify-session/');
+
+    return test()->get($location);
 }

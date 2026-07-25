@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Tenant;
 use App\Models\User;
-use App\Support\CurrentTenant;
 use App\Support\GoogleOAuthToken;
+use App\Support\TenantSessionHandoff;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -62,7 +60,7 @@ class GoogleAuthController extends Controller
             $user = User::where('google_id', $googleUser->getId())->first();
 
             if ($user) {
-                return $this->redirectToTenantLogin($user);
+                return TenantSessionHandoff::redirect($user);
             }
 
             return $this->handleRegister($googleUser);
@@ -81,35 +79,7 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        return $this->redirectToTenantLogin($user);
-    }
-
-    /**
-     * Google's callback always runs on the apex domain (fixed redirect URI),
-     * so a session logged in here never reaches the tenant subdomain
-     * (`SESSION_DOMAIN` is deliberately null — see docs/RENCANA-IMPLEMENTASI.md).
-     * Hand off through a signed link the subdomain itself verifies, same
-     * pattern as GuardianAuthController::verify.
-     */
-    private function redirectToTenantLogin(User $user): RedirectResponse
-    {
-        $link = URL::temporarySignedRoute(
-            'google.login.verify',
-            now()->addMinutes(5),
-            ['subdomain' => $user->tenant->subdomain, 'user' => $user->id]
-        );
-
-        return redirect($link);
-    }
-
-    public function verifyLogin(Request $request, User $user): RedirectResponse
-    {
-        abort_unless($request->hasValidSignature(), 403);
-        abort_unless($user->tenant_id === CurrentTenant::get()->id, 403);
-
-        Auth::guard('web')->login($user);
-
-        return redirect()->intended(route('dashboard', ['subdomain' => CurrentTenant::get()->subdomain]));
+        return TenantSessionHandoff::redirect($user);
     }
 
     private function handleRegister(SocialiteUser $googleUser): RedirectResponse|InertiaResponse

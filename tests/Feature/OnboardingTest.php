@@ -120,9 +120,11 @@ test('manual registration lands on onboarding after email verification', functio
         ['id' => $user->id, 'hash' => sha1($user->email)],
     );
 
-    $verifyResponse = $this->get($verificationUrl);
-    $verifyResponse->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+    // Verification happens on the apex, so the dashboard is reached through a
+    // signed handoff onto the subdomain — see App\Support\TenantSessionHandoff.
+    $dashboardResponse = followTenantHandoff($this->get($verificationUrl));
+    $dashboardResponse->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 
-    $this->get($verifyResponse->headers->get('Location'))
+    $this->get($dashboardResponse->headers->get('Location'))
         ->assertRedirect(route('onboarding.show'));
 });

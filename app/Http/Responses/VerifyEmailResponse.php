@@ -3,6 +3,7 @@
 namespace App\Http\Responses;
 
 use App\Models\User;
+use App\Support\TenantSessionHandoff;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
@@ -21,9 +22,11 @@ class VerifyEmailResponse implements VerifyEmailResponseContract
         // response redirects to the fixed path config('fortify.home'), which
         // only exists under the tenant subdomain route group. Build the
         // dashboard URL from the user's own tenant instead, same pattern as
-        // LoginResponse and RegisterResponse.
-        return redirect()->intended(
-            route('dashboard', ['subdomain' => $user->tenant->subdomain])
-        );
+        // LoginResponse and RegisterResponse. The emailed link is normally
+        // opened on the apex, whose session cookie never reaches the subdomain,
+        // so hand the identity over rather than redirect straight in.
+        return TenantSessionHandoff::isOnOwnTenant($user)
+            ? redirect()->intended(route('dashboard', ['subdomain' => $user->tenant->subdomain]))
+            : TenantSessionHandoff::redirect($user);
     }
 }

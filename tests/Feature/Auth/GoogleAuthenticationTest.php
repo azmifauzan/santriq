@@ -29,7 +29,7 @@ test('google login authenticates an already linked user', function () {
 
     $this->assertGuest();
     $verifyLink = $response->headers->get('Location');
-    expect($verifyLink)->toContain(route('google.login.verify', ['subdomain' => $tenant->subdomain, 'user' => $user->id], absolute: false));
+    expect($verifyLink)->toContain(route('tenant.session.verify', ['subdomain' => $tenant->subdomain, 'user' => $user->id], absolute: false));
 
     $response = $this->get($verifyLink);
 
@@ -133,7 +133,7 @@ test('google login verify rejects a tampered signature', function () {
     $user = User::factory()->for($tenant)->create(['google_id' => 'g-123']);
 
     $link = URL::temporarySignedRoute(
-        'google.login.verify',
+        'tenant.session.verify',
         now()->addMinutes(5),
         ['subdomain' => $tenant->subdomain, 'user' => $user->id]
     );
@@ -150,7 +150,7 @@ test('google login verify rejects a user from a different tenant subdomain', fun
     $user = User::factory()->for($otherTenant)->create(['google_id' => 'g-123']);
 
     $link = URL::temporarySignedRoute(
-        'google.login.verify',
+        'tenant.session.verify',
         now()->addMinutes(5),
         ['subdomain' => $tenant->subdomain, 'user' => $user->id]
     );
@@ -216,7 +216,8 @@ test('submitting the register form with a google token creates a passwordless li
     ]);
 
     $user = User::where('email', 'new-admin@example.com')->firstOrFail();
-    $response->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+    followTenantHandoff($response)
+        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 
     expect($user->google_id)->toBe('g-999')
         ->and($user->password)->toBeNull()
@@ -242,8 +243,39 @@ test('submitting the register form with a google token ignores a spoofed email b
     expect(User::where('email', 'victim@example.com')->exists())->toBeFalse();
 
     $user = User::where('email', 'real-owner@example.com')->firstOrFail();
-    $response->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+    followTenantHandoff($response)
+        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 
     expect($user->name)->toBe('Edited Name')
         ->and($user->google_id)->toBe('g-999');
+});
+
+test('google signup hands the session off to the tenant subdomain', function () {
+    $token = GoogleOAuthToken::encode([
+        'sub' => 'g-555',
+        'email' => 'handoff@example.com',
+        'name' => 'Handoff Admin',
+    ]);
+
+    $response = $this->post(route('register.store'), [
+        'institution_name' => 'TPA Nurul Huda',
+        'subdomain' => 'tpa-nurul-huda',
+        'name' => 'Handoff Admin',
+        'email' => 'handoff@example.com',
+        'google_token' => $token,
+    ]);
+
+    $user = User::where('email', 'handoff@example.com')->firstOrFail();
+
+    // Registration runs on the apex domain but the dashboard lives on the tenant
+    // subdomain, and SESSION_DOMAIN is deliberately null — a plain redirect to the
+    // dashboard arrives unauthenticated and bounces back to the login screen.
+    $handoff = $response->headers->get('Location');
+    expect($handoff)->toContain(route('tenant.session.verify', [
+        'subdomain' => 'tpa-nurul-huda',
+        'user' => $user->id,
+    ], absolute: false));
+
+    $this->get($handoff)->assertRedirect(route('dashboard', ['subdomain' => 'tpa-nurul-huda']));
+    $this->assertAuthenticatedAs($user);
 });
