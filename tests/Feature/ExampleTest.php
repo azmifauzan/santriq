@@ -63,3 +63,14 @@ test('legal pages render their full text without running javascript', function (
     'privacy' => ['privacy', 'privacy'],
     'terms' => ['terms', 'terms'],
 ]);
+
+test('sign-in pages identify the site without running javascript', function (string $route) {
+    // A credential form that renders as a blank page to a crawler cannot be
+    // attributed to anyone — see resources/views/partials/crawler-fallback.blade.php.
+    $response = $this->get(route($route))->assertOk();
+
+    $response->assertSee('<noscript>', false);
+    $response->assertSee('SantriQ');
+    $response->assertSee('only ever asks for your', false)
+        ->assertSee('tidak pernah meminta data kartu, PIN, atau OTP');
+})->with(['login', 'register', 'password.request']);
