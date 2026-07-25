@@ -73,7 +73,7 @@ function formatTime(str: string | null): string {
     <div class="flex flex-col gap-6 p-6">
         <!-- Header Hero -->
         <div
-            class="rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 p-6 text-white shadow-md"
+            class="rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-white shadow-md"
         >
             <div
                 class="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center"
@@ -100,7 +100,7 @@ function formatTime(str: string | null): string {
         <!-- Metrics Cards -->
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div
-                class="rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                class="rounded-2xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
             >
                 <div class="flex items-center justify-between">
                     <span
@@ -122,7 +122,7 @@ function formatTime(str: string | null): string {
             </div>
 
             <div
-                class="rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                class="rounded-2xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
             >
                 <div class="flex items-center justify-between">
                     <span
@@ -144,7 +144,7 @@ function formatTime(str: string | null): string {
             </div>
 
             <div
-                class="rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                class="rounded-2xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
             >
                 <div class="flex items-center justify-between">
                     <span
@@ -166,7 +166,7 @@ function formatTime(str: string | null): string {
             </div>
 
             <div
-                class="rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                class="rounded-2xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
             >
                 <div class="flex items-center justify-between">
                     <span
