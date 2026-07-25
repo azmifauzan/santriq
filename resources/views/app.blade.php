@@ -4,6 +4,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        {{-- Rendered server-side so crawlers that do not execute JavaScript (Google's
+             OAuth branding verification among them) can read what this app is for. --}}
+        @if (($page['component'] ?? null) === 'Welcome')
+            <meta name="description" content="SantriQ adalah platform gratis dan open source untuk manajemen TPA/TPQ: absensi QR, notifikasi kehadiran ke wali santri via Telegram, pencatatan pencapaian, SPP, dan perizinan santri.">
+        @elseif (($page['component'] ?? null) === 'Legal')
+            <meta name="description" content="{{ $page['props']['content']['description'] }}">
+        @endif
+
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
             (function() {
@@ -43,5 +51,7 @@
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />
+
+        @include('partials.crawler-fallback')
     </body>
 </html>
