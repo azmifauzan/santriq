@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GuardiansExport;
 use App\Http\Requests\StoreGuardianRequest;
 use App\Http\Requests\UpdateGuardianRequest;
+use App\Imports\GuardiansImport;
 use App\Models\Guardian;
 use App\Models\Student;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\Failure;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class GuardianController extends Controller
 {
@@ -28,6 +34,42 @@ class GuardianController extends Controller
             'guardians' => $guardians,
             'students' => $students,
         ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        Gate::authorize('viewAny', Guardian::class);
+
+        $guardians = $request->boolean('template')
+            ? new Collection
+            : Guardian::latest()->get();
+
+        return Excel::download(new GuardiansExport($guardians), 'data-wali-santri.xlsx');
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        Gate::authorize('create', Guardian::class);
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+        ]);
+
+        $import = new GuardiansImport;
+        Excel::import($import, $request->file('file'));
+
+        $errors = collect($import->failures())
+            ->map(fn (Failure $failure) => "Baris {$failure->row()}: ".implode(', ', $failure->errors()))
+            ->take(20)
+            ->all();
+
+        Inertia::flash('import_summary', [
+            'created' => $import->createdCount,
+            'skipped' => count($import->failures()),
+            'errors' => $errors,
+        ]);
+
+        return redirect()->back()->with('success', 'Import wali santri selesai diproses.');
     }
 
     public function store(StoreGuardianRequest $request): RedirectResponse

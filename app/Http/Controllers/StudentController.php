@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudentsExport;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
+use App\Imports\StudentsImport;
 use App\Models\Classroom;
 use App\Models\Guardian;
 use App\Models\Student;
 use App\Services\QrCodeService;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\Failure;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StudentController extends Controller
 {
@@ -20,6 +27,59 @@ class StudentController extends Controller
     {
         Gate::authorize('viewAny', Student::class);
 
+        $students = $this->filteredQuery($request)->get();
+        $classrooms = Classroom::all();
+        $guardians = Guardian::all();
+
+        return Inertia::render('Students/Index', [
+            'students' => $students,
+            'classrooms' => $classrooms,
+            'guardians' => $guardians,
+            'filters' => $request->only(['classroom_id', 'search']),
+        ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        Gate::authorize('viewAny', Student::class);
+
+        $students = $request->boolean('template')
+            ? new Collection
+            : $this->filteredQuery($request)->get();
+
+        return Excel::download(new StudentsExport($students), 'data-santri.xlsx');
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        Gate::authorize('create', Student::class);
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+        ]);
+
+        $import = new StudentsImport;
+        Excel::import($import, $request->file('file'));
+
+        $errors = collect($import->failures())
+            ->map(fn (Failure $failure) => "Baris {$failure->row()}: ".implode(', ', $failure->errors()))
+            ->take(20)
+            ->all();
+
+        Inertia::flash('import_summary', [
+            'created' => $import->createdCount,
+            'skipped' => count($import->failures()),
+            'errors' => $errors,
+        ]);
+
+        return redirect()->back()->with('success', 'Import santri selesai diproses.');
+    }
+
+    /**
+     * @return Builder<Student>
+     */
+    private function filteredQuery(Request $request): Builder
+    {
         $query = Student::with(['classroom', 'guardians'])
             ->latest();
 
@@ -35,16 +95,7 @@ class StudentController extends Controller
             });
         }
 
-        $students = $query->get();
-        $classrooms = Classroom::all();
-        $guardians = Guardian::all();
-
-        return Inertia::render('Students/Index', [
-            'students' => $students,
-            'classrooms' => $classrooms,
-            'guardians' => $guardians,
-            'filters' => $request->only(['classroom_id', 'search']),
-        ]);
+        return $query;
     }
 
     public function store(StoreStudentRequest $request): RedirectResponse

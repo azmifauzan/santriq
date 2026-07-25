@@ -9,13 +9,13 @@ Domain produksi: **santriq.web.id**
 | Fase                     | Status                                                                         |
 | ------------------------ | ------------------------------------------------------------------------------ |
 | 0 — Fondasi multi-tenant | Selesai                                                                        |
-| 1 — Master data santri   | Selesai kecuali impor CSV (ditunda)                                            |
+| 1 — Master data santri   | Selesai (termasuk impor & ekspor Excel/CSV santri)                             |
 | 2 — Absensi QR           | Selesai                                                                        |
 | 3 — Integrasi Telegram   | Selesai                                                                        |
 | 4 — Pencapaian & laporan | Selesai                                                                        |
 | 5 — SPP                  | Selesai                                                                        |
 | 6 — Perizinan mandiri    | Selesai                                                                        |
-| 7 — Rilis                | Sebagian: landing page & portal wali per subdomain, deploy produksi (santriq.web.id, wildcard TLS), dan webhook Telegram produksi selesai; tersisa backup terjadwal dan impor CSV |
+| 7 — Rilis                | Sebagian: landing page & portal wali per subdomain, deploy produksi (santriq.web.id, wildcard TLS), dan webhook Telegram produksi selesai; tersisa backup terjadwal |
 
 Verifikasi: `composer ci:check` hijau (ESLint, Prettier, vue-tsc, Pint, PHPStan level 7, Pest). `php artisan migrate:fresh --seed` berjalan bersih dan menghasilkan 1 lembaga demo, 2 akun, 2 kelas, 10 santri — semuanya punya `qr_token`, semua wali punya `link_token`.
 Fitur landed pada 23 Juli 2026: Subdomain per-lembaga (`{subdomain}.santriq.web.id`), landing page publik lembaga, setting profil landing page admin, magic-link Telegram login wali tanpa password dengan guard `guardian`, portal wali (status kehadiran, prestasi, pengajuan izin). Rencana detail di `docs/2026-07-23-landing-wali-login-design.md` & `docs/superpowers/plans/2026-07-23-landing-wali-login.md`.
@@ -116,12 +116,12 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 
 **Test:** user lembaga A tidak bisa membaca/mengubah data lembaga B; pengajar ditolak pada aksi khusus admin.
 
-### Fase 1 — Master Data Santri — selesai (kecuali impor CSV)
+### Fase 1 — Master Data Santri — selesai
 
 1. CRUD `classrooms`.
 2. CRUD `students` (validasi NIS unik per lembaga), generate `qr_token` saat create.
 3. CRUD `guardians` + relasi ke santri.
-4. Import CSV santri (opsional, kerjakan bila ada permintaan).
+4. Import & Export Excel santri, pengajar, kelas, wali santri (dengan template, validasi per baris, skip + laporkan baris invalid/duplikat). Import mencocokkan kelas ke `classroom_id` lewat nama (tidak auto-create); penautan wali santri ke santri tetap manual lewat modal edit.
 5. Halaman cetak kartu QR: layout siap print (CSS `@media print`), beberapa kartu per halaman.
 
 **Test:** create santri menghasilkan `qr_token` unik; halaman cetak menampilkan santri terpilih saja.
@@ -184,7 +184,7 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 6. ~~Seeder demo + dokumentasi self-hosting di README~~ — sudah. Tenant demo publik (subdomain `demo`, reset otomatis tiap jam) ditambahkan 23 Juli 2026, lihat § 0.
 7. ~~Onboarding admin pertama kali~~ — sudah (24 Juli 2026), lihat § 0.
 8. ~~Panel super admin (lintas-tenant: list lembaga, suspend/aktifkan)~~ — sudah (24 Juli 2026), lihat § 0. Provisioning super admin pertama masih manual lewat `tinker`, sengaja belum ada UI.
-9. Impor CSV santri — belum (opsional, lihat Fase 1).
+9. Impor & Ekspor Excel/CSV santri — selesai.
 
 ## 4. Konvensi Pengerjaan
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ImportDialog from '@/components/ImportDialog.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,10 @@ defineOptions({
 
 const isModalOpen = ref(false);
 const editingClassroom = ref<Classroom | null>(null);
+
+function exportClassrooms() {
+    window.location.href = '/classrooms/export';
+}
 
 const form = useForm({
     name: '',
@@ -86,9 +91,19 @@ function deleteClassroom(classroom: Classroom) {
                     Kelola daftar kelas dan jenjang di TPA/TPQ Anda.
                 </p>
             </div>
-            <Button class="w-full sm:w-auto" @click="openCreateModal">
-                + Tambah Kelas
-            </Button>
+            <div
+                class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+            >
+                <Button variant="outline" @click="exportClassrooms">
+                    Export Excel
+                </Button>
+                <ImportDialog
+                    import-url="/classrooms/import"
+                    template-url="/classrooms/export?template=1"
+                    title="Import Data Kelas"
+                />
+                <Button @click="openCreateModal"> + Tambah Kelas </Button>
+            </div>
         </div>
 
         <div class="overflow-x-auto rounded-md border bg-card">

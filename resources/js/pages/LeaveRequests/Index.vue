@@ -82,10 +82,14 @@ function reviewRequest(
         useForm({ status }).put(`/leave-requests/${reqItem.id}/review`);
     }
 }
+
+function exportLeaveRequests() {
+    window.location.href = '/leave-requests/export';
+}
 </script>
 
 <template>
-    <Head title="Manajemen Perizinan Mandiri" />
+    <Head title="Manajemen Perizinan Santri" />
 
     <div class="flex flex-col gap-6 p-6">
         <div
@@ -100,9 +104,14 @@ function reviewRequest(
                     wali santri.
                 </p>
             </div>
-            <Button class="w-full sm:w-auto" @click="openCreateModal">
-                + Input Izin Manual
-            </Button>
+            <div
+                class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+            >
+                <Button variant="outline" @click="exportLeaveRequests">
+                    Export Excel
+                </Button>
+                <Button @click="openCreateModal"> + Input Izin Manual </Button>
+            </div>
         </div>
 
         <!-- Table -->

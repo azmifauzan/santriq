@@ -101,6 +101,14 @@ function formatTime(dateTimeStr: string | null): string {
         return '-';
     }
 }
+
+function exportAttendance() {
+    const params = new URLSearchParams({
+        date: selectedDate.value,
+        classroom_id: selectedClassroom.value,
+    });
+    window.location.href = `/attendance/export?${params.toString()}`;
+}
 </script>
 
 <template>
@@ -119,6 +127,9 @@ function formatTime(dateTimeStr: string | null): string {
                     status presensi.
                 </p>
             </div>
+            <Button variant="outline" @click="exportAttendance">
+                Export Excel
+            </Button>
         </div>
 
         <!-- Filters -->

@@ -111,6 +111,10 @@ function formatCurrency(val: number): string {
         maximumFractionDigits: 0,
     }).format(val);
 }
+
+function exportInvoices() {
+    window.location.href = '/invoices/export';
+}
 </script>
 
 <template>
@@ -129,9 +133,16 @@ function formatCurrency(val: number): string {
                     pembayaran wali santri.
                 </p>
             </div>
-            <Button class="w-full sm:w-auto" @click="openBatchModal">
-                ⚡ Menerbitkan Tagihan Massal
-            </Button>
+            <div
+                class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+            >
+                <Button variant="outline" @click="exportInvoices">
+                    Export Excel
+                </Button>
+                <Button @click="openBatchModal">
+                    ⚡ Menerbitkan Tagihan Massal
+                </Button>
+            </div>
         </div>
 
         <!-- Table -->

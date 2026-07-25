@@ -99,6 +99,10 @@ function deleteAchievement(ach: Achievement) {
         useForm({}).delete(`/achievements/${ach.id}`);
     }
 }
+
+function exportAchievements() {
+    window.location.href = '/achievements/export';
+}
 </script>
 
 <template>
@@ -117,9 +121,14 @@ function deleteAchievement(ach: Achievement) {
                     prestasi santri.
                 </p>
             </div>
-            <Button class="w-full sm:w-auto" @click="openCreateModal">
-                + Tambah Pencapaian
-            </Button>
+            <div
+                class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+            >
+                <Button variant="outline" @click="exportAchievements">
+                    Export Excel
+                </Button>
+                <Button @click="openCreateModal"> + Tambah Pencapaian </Button>
+            </div>
         </div>
 
         <!-- Table -->

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AttendancesExport;
 use App\Jobs\SendTelegramMessage;
 use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Student;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AttendanceController extends Controller
 {
@@ -139,15 +143,7 @@ class AttendanceController extends Controller
         $date = $request->input('date', now()->format('Y-m-d'));
         $classroomId = $request->input('classroom_id');
 
-        $query = Attendance::with(['student.classroom', 'recorder'])
-            ->where('date', $date)
-            ->latest();
-
-        if ($classroomId) {
-            $query->whereHas('student', fn ($q) => $q->where('classroom_id', $classroomId));
-        }
-
-        $attendances = $query->get();
+        $attendances = $this->filteredQuery($date, $classroomId)->get();
         $classrooms = Classroom::all();
 
         return Inertia::render('Attendance/Index', [
@@ -158,6 +154,34 @@ class AttendanceController extends Controller
                 'classroom_id' => $classroomId,
             ],
         ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        Gate::authorize('viewAny', Attendance::class);
+
+        $date = $request->input('date', now()->format('Y-m-d'));
+        $classroomId = $request->input('classroom_id');
+
+        $attendances = $this->filteredQuery($date, $classroomId)->get();
+
+        return Excel::download(new AttendancesExport($attendances), 'data-presensi.xlsx');
+    }
+
+    /**
+     * @return Builder<Attendance>
+     */
+    private function filteredQuery(string $date, mixed $classroomId): Builder
+    {
+        $query = Attendance::with(['student.classroom', 'recorder'])
+            ->where('date', $date)
+            ->latest();
+
+        if ($classroomId) {
+            $query->whereHas('student', fn ($q) => $q->where('classroom_id', $classroomId));
+        }
+
+        return $query;
     }
 
     public function update(Request $request, Attendance $attendance): RedirectResponse

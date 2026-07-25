@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AchievementsExport;
 use App\Http\Requests\StoreAchievementRequest;
 use App\Http\Requests\UpdateAchievementRequest;
 use App\Models\Achievement;
 use App\Models\Student;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AchievementController extends Controller
 {
@@ -19,6 +23,30 @@ class AchievementController extends Controller
     {
         Gate::authorize('viewAny', Achievement::class);
 
+        $achievements = $this->filteredQuery($request)->get();
+        $students = Student::all();
+
+        return Inertia::render('Achievements/Index', [
+            'achievements' => $achievements,
+            'students' => $students,
+            'filters' => $request->only(['student_id', 'category']),
+        ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        Gate::authorize('viewAny', Achievement::class);
+
+        $achievements = $this->filteredQuery($request)->get();
+
+        return Excel::download(new AchievementsExport($achievements), 'data-prestasi.xlsx');
+    }
+
+    /**
+     * @return Builder<Achievement>
+     */
+    private function filteredQuery(Request $request): Builder
+    {
         $query = Achievement::with(['student.classroom', 'recorder'])
             ->latest('achieved_at');
 
@@ -30,14 +58,7 @@ class AchievementController extends Controller
             $query->where('category', $request->input('category'));
         }
 
-        $achievements = $query->get();
-        $students = Student::all();
-
-        return Inertia::render('Achievements/Index', [
-            'achievements' => $achievements,
-            'students' => $students,
-            'filters' => $request->only(['student_id', 'category']),
-        ]);
+        return $query;
     }
 
     public function store(StoreAchievementRequest $request): RedirectResponse

@@ -60,29 +60,41 @@ $tenantRoutes = function (): void {
     Route::middleware(['auth', 'verified', EnsureStaffTenantMatchesSubdomain::class, EnsureOnboardingComplete::class])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::get('super-admin/redirect', [SuperAdminController::class, 'redirectHandoff'])->name('super-admin.redirect');
+        Route::get('teachers/export', [TeacherController::class, 'export'])->name('teachers.export');
+        Route::post('teachers/import', [TeacherController::class, 'import'])->name('teachers.import');
         Route::resource('teachers', TeacherController::class)->except(['create', 'edit', 'show']);
+        Route::get('classrooms/export', [ClassroomController::class, 'export'])->name('classrooms.export');
+        Route::post('classrooms/import', [ClassroomController::class, 'import'])->name('classrooms.import');
         Route::resource('classrooms', ClassroomController::class)->except(['create', 'edit', 'show']);
 
         Route::get('students/print-cards', [StudentController::class, 'printCards'])->name('students.print-cards');
+        Route::get('students/export', [StudentController::class, 'export'])->name('students.export');
+        Route::post('students/import', [StudentController::class, 'import'])->name('students.import');
         Route::resource('students', StudentController::class)->except(['create', 'edit', 'show']);
 
+        Route::get('guardians/export', [GuardianController::class, 'export'])->name('guardians.export');
+        Route::post('guardians/import', [GuardianController::class, 'import'])->name('guardians.import');
         Route::resource('guardians', GuardianController::class)->except(['create', 'edit', 'show']);
 
         Route::get('scan', [AttendanceController::class, 'scanPage'])->name('attendance.scan-page');
         Route::post('attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan')->middleware('throttle:60,1');
+        Route::get('attendance/export', [AttendanceController::class, 'export'])->name('attendance.export');
         Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::put('attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
 
+        Route::get('achievements/export', [AchievementController::class, 'export'])->name('achievements.export');
         Route::resource('achievements', AchievementController::class)->except(['create', 'edit', 'show']);
 
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('reports/export-csv', [ReportController::class, 'exportCsv'])->name('reports.export-csv');
 
+        Route::get('invoices/export', [InvoiceController::class, 'export'])->name('invoices.export');
         Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
         Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
         Route::post('invoices/batch', [InvoiceController::class, 'batchGenerate'])->name('invoices.batch');
         Route::post('invoices/{invoice}/verify', [InvoiceController::class, 'verifyPayment'])->name('invoices.verify');
 
+        Route::get('leave-requests/export', [LeaveRequestController::class, 'export'])->name('leave-requests.export');
         Route::get('leave-requests', [LeaveRequestController::class, 'index'])->name('leave-requests.index');
         Route::post('leave-requests', [LeaveRequestController::class, 'store'])->name('leave-requests.store');
         Route::put('leave-requests/{leaveRequest}/review', [LeaveRequestController::class, 'review'])->name('leave-requests.review');

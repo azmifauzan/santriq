@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LeaveRequestsExport;
 use App\Jobs\SendTelegramMessage;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\Student;
 use App\Rules\TenantExists;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -15,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LeaveRequestController extends Controller
 {
@@ -22,14 +26,7 @@ class LeaveRequestController extends Controller
     {
         Gate::authorize('viewAny', LeaveRequest::class);
 
-        $query = LeaveRequest::with(['student.classroom', 'reviewer'])
-            ->latest();
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
-        }
-
-        $leaveRequests = $query->get();
+        $leaveRequests = $this->filteredQuery($request)->get();
         $students = Student::where('status', 'active')->get();
 
         return Inertia::render('LeaveRequests/Index', [
@@ -37,6 +34,30 @@ class LeaveRequestController extends Controller
             'students' => $students,
             'filters' => $request->only(['status']),
         ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        Gate::authorize('viewAny', LeaveRequest::class);
+
+        $leaveRequests = $this->filteredQuery($request)->get();
+
+        return Excel::download(new LeaveRequestsExport($leaveRequests), 'data-perizinan.xlsx');
+    }
+
+    /**
+     * @return Builder<LeaveRequest>
+     */
+    private function filteredQuery(Request $request): Builder
+    {
+        $query = LeaveRequest::with(['student.classroom', 'reviewer'])
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        return $query;
     }
 
     public function store(Request $request): RedirectResponse

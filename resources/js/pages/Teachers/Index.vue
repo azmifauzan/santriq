@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ImportDialog from '@/components/ImportDialog.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,10 @@ defineOptions({
 
 const isModalOpen = ref(false);
 const editingTeacher = ref<User | null>(null);
+
+function exportTeachers() {
+    window.location.href = '/teachers/export';
+}
 
 const form = useForm({
     name: '',
@@ -87,9 +92,19 @@ function deleteTeacher(teacher: User) {
                     Kelola pengajar dan pengurus TPA/TPQ lembaga Anda.
                 </p>
             </div>
-            <Button class="w-full sm:w-auto" @click="openCreateModal">
-                + Tambah Pengajar
-            </Button>
+            <div
+                class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+            >
+                <Button variant="outline" @click="exportTeachers">
+                    Export Excel
+                </Button>
+                <ImportDialog
+                    import-url="/teachers/import"
+                    template-url="/teachers/export?template=1"
+                    title="Import Data Pengajar"
+                />
+                <Button @click="openCreateModal"> + Tambah Pengajar </Button>
+            </div>
         </div>
 
         <!-- Table -->

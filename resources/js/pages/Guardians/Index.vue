@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ImportDialog from '@/components/ImportDialog.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +35,10 @@ defineOptions({
 
 const isModalOpen = ref(false);
 const editingGuardian = ref<Guardian | null>(null);
+
+function exportGuardians() {
+    window.location.href = '/guardians/export';
+}
 
 const form = useForm({
     name: '',
@@ -111,9 +116,19 @@ function copyStartCommand(token: string) {
                     Kelola data wali santri dan status penautan bot Telegram.
                 </p>
             </div>
-            <Button class="w-full sm:w-auto" @click="openCreateModal">
-                + Tambah Wali Santri
-            </Button>
+            <div
+                class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
+            >
+                <Button variant="outline" @click="exportGuardians">
+                    Export Excel
+                </Button>
+                <ImportDialog
+                    import-url="/guardians/import"
+                    template-url="/guardians/export?template=1"
+                    title="Import Data Wali Santri"
+                />
+                <Button @click="openCreateModal"> + Tambah Wali Santri </Button>
+            </div>
         </div>
 
         <div class="overflow-x-auto rounded-md border bg-card">

@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\Support\PathFallbackTestCase;
 use Tests\TestCase;
 
@@ -65,4 +68,26 @@ function followTenantHandoff(TestResponse $response): TestResponse
     expect($location)->toContain('/auth/verify-session/');
 
     return test()->get($location);
+}
+
+/**
+ * Build a real .xlsx file on disk and wrap it as an UploadedFile, for
+ * posting to import endpoints in feature tests. $rows is a list of
+ * arrays, one per data row (no need to pass headings separately if
+ * $headings already leads the sheet).
+ *
+ * @param  array<int, string>  $headings
+ * @param  array<int, array<int, mixed>>  $rows
+ */
+function makeXlsxUploadedFile(array $headings, array $rows, string $filename = 'import.xlsx'): UploadedFile
+{
+    $spreadsheet = new Spreadsheet;
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->fromArray($headings, null, 'A1');
+    $sheet->fromArray($rows, null, 'A2');
+
+    $path = sys_get_temp_dir().'/'.uniqid('test-import-', true).'.xlsx';
+    (new Xlsx($spreadsheet))->save($path);
+
+    return new UploadedFile($path, $filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 }

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InvoicesExport;
 use App\Jobs\SendTelegramMessage;
 use App\Models\Classroom;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Rules\TenantExists;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class InvoiceController extends Controller
 {
@@ -22,6 +26,32 @@ class InvoiceController extends Controller
     {
         Gate::authorize('viewAny', Invoice::class);
 
+        $invoices = $this->filteredQuery($request)->get();
+        $classrooms = Classroom::all();
+        $students = Student::where('status', 'active')->get();
+
+        return Inertia::render('Invoices/Index', [
+            'invoices' => $invoices,
+            'classrooms' => $classrooms,
+            'students' => $students,
+            'filters' => $request->only(['status', 'period']),
+        ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        Gate::authorize('viewAny', Invoice::class);
+
+        $invoices = $this->filteredQuery($request)->get();
+
+        return Excel::download(new InvoicesExport($invoices), 'data-tagihan-spp.xlsx');
+    }
+
+    /**
+     * @return Builder<Invoice>
+     */
+    private function filteredQuery(Request $request): Builder
+    {
         $query = Invoice::with(['student.classroom', 'payments.verifier'])
             ->latest('due_date');
 
@@ -33,16 +63,7 @@ class InvoiceController extends Controller
             $query->where('period', $request->input('period'));
         }
 
-        $invoices = $query->get();
-        $classrooms = Classroom::all();
-        $students = Student::where('status', 'active')->get();
-
-        return Inertia::render('Invoices/Index', [
-            'invoices' => $invoices,
-            'classrooms' => $classrooms,
-            'students' => $students,
-            'filters' => $request->only(['status', 'period']),
-        ]);
+        return $query;
     }
 
     public function store(Request $request): RedirectResponse

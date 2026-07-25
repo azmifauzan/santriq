@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ImportDialog from '@/components/ImportDialog.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -124,6 +125,14 @@ function printSelectedCards() {
     const url = `/students/print-cards?classroom_id=${selectedClassroom.value}`;
     window.open(url, '_blank');
 }
+
+function exportStudents() {
+    const params = new URLSearchParams({
+        classroom_id: selectedClassroom.value,
+        search: searchInput.value,
+    });
+    window.location.href = `/students/export?${params.toString()}`;
+}
 </script>
 
 <template>
@@ -148,6 +157,14 @@ function printSelectedCards() {
                 <Button variant="outline" @click="printSelectedCards">
                     🖨️ Cetak Kartu QR
                 </Button>
+                <Button variant="outline" @click="exportStudents">
+                    Export Excel
+                </Button>
+                <ImportDialog
+                    import-url="/students/import"
+                    template-url="/students/export?template=1"
+                    title="Import Data Santri"
+                />
                 <Button @click="openCreateModal"> + Tambah Santri </Button>
             </div>
         </div>
