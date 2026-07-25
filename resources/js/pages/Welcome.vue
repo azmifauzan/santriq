@@ -199,7 +199,7 @@ const steps = [
                     class="absolute inset-x-0 top-0 -z-0 h-[44rem] bg-[radial-gradient(circle_at_78%_20%,rgba(16,185,129,0.15),transparent_27%),radial-gradient(circle_at_10%_50%,rgba(251,191,36,0.11),transparent_25%)] dark:bg-[radial-gradient(circle_at_78%_20%,rgba(16,185,129,0.14),transparent_27%),radial-gradient(circle_at_10%_50%,rgba(251,191,36,0.06),transparent_25%)]"
                 />
                 <div
-                    class="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-18 sm:px-8 sm:py-24 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:py-28"
+                    class="relative mx-auto grid max-w-7xl items-center gap-14 px-5 pt-10 pb-18 sm:px-8 sm:pt-14 sm:pb-24 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:pt-16 lg:pb-28"
                 >
                     <div class="max-w-2xl">
                         <div
@@ -222,16 +222,6 @@ const steps = [
                             Dari absensi QR hingga notifikasi wali, semua
                             kebutuhan administrasi TPA/TPQ hadir dalam satu
                             platform yang sederhana dan mudah digunakan.
-                        </p>
-                        <p
-                            class="mt-3 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400"
-                        >
-                            SantriQ is a free and open source school management
-                            platform for Indonesian Qur'an study centers
-                            (TPA/TPQ): QR-code attendance, real-time attendance
-                            notifications to parents via Telegram, learning
-                            progress records, tuition billing, and student leave
-                            requests.
                         </p>
                         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link
