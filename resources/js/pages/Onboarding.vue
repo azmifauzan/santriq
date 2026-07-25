@@ -55,10 +55,10 @@ function onGalleryChange(event: Event) {
     <Head title="Selamat Datang" />
 
     <div
-        class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950"
+        class="flex min-h-screen items-center justify-center bg-background px-4 py-12"
     >
         <div
-            class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            class="w-full max-w-xl rounded-2xl border bg-card p-8 shadow-sm"
         >
             <div class="mb-6 flex items-center gap-2">
                 <span
@@ -66,7 +66,7 @@ function onGalleryChange(event: Event) {
                     :class="
                         step >= 1
                             ? 'bg-emerald-600'
-                            : 'bg-slate-200 dark:bg-slate-800'
+                            : 'bg-muted'
                     "
                 />
                 <span
@@ -74,14 +74,14 @@ function onGalleryChange(event: Event) {
                     :class="
                         step >= 2
                             ? 'bg-emerald-600'
-                            : 'bg-slate-200 dark:bg-slate-800'
+                            : 'bg-muted'
                     "
                 />
             </div>
 
             <div v-if="step === 1">
                 <h1 class="text-xl font-bold">Info Lembaga</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p class="mt-1 text-sm text-muted-foreground">
                     Data ini tampil di halaman landing lembaga Anda.
                 </p>
 
@@ -106,7 +106,7 @@ function onGalleryChange(event: Event) {
                 <div class="mt-8 flex items-center justify-between">
                     <button
                         type="button"
-                        class="text-sm text-slate-500 hover:underline dark:text-slate-400"
+                        class="text-sm text-muted-foreground hover:underline"
                         @click="skipOnboarding"
                     >
                         Lewati
@@ -117,7 +117,7 @@ function onGalleryChange(event: Event) {
 
             <form v-else @submit.prevent="submit">
                 <h1 class="text-xl font-bold">Landing Page</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p class="mt-1 text-sm text-muted-foreground">
                     Konten ini tampil di halaman publik lembaga Anda.
                 </p>
 
@@ -191,7 +191,7 @@ function onGalleryChange(event: Event) {
                 <div class="mt-8 flex items-center justify-between">
                     <button
                         type="button"
-                        class="text-sm text-slate-500 hover:underline dark:text-slate-400"
+                        class="text-sm text-muted-foreground hover:underline"
                         @click="skipOnboarding"
                     >
                         Lewati
