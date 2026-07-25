@@ -1,15 +1,20 @@
 <?php
 
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TenantSubdomainAvailabilityController;
+use App\Support\DemoTenant;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::domain(config('tenancy.domain'))->group(function () {
-    Route::inertia('/', 'Welcome')->name('home');
-    Route::inertia('privacy', 'Legal', ['document' => 'privacy'])->name('privacy');
-    Route::inertia('terms', 'Legal', ['document' => 'terms'])->name('terms');
+    Route::get('/', fn () => Inertia::render('Welcome', [
+        'demoUrl' => DemoTenant::url('/login'),
+    ]))->name('home');
+    Route::get('privacy', [LegalController::class, 'show'])->defaults('document', 'privacy')->name('privacy');
+    Route::get('terms', [LegalController::class, 'show'])->defaults('document', 'terms')->name('terms');
 
     Route::get('subdomain-availability', [TenantSubdomainAvailabilityController::class, 'check'])
         ->middleware('throttle:30,1')

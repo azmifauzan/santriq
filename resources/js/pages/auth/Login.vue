@@ -32,6 +32,7 @@ defineProps<{
         admin: { email: string; password: string };
         pengajar: { email: string; password: string };
     } | null;
+    demoUrl?: string | null;
 }>();
 
 const page = usePage<{
@@ -87,6 +88,18 @@ const guardianLoginUrl = computed(() => GuardianAuthController.create());
         <TextLink :href="guardianLoginUrl" class="inline-block font-semibold">
             Coba sebagai Wali Santri &rarr;
         </TextLink>
+    </div>
+
+    <div
+        v-else-if="demoUrl"
+        class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm dark:border-emerald-900 dark:bg-emerald-950"
+    >
+        <p class="text-emerald-700 dark:text-emerald-400">
+            Belum punya akun?
+            <a :href="demoUrl" class="font-semibold hover:underline">
+                Jelajahi demo tanpa daftar &rarr;
+            </a>
+        </p>
     </div>
 
     <AlertError

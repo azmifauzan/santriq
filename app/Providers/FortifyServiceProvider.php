@@ -100,6 +100,7 @@ class FortifyServiceProvider extends ServiceProvider
                     'admin' => ['email' => 'admin@santriq.test', 'password' => 'password'],
                     'pengajar' => ['email' => 'pengajar@santriq.test', 'password' => 'password'],
                 ] : null,
+                'demoUrl' => DemoTenant::isActive() ? null : DemoTenant::url('/login'),
             ]);
         });
 

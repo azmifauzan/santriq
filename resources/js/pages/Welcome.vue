@@ -19,6 +19,10 @@ import { onMounted, ref } from 'vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { login, privacy, register, terms } from '@/routes';
 
+defineProps<{
+    demoUrl?: string | null;
+}>();
+
 const githubStars = ref<number>();
 
 onMounted(async () => {
@@ -102,13 +106,9 @@ const steps = [
     <div
         class="min-h-screen overflow-hidden bg-[#fbfdf9] text-slate-950 dark:bg-slate-950 dark:text-white"
     >
-        <Head title="SantriQ — Manajemen TPA/TPQ yang Lebih Mudah">
-            <meta
-                head-key="description"
-                name="description"
-                content="SantriQ adalah platform gratis dan open source untuk manajemen TPA/TPQ: absensi QR, notifikasi kehadiran ke wali santri via Telegram, pencatatan pencapaian, SPP, dan perizinan santri."
-            />
-        </Head>
+        <!-- The description meta is rendered server-side in app.blade.php so crawlers
+             that do not execute JavaScript can read it. -->
+        <Head title="SantriQ — Manajemen TPA/TPQ yang Lebih Mudah" />
 
         <header
             class="relative z-50 border-b border-emerald-950/5 bg-[#fbfdf9]/85 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85"
@@ -211,7 +211,7 @@ const steps = [
                         <h1
                             class="text-4xl leading-[1.08] font-bold tracking-[-0.04em] text-balance sm:text-6xl lg:text-[4.25rem]"
                         >
-                            Kelola santri lebih mudah,
+                            SantriQ: kelola santri lebih mudah,
                             <span class="text-emerald-600"
                                 >dampingi lebih dekat.</span
                             >
@@ -222,6 +222,16 @@ const steps = [
                             Dari absensi QR hingga notifikasi wali, semua
                             kebutuhan administrasi TPA/TPQ hadir dalam satu
                             platform yang sederhana dan mudah digunakan.
+                        </p>
+                        <p
+                            class="mt-3 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400"
+                        >
+                            SantriQ is a free and open source school management
+                            platform for Indonesian Qur'an study centers
+                            (TPA/TPQ): QR-code attendance, real-time attendance
+                            notifications to parents via Telegram, learning
+                            progress records, tuition billing, and student leave
+                            requests.
                         </p>
                         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link
@@ -238,6 +248,18 @@ const steps = [
                                 Lihat semua fitur
                             </a>
                         </div>
+                        <p
+                            v-if="demoUrl"
+                            class="mt-4 text-sm text-slate-500 dark:text-slate-400"
+                        >
+                            Ingin coba dulu?
+                            <a
+                                :href="demoUrl"
+                                class="font-semibold text-emerald-700 transition hover:underline dark:text-emerald-400"
+                            >
+                                Jelajahi demo tanpa daftar &rarr;
+                            </a>
+                        </p>
                         <div
                             class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500 dark:text-slate-400"
                         >

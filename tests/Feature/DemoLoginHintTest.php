@@ -24,3 +24,20 @@ test('the login page has no demo hint on the bare apex domain', function () {
     $this->get('http://santriq.test/login')
         ->assertInertia(fn ($page) => $page->where('demoHint', null));
 });
+
+test('the login page links to the demo tenant when not already on it', function () {
+    $regular = Tenant::factory()->create(['subdomain' => 'tpq-biasa']);
+    Tenant::factory()->create(['subdomain' => DemoTenant::SUBDOMAIN]);
+
+    $this->get("http://{$regular->subdomain}.santriq.test/login")
+        ->assertInertia(fn ($page) => $page
+            ->where('demoUrl', 'http://'.DemoTenant::SUBDOMAIN.'.santriq.test/login'));
+
+    $this->get('http://'.DemoTenant::SUBDOMAIN.'.santriq.test/login')
+        ->assertInertia(fn ($page) => $page->where('demoUrl', null));
+});
+
+test('the login page has no demo link when the demo tenant is not seeded', function () {
+    $this->get('http://santriq.test/login')
+        ->assertInertia(fn ($page) => $page->where('demoUrl', null));
+});
