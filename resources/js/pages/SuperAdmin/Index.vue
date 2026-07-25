@@ -100,7 +100,7 @@ function toggleTenant(tenant: TenantWithStats) {
                     <tr
                         v-for="tenant in tenants"
                         :key="tenant.id"
-                        class="hover:bg-muted/30"
+                        class="hover:bg-accent/60"
                     >
                         <td class="px-4 py-3 font-medium">
                             <Link
