@@ -60,7 +60,7 @@ function toggleTenant(tenant: TenantWithStats) {
 <template>
     <Head title="Panel Super Admin" />
 
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 p-6">
         <div>
             <h1 class="text-2xl font-bold tracking-tight">Daftar Lembaga</h1>
             <p class="text-sm text-muted-foreground">
