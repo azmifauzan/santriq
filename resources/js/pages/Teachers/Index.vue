@@ -109,7 +109,7 @@ function deleteTeacher(teacher: User) {
                     <tr
                         v-for="teacher in teachers"
                         :key="teacher.id"
-                        class="hover:bg-muted/30"
+                        class="hover:bg-accent/60"
                     >
                         <td class="px-4 py-3 font-medium">
                             {{ teacher.name }}

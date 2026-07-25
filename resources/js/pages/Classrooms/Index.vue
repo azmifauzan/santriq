@@ -107,7 +107,7 @@ function deleteClassroom(classroom: Classroom) {
                     <tr
                         v-for="classroom in classrooms"
                         :key="classroom.id"
-                        class="hover:bg-muted/30"
+                        class="hover:bg-accent/60"
                     >
                         <td class="px-4 py-3 font-medium">
                             {{ classroom.name }}

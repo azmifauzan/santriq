@@ -200,7 +200,7 @@ function printSelectedCards() {
                     <tr
                         v-for="student in students"
                         :key="student.id"
-                        class="hover:bg-muted/30"
+                        class="hover:bg-accent/60"
                     >
                         <td class="px-4 py-3 font-mono font-medium">
                             {{ student.nis }}

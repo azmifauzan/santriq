@@ -133,7 +133,7 @@ function copyStartCommand(token: string) {
                     <tr
                         v-for="g in guardians"
                         :key="g.id"
-                        class="hover:bg-muted/30"
+                        class="hover:bg-accent/60"
                     >
                         <td class="px-4 py-3 font-medium">{{ g.name }}</td>
                         <td class="px-4 py-3 text-muted-foreground">
