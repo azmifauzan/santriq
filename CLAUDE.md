@@ -28,7 +28,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - tailwindcss (TAILWINDCSS) - v4
 - vue (VUE) - v3
 - @laravel/vite-plugin-wayfinder (WAYFINDER_VITE) - v0
-- eslint (ESLINT) - v10
+- eslint (ESLINT) - v9
 - prettier (PRETTIER) - v3
 
 ## Skills Activation
