@@ -608,6 +608,17 @@ const services = [
                     </Link>
                     <span aria-hidden="true">•</span>
                     <p>Platform manajemen TPA/TPQ</p>
+                    <span aria-hidden="true">•</span>
+                    <p>
+                        Managed by
+                        <a
+                            href="https://satsetops.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                            >SatsetOps</a
+                        >
+                    </p>
                 </div>
             </div>
         </footer>
