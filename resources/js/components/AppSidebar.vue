@@ -132,6 +132,18 @@ const mainNavItems = computed<NavItem[]>(() => {
                 </SidebarMenuItem>
             </SidebarMenu>
             <NavUser />
+            <p
+                class="px-2 pb-1 text-center text-xs text-muted-foreground group-data-[collapsible=icon]:hidden"
+            >
+                Managed by
+                <a
+                    href="https://satsetops.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="underline hover:text-foreground"
+                    >SatsetOps</a
+                >
+            </p>
         </SidebarFooter>
     </Sidebar>
     <slot />

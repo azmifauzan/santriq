@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ExcelIcon from '@/components/icons/ExcelIcon.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -108,6 +109,7 @@ function exportLeaveRequests() {
                 class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
             >
                 <Button variant="outline" @click="exportLeaveRequests">
+                    <ExcelIcon class="size-4" />
                     Export Excel
                 </Button>
                 <Button @click="openCreateModal"> + Input Izin Manual </Button>

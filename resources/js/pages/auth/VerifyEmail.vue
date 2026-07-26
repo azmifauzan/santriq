@@ -34,8 +34,7 @@ defineProps<{
         v-else-if="status === 'verification-link-expired'"
         class="mb-4 text-center text-sm font-medium text-amber-600"
     >
-        Link verifikasi sudah kedaluwarsa. Silakan minta link baru di bawah
-        ini.
+        Link verifikasi sudah kedaluwarsa. Silakan minta link baru di bawah ini.
     </div>
 
     <Form

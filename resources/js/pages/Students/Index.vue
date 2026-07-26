@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ExcelIcon from '@/components/icons/ExcelIcon.vue';
 import ImportDialog from '@/components/ImportDialog.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -158,6 +159,7 @@ function exportStudents() {
                     🖨️ Cetak Kartu QR
                 </Button>
                 <Button variant="outline" @click="exportStudents">
+                    <ExcelIcon class="size-4" />
                     Export Excel
                 </Button>
                 <ImportDialog

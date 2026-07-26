@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import ExcelIcon from '@/components/icons/ExcelIcon.vue';
 import { Button } from '@/components/ui/button';
 
 type ImportSummary = {
@@ -61,7 +62,10 @@ function submit() {
 </script>
 
 <template>
-    <Button variant="outline" @click="open">Import Excel</Button>
+    <Button variant="outline" @click="open">
+        <ExcelIcon class="size-4" />
+        Import Excel
+    </Button>
 
     <div
         v-if="isOpen"
@@ -104,7 +108,9 @@ function submit() {
                         Berhasil ditambahkan:
                         <strong>{{ summary.created }}</strong>
                     </p>
-                    <p>Dilewati: <strong>{{ summary.skipped }}</strong></p>
+                    <p>
+                        Dilewati: <strong>{{ summary.skipped }}</strong>
+                    </p>
                     <ul
                         v-if="summary.errors.length > 0"
                         class="mt-2 list-disc space-y-1 pl-4 text-destructive"

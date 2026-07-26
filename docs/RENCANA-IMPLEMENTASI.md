@@ -4,12 +4,12 @@ Dokumen kerja untuk mengubah [SantriQ-PRD.md](SantriQ-PRD.md) menjadi urutan pen
 
 Domain produksi: **santriq.web.id**
 
-## 0. Status (diverifikasi 24 Juli 2026)
+## 0. Status (diverifikasi 26 Juli 2026)
 
 | Fase                     | Status                                                                         |
 | ------------------------ | ------------------------------------------------------------------------------ |
 | 0 — Fondasi multi-tenant | Selesai                                                                        |
-| 1 — Master data santri   | Selesai (termasuk impor & ekspor Excel/CSV santri)                             |
+| 1 — Master data santri   | Selesai (termasuk impor & ekspor Excel santri)                                 |
 | 2 — Absensi QR           | Selesai                                                                        |
 | 3 — Integrasi Telegram   | Selesai                                                                        |
 | 4 — Pencapaian & laporan | Selesai                                                                        |
@@ -44,6 +44,12 @@ Temuan yang sudah diperbaiki saat verifikasi:
 - `DatabaseSeeder` masih bawaan starter kit; diganti seeder lembaga demo. Catatan: seeder sengaja tidak memakai `WithoutModelEvents` karena `qr_token` dan `link_token` dibuat di hook `creating`.
 - Review lanjutan atas fitur subdomain (23 Juli 2026): redirect setelah daftar/masuk sebelumnya membangun URL subdomain dengan string manual — sekarang lewat `route()` supaya konsisten dengan mode fallback baru. `CurrentTenant::get()` melempar `RuntimeException` mentah (500) kalau tenant belum ter-resolve, misalnya saat rute wali diakses lewat domain utama tanpa subdomain — sekarang `abort(404)`. Ditambah mode fallback path (`{domain}/{subdomain}/...`) untuk dipakai sebelum wildcard DNS aktif, teruji di `tests/PathFallback/`.
 
+Export/Import Excel di panel admin (25 Juli 2026): export xlsx (`maatwebsite/excel`) tersedia di semua 8 halaman list admin, import di 4 entity master data (Students, Teachers, Classrooms, Guardians). Detail: `docs/superpowers/specs/2026-07-25-excel-export-import-design.md`. Build stage Docker sempat gagal karena `phpoffice/phpspreadsheet` platform-check `ext-gd`/`ext-zip` pada image `php:8.5-cli` yang dipakai hanya untuk `composer install` (vendor/ di-copy ke stage app yang extension-nya lengkap) — diperbaiki dengan `--ignore-platform-reqs` khusus di stage tsb (lihat `Dockerfile`).
+
+Ikon Excel asli (SVG inline, `resources/js/components/icons/ExcelIcon.vue`) ditambahkan di tombol Export/Import Excel semua 8 panel (26 Juli 2026), menggantikan teks polos. Footer sidebar panel admin (`AppSidebar.vue`) menambahkan kredit "Managed by SatsetOps" bertaut ke `https://satsetops.com`.
+
+Flaky test ditemukan & diperbaiki saat scan menyeluruh (26 Juli 2026): 2 test di `tests/PathFallback/TenantPathFallbackTest` gagal hanya saat suite penuh dijalankan (bukan saat file itu dijalankan sendiri), sudah ada sejak sebelum perubahan hari ini (direproduksi juga di commit `fde5ffe`, jadi bukan regresi fitur Excel). Akar masalah: `PathFallbackTestCase` mencoba mem-flip `APP_TENANT_SUBDOMAIN_ACTIVE` lewat `putenv()`/`$_ENV`/`$_SERVER` sebelum boot, tapi `Illuminate\Support\Env::$repository` adalah singleton proses — `ImmutableWriter`-nya cuma melindungi sebuah key pada load PERTAMA di proses tsb; begitu test lain sudah boot duluan (menandai key itu "sudah dimuat"), setiap `safeLoad()` berikutnya (yaitu setiap boot test berikutnya) menimpanya balik ke nilai `.env` tanpa peduli override kita. Diperbaiki dengan pindah dari env-flipping ke `$app->booting()` (hook yang jalan setelah config termuat tapi sebelum provider/route ter-boot, pola yang sama dipakai `Illuminate\Foundation\Testing\TestCase` sendiri untuk `WithCachedRoutes`) yang langsung men-set `config(['tenancy.subdomain_active' => false])` pada instance app test tsb — reliabel terlepas dari urutan/riwayat boot proses.
+
 Catatan lain: 2FA punya scaffolding (`TwoFactorAuthenticationRequest`, `RequirePassword` pada halaman keamanan) tetapi belum diaktifkan di `config/fortify.php` dan belum ada UI-nya. Akibatnya 4 test di `tests/Feature/Settings/SecurityTest.php` otomatis di-skip (`skipUnlessFortifyHas`) — inilah 4 skip yang muncul saat `composer test`.
 
 ## 1. Keputusan Arsitektur
@@ -68,6 +74,7 @@ Keputusan diambil sekali di depan supaya tidak diperdebatkan ulang tiap fase.
 | Super admin        | Kolom `users.is_super_admin` (boolean), terpisah dari `role` per-tenant — bukan `tenant_id` nullable            | Super admin tetap admin/pengajar biasa di lembaganya sendiri, plus kapabilitas lintas-tenant; menghindari kasus khusus "user tanpa tenant" di kode yang sudah asumsi `tenant_id` selalu ada |
 | Suspend lembaga    | `tenants.suspended_at` (nullable timestamp), ditegakkan sekali di `ResolveTenantFromDomain`                       | Satu titik penegakan untuk seluruh rute subdomain (staf, wali, landing) tanpa flag per-controller |
 | Onboarding admin   | Gate via `users.onboarded_at` (nullable timestamp, persisten), bukan flag sesi                                   | Bertahan lintas sesi/perangkat; admin yang belum lengkapi profil lembaga tetap diarahkan ulang lain kali login |
+| Export/Import Excel | `maatwebsite/excel` (wrapper Laravel di atas PhpSpreadsheet)                                                    | Tidak ada cara wajar generate/parse xlsx tanpa library; format Excel eksplisit diminta pengguna, bukan CSV |
 
 ## 2. Model Data
 
@@ -121,7 +128,7 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 1. CRUD `classrooms`.
 2. CRUD `students` (validasi NIS unik per lembaga), generate `qr_token` saat create.
 3. CRUD `guardians` + relasi ke santri.
-4. Import & Export Excel santri, pengajar, kelas, wali santri (dengan template, validasi per baris, skip + laporkan baris invalid/duplikat). Import mencocokkan kelas ke `classroom_id` lewat nama (tidak auto-create); penautan wali santri ke santri tetap manual lewat modal edit.
+4. Export Excel (xlsx, via `maatwebsite/excel`) di semua 8 halaman list admin (Students, Teachers, Classrooms, Guardians, Invoices, Achievements, Attendance, LeaveRequests), menghormati filter querystring aktif. Import Excel hanya untuk 4 entity master data (Students, Teachers, Classrooms, Guardians), dengan template, validasi per baris, skip + laporkan baris invalid/duplikat via `Inertia::flash`. Import mencocokkan kelas ke `classroom_id` lewat nama (tidak auto-create); penautan wali santri ke santri tetap manual lewat modal edit. Detail: `docs/superpowers/specs/2026-07-25-excel-export-import-design.md`.
 5. Halaman cetak kartu QR: layout siap print (CSS `@media print`), beberapa kartu per halaman.
 
 **Test:** create santri menghasilkan `qr_token` unik; halaman cetak menampilkan santri terpilih saja.
@@ -184,7 +191,7 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 6. ~~Seeder demo + dokumentasi self-hosting di README~~ — sudah. Tenant demo publik (subdomain `demo`, reset otomatis tiap jam) ditambahkan 23 Juli 2026, lihat § 0.
 7. ~~Onboarding admin pertama kali~~ — sudah (24 Juli 2026), lihat § 0.
 8. ~~Panel super admin (lintas-tenant: list lembaga, suspend/aktifkan)~~ — sudah (24 Juli 2026), lihat § 0. Provisioning super admin pertama masih manual lewat `tinker`, sengaja belum ada UI.
-9. Impor & Ekspor Excel/CSV santri — selesai.
+9. ~~Impor & Ekspor Excel santri~~ — sudah, diperluas ke semua 8 panel admin (25 Juli 2026): export di semua 8, impor di 4 entity master data. Lihat § 0.
 
 ## 4. Konvensi Pengerjaan
 

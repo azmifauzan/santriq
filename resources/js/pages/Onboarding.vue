@@ -57,25 +57,15 @@ function onGalleryChange(event: Event) {
     <div
         class="flex min-h-screen items-center justify-center bg-background px-4 py-12"
     >
-        <div
-            class="w-full max-w-xl rounded-2xl border bg-card p-8 shadow-sm"
-        >
+        <div class="w-full max-w-xl rounded-2xl border bg-card p-8 shadow-sm">
             <div class="mb-6 flex items-center gap-2">
                 <span
                     class="h-1.5 flex-1 rounded-full"
-                    :class="
-                        step >= 1
-                            ? 'bg-emerald-600'
-                            : 'bg-muted'
-                    "
+                    :class="step >= 1 ? 'bg-emerald-600' : 'bg-muted'"
                 />
                 <span
                     class="h-1.5 flex-1 rounded-full"
-                    :class="
-                        step >= 2
-                            ? 'bg-emerald-600'
-                            : 'bg-muted'
-                    "
+                    :class="step >= 2 ? 'bg-emerald-600' : 'bg-muted'"
                 />
             </div>
 

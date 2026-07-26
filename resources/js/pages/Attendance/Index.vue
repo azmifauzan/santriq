@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ExcelIcon from '@/components/icons/ExcelIcon.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -128,6 +129,7 @@ function exportAttendance() {
                 </p>
             </div>
             <Button variant="outline" @click="exportAttendance">
+                <ExcelIcon class="size-4" />
                 Export Excel
             </Button>
         </div>

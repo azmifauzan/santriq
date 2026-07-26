@@ -216,7 +216,7 @@ Inti produk: absensi santri via pemindaian QR, notifikasi kehadiran realtime ke 
 - PRD: `docs/SantriQ-PRD.md`
 - Rencana implementasi & keputusan arsitektur: `docs/RENCANA-IMPLEMENTASI.md` — baca sebelum menambah fitur baru.
 
-Fase 0–7 rencana implementasi sudah jalan (tenant, master data, absensi QR, Telegram, prestasi & laporan, SPP, perizinan, deploy produksi), plus onboarding admin, tenant demo publik, dan panel super admin. Sisa: backup database terjadwal, impor CSV santri, 2FA.
+Fase 0–7 rencana implementasi sudah jalan (tenant, master data, absensi QR, Telegram, prestasi & laporan, SPP, perizinan, deploy produksi), plus onboarding admin, tenant demo publik, panel super admin, dan export/import Excel di panel admin. Sisa: backup database terjadwal, 2FA.
 
 Peta kode: `app/Concerns/BelongsToTenant.php` (global scope tenant), `app/Policies/` (admin vs pengajar; `TenantPolicy` untuk super admin), `app/Jobs/SendTelegramMessage.php` (queued + outbox `telegram_messages`), `app/Services/QrCodeService.php` (SVG kartu santri), `app/Http/Controllers/TelegramWebhookController.php` (perintah bot wali), `app/Http/Controllers/SuperAdminController.php` (panel lintas-tenant, gerbang `TenantPolicy`), `app/Http/Controllers/OnboardingController.php` (wizard onboarding admin pertama kali), `app/Support/DemoTenant.php` (tenant demo, reset otomatis via `demo:reset`).
 
