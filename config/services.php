@@ -38,6 +38,7 @@ return [
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'secret_token' => env('TELEGRAM_SECRET_TOKEN'),
+        'super_admin_chat_id' => env('TELEGRAM_SUPER_ADMIN_CHAT_ID'),
     ],
 
     'google' => [
