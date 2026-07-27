@@ -597,29 +597,33 @@ const services = [
                         >
                             Powered by SantriQ
                         </a>
+                        <p class="text-xs">Platform manajemen TPA/TPQ</p>
+                        <p class="text-xs">
+                            Design by
+                            <a
+                                href="https://satsetui.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                                >SatsetUI</a
+                            >
+                            and Managed by
+                            <a
+                                href="https://satsetops.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                                >SatsetOps</a
+                            >
+                        </p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 sm:text-right">
-                    <Link
-                        :href="login()"
-                        class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
-                    >
-                        Masuk staf
-                    </Link>
-                    <span aria-hidden="true">•</span>
-                    <p>Platform manajemen TPA/TPQ</p>
-                    <span aria-hidden="true">•</span>
-                    <p>
-                        Managed by
-                        <a
-                            href="https://satsetops.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
-                            >SatsetOps</a
-                        >
-                    </p>
-                </div>
+                <Link
+                    :href="login()"
+                    class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                >
+                    Masuk staf
+                </Link>
             </div>
         </footer>
     </div>

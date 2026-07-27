@@ -108,7 +108,7 @@ const steps = [
     >
         <!-- The description meta is rendered server-side in app.blade.php so crawlers
              that do not execute JavaScript can read it. -->
-        <Head title="SantriQ — Manajemen TPA/TPQ yang Lebih Mudah" />
+        <Head title="Manajemen TPA/TPQ yang Lebih Mudah" />
 
         <header
             class="relative z-50 border-b border-emerald-950/5 bg-[#fbfdf9]/85 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85"
@@ -679,34 +679,28 @@ const steps = [
             <div
                 class="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10 dark:text-slate-400"
             >
-                <div
-                    class="flex items-center gap-2.5 text-slate-900 dark:text-white"
-                >
-                    <span
-                        class="flex size-8 items-center justify-center rounded-lg bg-emerald-600 text-white"
+                <div class="flex flex-col gap-1.5">
+                    <div
+                        class="flex items-center gap-2.5 text-slate-900 dark:text-white"
                     >
-                        <GraduationCap class="size-4" aria-hidden="true" />
-                    </span>
-                    <span class="font-bold">SantriQ</span>
-                </div>
-                <div class="flex flex-col gap-3 sm:items-end">
-                    <nav aria-label="Tautan legal" class="flex gap-5">
-                        <Link
-                            :href="privacy()"
-                            class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                        <span
+                            class="flex size-8 items-center justify-center rounded-lg bg-emerald-600 text-white"
                         >
-                            Kebijakan Privasi
-                        </Link>
-                        <Link
-                            :href="terms()"
-                            class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
-                        >
-                            Syarat & Ketentuan
-                        </Link>
-                    </nav>
+                            <GraduationCap class="size-4" aria-hidden="true" />
+                        </span>
+                        <span class="font-bold">SantriQ</span>
+                    </div>
                     <p>Platform manajemen TPA/TPQ gratis dan open source.</p>
                     <p>
-                        Managed by
+                        Design by
+                        <a
+                            href="https://satsetui.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                            >SatsetUI</a
+                        >
+                        and Managed by
                         <a
                             href="https://satsetops.com"
                             target="_blank"
@@ -716,6 +710,20 @@ const steps = [
                         >
                     </p>
                 </div>
+                <nav aria-label="Tautan legal" class="flex gap-5">
+                    <Link
+                        :href="privacy()"
+                        class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                    >
+                        Kebijakan Privasi
+                    </Link>
+                    <Link
+                        :href="terms()"
+                        class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                    >
+                        Syarat & Ketentuan
+                    </Link>
+                </nav>
             </div>
         </footer>
     </div>

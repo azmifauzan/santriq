@@ -68,7 +68,7 @@ function formatTime(str: string | null): string {
 </script>
 
 <template>
-    <Head title="Dashboard SantriQ" />
+    <Head title="Dashboard" />
 
     <div class="flex flex-col gap-6 p-6">
         <!-- Header Hero -->
