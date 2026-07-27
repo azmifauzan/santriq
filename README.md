@@ -90,6 +90,7 @@ Bila wildcard DNS/TLS untuk `*.{APP_TENANT_DOMAIN}` belum tersedia (mis. sebelum
 ```dotenv
 TELEGRAM_BOT_TOKEN=            # token dari @BotFather
 TELEGRAM_SECRET_TOKEN=         # string acak, wajib diisi di produksi
+TELEGRAM_SUPER_ADMIN_CHAT_ID=  # chat_id grup/personal super admin, buat notifikasi tenant baru & kegagalan kirim
 ```
 
 Daftarkan webhook ke domain aplikasi:
