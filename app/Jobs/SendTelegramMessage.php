@@ -96,9 +96,15 @@ class SendTelegramMessage implements ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
+        $error = $exception?->getMessage() ?? 'Max retries reached';
+
         $this->log->update([
             'status' => 'failed',
-            'error' => $exception?->getMessage() ?? 'Max retries reached',
+            'error' => $error,
         ]);
+
+        SendSuperAdminTelegramAlert::dispatch(
+            "⚠️ Gagal kirim Telegram ke wali {$this->guardian->name} (tenant {$this->guardian->tenant_id}) setelah retry: {$error}"
+        );
     }
 }

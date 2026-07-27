@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SendSuperAdminTelegramAlert;
 use App\Jobs\SendTelegramMessage;
 use App\Models\Guardian;
 use App\Models\LeaveRequest;
@@ -197,4 +198,22 @@ test('telegram job records the failure on the outbox row when the api rejects', 
     expect(TelegramMessage::where('guardian_id', $guardian->id)->count())->toBe(1);
     expect($log->status)->toBe('failed');
     expect($log->error)->toContain('chat not found');
+});
+
+test('permanent telegram delivery failure dispatches a super admin alert', function () {
+    Queue::fake();
+
+    $tenant = Tenant::factory()->create();
+    $guardian = Guardian::factory()->create([
+        'tenant_id' => $tenant->id,
+        'telegram_chat_id' => '12345678',
+    ]);
+
+    $job = new SendTelegramMessage($guardian, 'Halo wali santri');
+    $job->failed(new RuntimeException('chat not found'));
+
+    Queue::assertPushed(SendSuperAdminTelegramAlert::class, function ($alert) use ($guardian) {
+        return str_contains($alert->messageText, $guardian->name)
+            && str_contains($alert->messageText, 'chat not found');
+    });
 });
