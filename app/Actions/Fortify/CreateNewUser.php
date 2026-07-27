@@ -4,6 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
+use App\Jobs\SendSuperAdminTelegramAlert;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Rules\NotReservedSubdomain;
@@ -59,7 +60,7 @@ class CreateNewUser implements CreatesNewUsers
             'subdomain' => 'Subdomain',
         ])->validate();
 
-        return DB::transaction(function () use ($input, $google) {
+        $user = DB::transaction(function () use ($input, $google) {
             $tenant = Tenant::create([
                 'name' => $input['institution_name'],
                 'subdomain' => strtolower($input['subdomain']),
@@ -76,5 +77,11 @@ class CreateNewUser implements CreatesNewUsers
                 'onboarded_at' => null,
             ]);
         });
+
+        SendSuperAdminTelegramAlert::dispatch(
+            "🆕 Tenant baru terdaftar: {$user->tenant->name} ({$user->tenant->subdomain})\nAdmin: {$user->name} <{$user->email}>"
+        );
+
+        return $user;
     }
 }

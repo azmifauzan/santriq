@@ -1,6 +1,8 @@
 <?php
 
+use App\Jobs\SendSuperAdminTelegramAlert;
 use App\Models\User;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
@@ -44,4 +46,22 @@ test('newly registered admin has not completed onboarding', function () {
     $user = User::where('email', 'test@example.com')->firstOrFail();
 
     expect($user->onboarded_at)->toBeNull();
+});
+
+test('registering a new tenant dispatches a super admin telegram alert', function () {
+    Queue::fake();
+
+    $this->post(route('register.store'), [
+        'institution_name' => 'TPA Nurul Huda',
+        'subdomain' => 'tpa-nurul-huda',
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    Queue::assertPushed(SendSuperAdminTelegramAlert::class, function ($job) {
+        return str_contains($job->messageText, 'TPA Nurul Huda')
+            && str_contains($job->messageText, 'test@example.com');
+    });
 });
