@@ -15,7 +15,7 @@ test('the public landing page links to the demo tenant when it exists', function
 
     $this->get(route('home'))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('demoUrl', 'http://'.DemoTenant::SUBDOMAIN.'.santriq.test/login'));
+            ->where('demoUrl', DemoTenant::url('/login')));
 });
 
 test('the public landing page has no demo link when the demo tenant is not seeded', function () {
