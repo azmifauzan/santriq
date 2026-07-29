@@ -3,8 +3,9 @@
 namespace App\Support;
 
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\URL;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Moves an authenticated identity from the apex domain onto a tenant subdomain.
@@ -21,9 +22,19 @@ class TenantSessionHandoff
 {
     private const LINK_LIFETIME_MINUTES = 5;
 
-    public static function redirect(User $user): RedirectResponse
+    /**
+     * The handoff link points at a different host than the one that served
+     * this response. A plain redirect() breaks when the request that triggers
+     * it came from Inertia (login/register submit via XHR): Inertia follows
+     * redirects itself and refuses to read a cross-origin response, so the
+     * browser's Same Origin Policy blocks it as a CORS error. Inertia::location()
+     * instead sends a 409 with X-Inertia-Location for Inertia requests, which
+     * the client turns into a real full-page navigation; non-Inertia requests
+     * (e.g. a clicked email link) still get a normal redirect.
+     */
+    public static function redirect(User $user): Response
     {
-        return redirect(self::link($user));
+        return Inertia::location(self::link($user));
     }
 
     public static function link(User $user): string

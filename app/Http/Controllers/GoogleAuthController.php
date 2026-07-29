@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class GoogleAuthController extends Controller
@@ -29,7 +30,7 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->stateless()->with(['state' => $state])->redirect();
     }
 
-    public function callback(Request $request): RedirectResponse|InertiaResponse
+    public function callback(Request $request): Response|InertiaResponse
     {
         $state = GoogleOAuthToken::decode((string) $request->query('state', ''));
 
@@ -52,7 +53,7 @@ class GoogleAuthController extends Controller
             : $this->handleLogin($googleUser, $state['subdomain'] ?? null);
     }
 
-    private function handleLogin(SocialiteUser $googleUser, ?string $subdomain): RedirectResponse|InertiaResponse
+    private function handleLogin(SocialiteUser $googleUser, ?string $subdomain): Response|InertiaResponse
     {
         $tenant = $subdomain !== null ? Tenant::where('subdomain', $subdomain)->first() : null;
 

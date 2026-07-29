@@ -4,13 +4,13 @@ namespace App\Http\Responses;
 
 use App\Models\User;
 use App\Support\TenantSessionHandoff;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
+use Symfony\Component\HttpFoundation\Response;
 
 class RegisterResponse implements RegisterResponseContract
 {
-    public function toResponse($request): RedirectResponse
+    public function toResponse($request): Response
     {
         /** @var Request $request */
         /** @var User $user */

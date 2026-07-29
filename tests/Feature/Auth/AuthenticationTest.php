@@ -59,6 +59,23 @@ test('users can authenticate using the login screen', function () {
         ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
 });
 
+test('inertia login requests get a 409 location response for the cross-domain handoff, not a followed redirect', function () {
+    $user = User::factory()->create();
+
+    // A plain redirect() to the handoff link would have Inertia's client
+    // follow it via XHR, which the browser blocks as a cross-origin request
+    // (the handoff link lives on the user's subdomain, not the apex). Inertia
+    // expects a 409 with X-Inertia-Location instead, which it turns into a
+    // real full-page navigation.
+    $response = $this->withHeaders(['X-Inertia' => 'true'])->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response->assertStatus(409);
+    expect($response->headers->get('X-Inertia-Location'))->toContain('/auth/verify-session/');
+});
+
 test('users with two factor enabled are redirected to two factor challenge', function () {
     $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
