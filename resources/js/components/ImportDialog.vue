@@ -24,7 +24,7 @@ const form = useForm<{ file: File | null }>({
 });
 
 const summary = computed(() => {
-    const page = usePage().props as {
+    const page = usePage() as unknown as {
         flash?: { import_summary?: ImportSummary };
     };
 
