@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Inertia\Support\SessionKey;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 test('student export returns an xlsx file honoring the classroom filter', function () {
     $tenant = Tenant::factory()->create();
@@ -125,6 +126,37 @@ test('filling in one row of the downloaded template imports exactly that row, ig
 
     $response->assertRedirect();
     $this->assertDatabaseCount('students', 1);
+    $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
+    expect($summary['created'])->toBe(1);
+    expect($summary['skipped'])->toBe(0);
+});
+
+test('a birth date entered as a real Excel date (not typed text) still imports as valid', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $templateResponse = $this->actingAsStaff($admin)->get(route('students.export', ['template' => 1]));
+    $path = sys_get_temp_dir().'/'.uniqid('students-template-', true).'.xlsx';
+    file_put_contents($path, $templateResponse->streamedContent());
+
+    $spreadsheet = (new Xlsx)->load($path);
+    $templateSheet = $spreadsheet->getSheetByName('Template');
+    $templateSheet->setCellValue('A2', '2001');
+    $templateSheet->setCellValue('B2', 'Citra');
+    $templateSheet->setCellValue('C2', 'P');
+    $templateSheet->setCellValue(
+        'D2',
+        Date::PHPToExcel(new DateTime('2015-05-14')),
+    );
+    $templateSheet->setCellValue('F2', 'active');
+    (new PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save($path);
+
+    $file = new UploadedFile($path, 'template.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    $response = $this->actingAsStaff($admin)->post(route('students.import'), ['file' => $file]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('students', ['tenant_id' => $tenant->id, 'nis' => '2001', 'birth_date' => '2015-05-14']);
     $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
     expect($summary['created'])->toBe(1);
     expect($summary['skipped'])->toBe(0);
