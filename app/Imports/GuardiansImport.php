@@ -4,13 +4,14 @@ namespace App\Imports;
 
 use App\Models\Guardian;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class GuardiansImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
+class GuardiansImport implements SkipsEmptyRows, SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use SkipsFailures;
 
@@ -28,6 +29,14 @@ class GuardiansImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithVa
             'name' => $row['nama'],
             'phone' => ! empty($row['no_hp']) ? (string) $row['no_hp'] : null,
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    public function isEmptyWhen(array $row): bool
+    {
+        return empty($row['nama']) && empty($row['no_hp']);
     }
 
     /**

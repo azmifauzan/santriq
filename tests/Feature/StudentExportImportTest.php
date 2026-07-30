@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Inertia\Support\SessionKey;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 test('student export returns an xlsx file honoring the classroom filter', function () {
     $tenant = Tenant::factory()->create();
@@ -99,4 +100,32 @@ test('re-uploading the untouched student template imports zero rows — the exam
 
     $response->assertRedirect();
     $this->assertDatabaseCount('students', 0);
+});
+
+test('filling in one row of the downloaded template imports exactly that row, ignoring the formatted-but-empty rows below it', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    Classroom::factory()->create(['tenant_id' => $tenant->id, 'name' => 'Kelas A']);
+
+    $templateResponse = $this->actingAsStaff($admin)->get(route('students.export', ['template' => 1]));
+    $path = sys_get_temp_dir().'/'.uniqid('students-template-', true).'.xlsx';
+    file_put_contents($path, $templateResponse->streamedContent());
+
+    $spreadsheet = (new Xlsx)->load($path);
+    $spreadsheet->getSheetByName('Template')->fromArray(
+        ['2001', 'Citra', 'P', '2015-01-01', 'Kelas A', 'active'],
+        null,
+        'A2',
+    );
+    (new PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save($path);
+
+    $file = new UploadedFile($path, 'template.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    $response = $this->actingAsStaff($admin)->post(route('students.import'), ['file' => $file]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseCount('students', 1);
+    $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
+    expect($summary['created'])->toBe(1);
+    expect($summary['skipped'])->toBe(0);
 });

@@ -6,13 +6,14 @@ use App\Models\Classroom;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class StudentsImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
+class StudentsImport implements SkipsEmptyRows, SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use SkipsFailures;
 
@@ -39,6 +40,14 @@ class StudentsImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithVal
             'birth_date' => $row['tanggal_lahir'] ?? null,
             'status' => $row['status'] ?: 'active',
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    public function isEmptyWhen(array $row): bool
+    {
+        return empty($row['nis']) && empty($row['nama']) && empty($row['jenis_kelamin']);
     }
 
     /**

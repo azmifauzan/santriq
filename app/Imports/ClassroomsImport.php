@@ -4,13 +4,14 @@ namespace App\Imports;
 
 use App\Models\Classroom;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class ClassroomsImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
+class ClassroomsImport implements SkipsEmptyRows, SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use SkipsFailures;
 
@@ -28,6 +29,14 @@ class ClassroomsImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithV
             'name' => $row['nama'],
             'level' => $row['level'] ?: null,
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    public function isEmptyWhen(array $row): bool
+    {
+        return empty($row['nama']) && empty($row['level']);
     }
 
     /**

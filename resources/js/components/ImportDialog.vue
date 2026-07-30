@@ -46,6 +46,10 @@ function onFileChange(event: Event) {
     form.file = target.files?.[0] ?? null;
 }
 
+function pickFile() {
+    fileInput.value?.click();
+}
+
 function submit() {
     form.post(props.importUrl, {
         forceFormData: true,
@@ -72,7 +76,7 @@ function submit() {
         class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
     >
         <div
-            class="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
+            class="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-y-auto rounded-lg border bg-background p-6 shadow-lg"
         >
             <h2 class="mb-4 text-lg font-semibold">{{ title }}</h2>
 
@@ -89,9 +93,21 @@ function submit() {
                         ref="fileInput"
                         type="file"
                         accept=".xlsx,.xls,.csv"
-                        class="block w-full text-sm"
+                        class="hidden"
                         @change="onFileChange"
                     />
+                    <div class="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            @click="pickFile"
+                        >
+                            Pilih File
+                        </Button>
+                        <span class="truncate text-sm text-muted-foreground">
+                            {{ form.file?.name ?? 'Belum ada file dipilih' }}
+                        </span>
+                    </div>
                     <p
                         v-if="form.errors.file"
                         class="mt-1 text-sm text-destructive"
@@ -113,7 +129,7 @@ function submit() {
                     </p>
                     <ul
                         v-if="summary.errors.length > 0"
-                        class="mt-2 list-disc space-y-1 pl-4 text-destructive"
+                        class="mt-2 max-h-48 list-disc space-y-1 overflow-y-auto pl-4 text-destructive"
                     >
                         <li v-for="(err, i) in summary.errors" :key="i">
                             {{ err }}

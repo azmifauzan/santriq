@@ -7,13 +7,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class TeachersImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
+class TeachersImport implements SkipsEmptyRows, SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use SkipsFailures;
 
@@ -37,6 +38,14 @@ class TeachersImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithVal
             'email_verified_at' => now(),
             'onboarded_at' => now(),
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    public function isEmptyWhen(array $row): bool
+    {
+        return empty($row['nama']) && empty($row['email']) && empty($row['role']);
     }
 
     /**
