@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ClassroomsExport;
+use App\Exports\Templates\ClassroomsTemplateExport;
 use App\Http\Requests\StoreClassroomRequest;
 use App\Http\Requests\UpdateClassroomRequest;
 use App\Imports\ClassroomsImport;
 use App\Models\Classroom;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -36,9 +36,11 @@ class ClassroomController extends Controller
     {
         Gate::authorize('viewAny', Classroom::class);
 
-        $classrooms = $request->boolean('template')
-            ? new Collection
-            : Classroom::latest()->get();
+        if ($request->boolean('template')) {
+            return Excel::download(new ClassroomsTemplateExport, 'template-data-kelas.xlsx');
+        }
+
+        $classrooms = Classroom::latest()->get();
 
         return Excel::download(new ClassroomsExport($classrooms), 'data-kelas.xlsx');
     }

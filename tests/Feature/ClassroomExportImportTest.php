@@ -37,3 +37,13 @@ test('classroom import creates rows and skips ones missing a name', function () 
     $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
     expect($summary['errors'][0])->toContain('Nama wajib diisi.');
 });
+
+test('classroom template download returns an xlsx file', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $response = $this->actingAsStaff($admin)->get(route('classrooms.export', ['template' => 1]));
+
+    $response->assertOk();
+    expect($response->headers->get('Content-Type'))->toContain('spreadsheet');
+});
