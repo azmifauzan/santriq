@@ -3,6 +3,7 @@
 use App\Models\Classroom;
 use App\Models\Tenant;
 use App\Models\User;
+use Inertia\Support\SessionKey;
 
 test('classroom export returns an xlsx file', function () {
     $tenant = Tenant::factory()->create();
@@ -32,4 +33,7 @@ test('classroom import creates rows and skips ones missing a name', function () 
     $response->assertRedirect();
     $this->assertDatabaseHas('classrooms', ['tenant_id' => $tenant->id, 'name' => 'Kelas Iqra 1', 'level' => 'Jilid 1']);
     $this->assertDatabaseCount('classrooms', 1);
+
+    $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
+    expect($summary['errors'][0])->toContain('Nama wajib diisi.');
 });
