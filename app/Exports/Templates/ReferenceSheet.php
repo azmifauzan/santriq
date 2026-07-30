@@ -24,7 +24,7 @@ class ReferenceSheet implements FromArray, WithStyles, WithTitle
      */
     public function array(): array
     {
-        $rowCount = max(array_map('count', $this->columns));
+        $rowCount = $this->columns === [] ? 0 : max(array_map('count', $this->columns));
         $rows = [array_keys($this->columns)];
 
         for ($i = 0; $i < $rowCount; $i++) {
