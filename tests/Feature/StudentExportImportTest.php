@@ -45,6 +45,8 @@ test('student import creates valid rows and skips invalid/duplicate ones, report
     $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
     expect($summary['created'])->toBe(1);
     expect($summary['skipped'])->toBe(2);
+    expect($summary['errors'][0])->toContain('NIS 1001 sudah terdaftar.');
+    expect($summary['errors'][1])->toContain('NIS wajib diisi.');
 });
 
 test('student import is scoped to the current tenant — a classroom name from another tenant does not resolve', function () {

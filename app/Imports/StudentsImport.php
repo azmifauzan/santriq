@@ -59,4 +59,24 @@ class StudentsImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithVal
             'status' => ['nullable', 'string', 'in:active,inactive'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function customValidationMessages(): array
+    {
+        return [
+            'nis.required' => 'NIS wajib diisi.',
+            'nis.unique' => 'NIS :input sudah terdaftar.',
+            'nama.required' => 'Nama wajib diisi.',
+            'nama.string' => 'Nama harus berupa teks.',
+            'nama.max' => 'Nama maksimal :max karakter.',
+            'jenis_kelamin.required' => 'Jenis Kelamin wajib diisi.',
+            'jenis_kelamin.string' => 'Jenis Kelamin harus berupa teks.',
+            'jenis_kelamin.in' => 'Jenis Kelamin harus L atau P.',
+            'tanggal_lahir.date' => 'Tanggal Lahir harus tanggal yang valid, contoh: 2015-05-14.',
+            'status.string' => 'Status harus berupa teks.',
+            'status.in' => 'Status harus active atau inactive.',
+        ];
+    }
 }
