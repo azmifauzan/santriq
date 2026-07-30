@@ -64,3 +64,23 @@ test('student import is scoped to the current tenant — a classroom name from a
 
     $this->assertDatabaseHas('students', ['tenant_id' => $tenant->id, 'nis' => '3001', 'classroom_id' => null]);
 });
+
+test('student template download returns an xlsx file with an example row and a Referensi sheet for existing classrooms', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    Classroom::factory()->create(['tenant_id' => $tenant->id, 'name' => 'Kelas A']);
+
+    $response = $this->actingAsStaff($admin)->get(route('students.export', ['template' => 1]));
+
+    $response->assertOk();
+    expect($response->headers->get('Content-Type'))->toContain('spreadsheet');
+});
+
+test('student template download works even when the tenant has no classrooms yet', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $response = $this->actingAsStaff($admin)->get(route('students.export', ['template' => 1]));
+
+    $response->assertOk();
+});

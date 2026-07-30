@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\StudentsExport;
+use App\Exports\Templates\StudentsTemplateExport;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Imports\StudentsImport;
@@ -11,7 +12,6 @@ use App\Models\Guardian;
 use App\Models\Student;
 use App\Services\QrCodeService;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -43,9 +43,11 @@ class StudentController extends Controller
     {
         Gate::authorize('viewAny', Student::class);
 
-        $students = $request->boolean('template')
-            ? new Collection
-            : $this->filteredQuery($request)->get();
+        if ($request->boolean('template')) {
+            return Excel::download(new StudentsTemplateExport, 'template-data-santri.xlsx');
+        }
+
+        $students = $this->filteredQuery($request)->get();
 
         return Excel::download(new StudentsExport($students), 'data-santri.xlsx');
     }
