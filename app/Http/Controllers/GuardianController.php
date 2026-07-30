@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\GuardiansExport;
+use App\Exports\Templates\GuardiansTemplateExport;
 use App\Http\Requests\StoreGuardianRequest;
 use App\Http\Requests\UpdateGuardianRequest;
 use App\Imports\GuardiansImport;
 use App\Models\Guardian;
 use App\Models\Student;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -40,9 +40,11 @@ class GuardianController extends Controller
     {
         Gate::authorize('viewAny', Guardian::class);
 
-        $guardians = $request->boolean('template')
-            ? new Collection
-            : Guardian::latest()->get();
+        if ($request->boolean('template')) {
+            return Excel::download(new GuardiansTemplateExport, 'template-data-wali-santri.xlsx');
+        }
+
+        $guardians = Guardian::latest()->get();
 
         return Excel::download(new GuardiansExport($guardians), 'data-wali-santri.xlsx');
     }
