@@ -2,6 +2,7 @@
 
 use App\Models\Tenant;
 use App\Models\User;
+use Inertia\Support\SessionKey;
 
 test('teacher export returns an xlsx file', function () {
     $tenant = Tenant::factory()->create();
@@ -43,6 +44,9 @@ test('teacher import creates accounts with a generated password and skips duplic
     expect($newTeacher->role)->toBe('pengajar');
     expect($newTeacher->password)->not->toBeNull();
     $this->assertDatabaseCount('users', 3); // admin + existing + new import
+
+    $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
+    expect($summary['errors'][0])->toContain('Email existing@example.com sudah terdaftar.');
 });
 
 test('teacher import is denied for a non-admin', function () {

@@ -50,4 +50,24 @@ class TeachersImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithVal
             'role' => ['required', 'string', 'in:admin,pengajar,Admin,Pengajar'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function customValidationMessages(): array
+    {
+        return [
+            'nama.required' => 'Nama wajib diisi.',
+            'nama.string' => 'Nama harus berupa teks.',
+            'nama.max' => 'Nama maksimal :max karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.string' => 'Email harus berupa teks.',
+            'email.email' => 'Email harus berupa alamat email yang valid.',
+            'email.max' => 'Email maksimal :max karakter.',
+            'email.unique' => 'Email :input sudah terdaftar.',
+            'role.required' => 'Role wajib diisi.',
+            'role.string' => 'Role harus berupa teks.',
+            'role.in' => 'Role harus admin atau pengajar.',
+        ];
+    }
 }
