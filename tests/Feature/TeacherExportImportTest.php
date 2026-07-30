@@ -57,3 +57,13 @@ test('teacher import is denied for a non-admin', function () {
 
     $this->actingAsStaff($pengajar)->post(route('teachers.import'), ['file' => $file])->assertForbidden();
 });
+
+test('teacher template download returns an xlsx file', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']);
+
+    $response = $this->actingAsStaff($admin)->get(route('teachers.export', ['template' => 1]));
+
+    $response->assertOk();
+    expect($response->headers->get('Content-Type'))->toContain('spreadsheet');
+});

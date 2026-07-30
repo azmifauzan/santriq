@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TeachersExport;
+use App\Exports\Templates\TeachersTemplateExport;
 use App\Http\Requests\StoreTeacherRequest;
 use App\Http\Requests\UpdateTeacherRequest;
 use App\Imports\TeachersImport;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,9 +37,11 @@ class TeacherController extends Controller
     {
         Gate::authorize('viewAny', User::class);
 
-        $teachers = $request->boolean('template')
-            ? new Collection
-            : $this->filteredQuery()->get();
+        if ($request->boolean('template')) {
+            return Excel::download(new TeachersTemplateExport, 'template-data-pengajar.xlsx');
+        }
+
+        $teachers = $this->filteredQuery()->get();
 
         return Excel::download(new TeachersExport($teachers), 'data-pengajar.xlsx');
     }
