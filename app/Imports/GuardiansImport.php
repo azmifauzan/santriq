@@ -40,4 +40,17 @@ class GuardiansImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithVa
             'no_hp' => ['nullable', 'max:50'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function customValidationMessages(): array
+    {
+        return [
+            'nama.required' => 'Nama wajib diisi.',
+            'nama.string' => 'Nama harus berupa teks.',
+            'nama.max' => 'Nama maksimal :max karakter.',
+            'no_hp.max' => 'No. HP maksimal :max karakter.',
+        ];
+    }
 }

@@ -3,6 +3,7 @@
 use App\Models\Guardian;
 use App\Models\Tenant;
 use App\Models\User;
+use Inertia\Support\SessionKey;
 
 test('guardian export returns an xlsx file', function () {
     $tenant = Tenant::factory()->create();
@@ -35,4 +36,7 @@ test('guardian import creates rows and skips ones missing a name', function () {
 
     $guardian = Guardian::firstWhere('name', 'Ibu Aisyah');
     expect($guardian->link_token)->not->toBeEmpty();
+
+    $summary = $response->getSession()->get(SessionKey::FLASH_DATA)['import_summary'];
+    expect($summary['errors'][0])->toContain('Nama wajib diisi.');
 });
