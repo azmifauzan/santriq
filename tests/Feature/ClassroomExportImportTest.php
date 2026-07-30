@@ -3,6 +3,7 @@
 use App\Models\Classroom;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Inertia\Support\SessionKey;
 
 test('classroom export returns an xlsx file', function () {
@@ -46,4 +47,19 @@ test('classroom template download returns an xlsx file', function () {
 
     $response->assertOk();
     expect($response->headers->get('Content-Type'))->toContain('spreadsheet');
+});
+
+test('re-uploading the untouched classroom template imports zero rows', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $templateResponse = $this->actingAsStaff($admin)->get(route('classrooms.export', ['template' => 1]));
+    $path = sys_get_temp_dir().'/'.uniqid('classrooms-template-', true).'.xlsx';
+    file_put_contents($path, $templateResponse->streamedContent());
+    $file = new UploadedFile($path, 'template.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    $response = $this->actingAsStaff($admin)->post(route('classrooms.import'), ['file' => $file]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseCount('classrooms', 0);
 });

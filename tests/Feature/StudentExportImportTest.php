@@ -4,6 +4,7 @@ use App\Models\Classroom;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Inertia\Support\SessionKey;
 
 test('student export returns an xlsx file honoring the classroom filter', function () {
@@ -65,7 +66,7 @@ test('student import is scoped to the current tenant — a classroom name from a
     $this->assertDatabaseHas('students', ['tenant_id' => $tenant->id, 'nis' => '3001', 'classroom_id' => null]);
 });
 
-test('student template download returns an xlsx file with an example row and a Referensi sheet for existing classrooms', function () {
+test('student template download returns an xlsx file with a Referensi sheet for existing classrooms', function () {
     $tenant = Tenant::factory()->create();
     $admin = User::factory()->create(['tenant_id' => $tenant->id]);
     Classroom::factory()->create(['tenant_id' => $tenant->id, 'name' => 'Kelas A']);
@@ -83,4 +84,19 @@ test('student template download works even when the tenant has no classrooms yet
     $response = $this->actingAsStaff($admin)->get(route('students.export', ['template' => 1]));
 
     $response->assertOk();
+});
+
+test('re-uploading the untouched student template imports zero rows — the example lives outside the data table, not in row 2', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $templateResponse = $this->actingAsStaff($admin)->get(route('students.export', ['template' => 1]));
+    $path = sys_get_temp_dir().'/'.uniqid('students-template-', true).'.xlsx';
+    file_put_contents($path, $templateResponse->streamedContent());
+    $file = new UploadedFile($path, 'template.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    $response = $this->actingAsStaff($admin)->post(route('students.import'), ['file' => $file]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseCount('students', 0);
 });

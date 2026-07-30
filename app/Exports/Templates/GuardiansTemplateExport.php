@@ -17,7 +17,6 @@ class GuardiansTemplateExport implements FromArray, WithEvents
     {
         return [
             ['Nama', 'No. HP'],
-            ['Ibu Aisyah', '081234567890'],
         ];
     }
 
@@ -31,12 +30,22 @@ class GuardiansTemplateExport implements FromArray, WithEvents
                 $sheet = $event->sheet->getDelegate();
 
                 $sheet->getStyle('A1:B1')->getFont()->setBold(true);
-                $sheet->getStyle('A2:B2')->getFont()->setItalic(true);
                 foreach (range('A', 'B') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
 
-                $sheet->getStyle('B3:B'.self::LAST_ROW)->getNumberFormat()->setFormatCode('@');
+                $sheet->getStyle('B2:B'.self::LAST_ROW)->getNumberFormat()->setFormatCode('@');
+
+                $sheet->fromArray([
+                    ['Contoh & Keterangan Pengisian', null],
+                    ['Nama', 'Contoh: Ibu Aisyah'],
+                    ['No. HP', 'Contoh: 081234567890 (opsional, boleh dikosongkan)'],
+                ], null, 'D1');
+
+                $sheet->getStyle('D1')->getFont()->setBold(true);
+                $sheet->getStyle('D2:D3')->getFont()->setBold(true);
+                $sheet->getColumnDimension('D')->setAutoSize(true);
+                $sheet->getColumnDimension('E')->setWidth(45);
             },
         ];
     }

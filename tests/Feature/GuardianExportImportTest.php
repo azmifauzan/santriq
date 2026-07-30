@@ -3,6 +3,7 @@
 use App\Models\Guardian;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Inertia\Support\SessionKey;
 
 test('guardian export returns an xlsx file', function () {
@@ -49,4 +50,19 @@ test('guardian template download returns an xlsx file', function () {
 
     $response->assertOk();
     expect($response->headers->get('Content-Type'))->toContain('spreadsheet');
+});
+
+test('re-uploading the untouched guardian template imports zero rows', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $templateResponse = $this->actingAsStaff($admin)->get(route('guardians.export', ['template' => 1]));
+    $path = sys_get_temp_dir().'/'.uniqid('guardians-template-', true).'.xlsx';
+    file_put_contents($path, $templateResponse->streamedContent());
+    $file = new UploadedFile($path, 'template.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    $response = $this->actingAsStaff($admin)->post(route('guardians.import'), ['file' => $file]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseCount('guardians', 0);
 });

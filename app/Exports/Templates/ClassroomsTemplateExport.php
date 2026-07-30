@@ -15,7 +15,6 @@ class ClassroomsTemplateExport implements FromArray, WithEvents
     {
         return [
             ['Nama', 'Level'],
-            ['Kelas Iqra 1', 'Jilid 1'],
         ];
     }
 
@@ -29,10 +28,20 @@ class ClassroomsTemplateExport implements FromArray, WithEvents
                 $sheet = $event->sheet->getDelegate();
 
                 $sheet->getStyle('A1:B1')->getFont()->setBold(true);
-                $sheet->getStyle('A2:B2')->getFont()->setItalic(true);
                 foreach (range('A', 'B') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
+
+                $sheet->fromArray([
+                    ['Contoh & Keterangan Pengisian', null],
+                    ['Nama', 'Contoh: Kelas Iqra 1'],
+                    ['Level', 'Contoh: Jilid 1 (opsional, bebas isi apa saja)'],
+                ], null, 'D1');
+
+                $sheet->getStyle('D1')->getFont()->setBold(true);
+                $sheet->getStyle('D2:D3')->getFont()->setBold(true);
+                $sheet->getColumnDimension('D')->setAutoSize(true);
+                $sheet->getColumnDimension('E')->setWidth(45);
             },
         ];
     }
