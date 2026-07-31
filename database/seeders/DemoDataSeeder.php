@@ -17,6 +17,34 @@ use Illuminate\Database\Seeder;
 
 class DemoDataSeeder extends Seeder
 {
+    /** @var array<int, array{name: string, gender: string}> */
+    private const STUDENT_NAMES = [
+        ['name' => 'Ahmad Fauzan', 'gender' => 'L'],
+        ['name' => 'Aisyah Putri', 'gender' => 'P'],
+        ['name' => 'Muhammad Rizki', 'gender' => 'L'],
+        ['name' => 'Fatimah Azzahra', 'gender' => 'P'],
+        ['name' => 'Abdullah Zaki', 'gender' => 'L'],
+        ['name' => 'Khadijah Nur', 'gender' => 'P'],
+        ['name' => 'Ibrahim Al Fatih', 'gender' => 'L'],
+        ['name' => 'Zahra Amelia', 'gender' => 'P'],
+        ['name' => 'Umar Faruq', 'gender' => 'L'],
+        ['name' => 'Hafshah Salsabila', 'gender' => 'P'],
+    ];
+
+    /** @var array<int, string> */
+    private const GUARDIAN_NAMES = [
+        'Bapak Ahmad Suryadi',
+        'Ibu Siti Aminah',
+        'Bapak Muhammad Yusuf',
+        'Ibu Fatimah Zahra',
+        'Bapak Abdul Rahman',
+        'Ibu Nur Hidayah',
+        'Bapak Hasan Basri',
+        'Ibu Aisyah Rahmawati',
+        'Bapak Zainal Abidin',
+        'Ibu Khadijah Putri',
+    ];
+
     public function run(): void
     {
         $tenant = Tenant::firstOrCreate(
@@ -56,31 +84,39 @@ class DemoDataSeeder extends Seeder
             return;
         }
 
+        $index = 0;
+
         Classroom::factory()
             ->count(2)
             ->sequence(['name' => 'Iqro 1'], ['name' => 'Juz Amma'])
             ->create(['tenant_id' => $tenant->id])
-            ->each(function (Classroom $classroom) use ($tenant, $admin, $pengajar) {
-                Student::factory()
-                    ->count(5)
-                    ->create([
+            ->each(function (Classroom $classroom) use ($tenant, $admin, $pengajar, &$index) {
+                for ($i = 0; $i < 5; $i++) {
+                    $studentData = self::STUDENT_NAMES[$index];
+
+                    $student = Student::factory()->create([
                         'tenant_id' => $tenant->id,
                         'classroom_id' => $classroom->id,
-                    ])
-                    ->each(function (Student $student) use ($tenant, $admin, $pengajar) {
-                        $guardian = Guardian::factory()->create([
-                            'tenant_id' => $tenant->id,
-                            'telegram_chat_id' => null,
-                            'linked_at' => null,
-                        ]);
+                        'name' => $studentData['name'],
+                        'gender' => $studentData['gender'],
+                    ]);
 
-                        $student->guardians()->attach($guardian->id, ['relation' => 'Wali']);
+                    $guardian = Guardian::factory()->create([
+                        'tenant_id' => $tenant->id,
+                        'name' => self::GUARDIAN_NAMES[$index],
+                        'telegram_chat_id' => null,
+                        'linked_at' => null,
+                    ]);
 
-                        $this->seedAttendanceHistory($tenant, $student, $pengajar);
-                        $this->seedAchievements($tenant, $student, $pengajar);
-                        $this->seedInvoice($tenant, $student, $admin);
-                        $this->seedLeaveRequest($tenant, $student);
-                    });
+                    $student->guardians()->attach($guardian->id, ['relation' => 'Wali']);
+
+                    $this->seedAttendanceHistory($tenant, $student, $pengajar);
+                    $this->seedAchievements($tenant, $student, $pengajar);
+                    $this->seedInvoice($tenant, $student, $admin);
+                    $this->seedLeaveRequest($tenant, $student);
+
+                    $index++;
+                }
             });
     }
 
