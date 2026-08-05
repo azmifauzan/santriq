@@ -32,6 +32,8 @@ Login & registrasi dengan Google (23 Juli 2026, disempurnakan 24 Juli 2026): tom
 
 Verifikasi email fungsional (24 Juli 2026): `App\Models\User` kini `implements MustVerifyEmail` (method-nya sudah ada dari trait bawaan `Illuminate\Foundation\Auth\User`, tinggal kontraknya yang belum dipasang) — ini yang membuat middleware `verified` (sudah lama terpasang di `routes/tenant.php` pada rute dashboard) benar-benar mulai menegakkan aturan, dan listener `Registered => SendEmailVerificationNotification` didaftarkan manual di `FortifyServiceProvider::boot()` (tidak ada `app/Listeners` yang di-scan otomatis di `bootstrap/app.php`). Konsekuensinya ditangani di tiga tempat: (1) `App\Http\Responses\RegisterResponse` sekarang bercabang — pendaftar Google (`email_verified_at` sudah terisi oleh `CreateNewUser`) langsung masuk lewat handoff bertanda tangan `App\Support\TenantSessionHandoff` (registrasi selalu berjalan di domain utama, sementara dashboard ada di subdomain, dan `SESSION_DOMAIN` kosong — redirect biasa tiba di subdomain sebagai tamu lalu memantul ke `/login`), pendaftar manual tetap login tapi diarahkan ke `verification.notice` sampai mengklik tautan di emailnya; (2) `TeacherController::store` men-set `email_verified_at => now()` saat admin menambah pengajar, karena akun itu tidak lewat alur registrasi (tidak ada event `Registered`, tidak ada email verifikasi yang bisa diklik) — admin yang mengetik emailnya dianggap menjaminnya; (3) migrasi `backfill_email_verified_at_for_existing_users` menandai semua user lama (yang dibuat sebelum perubahan ini) sebagai terverifikasi, supaya tidak ada admin/pengajar produksi yang tiba-tiba terkunci dari dashboard saat deploy.
 
+Presensi manual via NIS (5 Agustus 2026): halaman `/scan` kini punya tab "Token QR" / "NIS" di kartu input manual — staf bisa mencatat presensi dengan mengetik NIS santri, bukan cuma token QR. `AttendanceController::scan` menerima `qr_token` **atau** `nis` (validasi `required_without` silang, salah satu wajib); pencarian santri tetap ter-scope `tenant_id` di kedua jalur, jadi tidak ada IDOR lintas lembaga lewat NIS. Sisa logic (masuk/pulang, dedup, notifikasi Telegram) tidak berubah karena tetap keyed off `$student` yang sama. Rencana: `docs/superpowers/plans/2026-08-05-manual-attendance-nis.md`.
+
 Temuan yang sudah diperbaiki saat verifikasi:
 
 - `bacon/bacon-qr-code` dipakai langsung oleh `QrCodeService` tetapi hanya ikut sebagai dependensi transitif Fortify — sekarang dideklarasikan eksplisit di `composer.json`.
@@ -136,7 +138,7 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 ### Fase 2 — Absensi QR — selesai
 
 1. Halaman `/scan`: akses kamera, `BarcodeDetector`, umpan balik suara/visual berhasil-gagal.
-2. Endpoint `POST /attendance/scan` (auth, throttle) menerima `qr_token`, menentukan aksi masuk/pulang.
+2. Endpoint `POST /attendance/scan` (auth, throttle) menerima `qr_token` atau `nis` (salah satu wajib), menentukan aksi masuk/pulang.
 3. Aturan dedup: scan ulang dalam ≤ N menit (setting lembaga, default 5) diabaikan dan direspons "sudah tercatat".
 4. Daftar kehadiran harian + koreksi manual oleh admin.
 
