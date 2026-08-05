@@ -11,6 +11,7 @@ defineOptions({
 
 const videoRef = ref<HTMLVideoElement | null>(null);
 const manualToken = ref('');
+const manualMode = ref<'qr_token' | 'nis'>('qr_token');
 const isScanning = ref(false);
 const scanMessage = ref<{
     type: 'success' | 'error' | 'info';
@@ -63,7 +64,7 @@ async function startCamera() {
                         const rawValue = barcodes[0].rawValue;
 
                         if (rawValue) {
-                            processToken(rawValue);
+                            processToken({ qr_token: rawValue });
                         }
                     }
                 } catch {
@@ -93,7 +94,7 @@ function stopCamera() {
     isScanning.value = false;
 }
 
-async function processToken(qrToken: string) {
+async function processToken(payload: { qr_token?: string; nis?: string }) {
     if (isProcessingScan) {
         return;
     }
@@ -113,7 +114,7 @@ async function processToken(qrToken: string) {
                     )?.content || '',
                 Accept: 'application/json',
             },
-            body: JSON.stringify({ qr_token: qrToken }),
+            body: JSON.stringify(payload),
         });
 
         const data = await response.json();
@@ -147,11 +148,13 @@ async function processToken(qrToken: string) {
 }
 
 function submitManual() {
-    if (!manualToken.value.trim()) {
+    const value = manualToken.value.trim();
+
+    if (!value) {
         return;
     }
 
-    processToken(manualToken.value.trim());
+    processToken({ [manualMode.value]: value });
     manualToken.value = '';
 }
 
@@ -270,11 +273,42 @@ function playBeep(type: 'success' | 'error') {
                         memasukkan token secara manual.
                     </p>
 
+                    <div class="mb-4 flex gap-2">
+                        <button
+                            type="button"
+                            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+                            :class="
+                                manualMode === 'qr_token'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            "
+                            @click="manualMode = 'qr_token'"
+                        >
+                            Token QR
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+                            :class="
+                                manualMode === 'nis'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            "
+                            @click="manualMode = 'nis'"
+                        >
+                            NIS
+                        </button>
+                    </div>
+
                     <form @submit.prevent="submitManual" class="space-y-4">
                         <div>
                             <Input
                                 v-model="manualToken"
-                                placeholder="Tempel/Ketik token QR Santri..."
+                                :placeholder="
+                                    manualMode === 'qr_token'
+                                        ? 'Tempel/Ketik token QR Santri...'
+                                        : 'Ketik NIS Santri...'
+                                "
                                 autofocus
                             />
                         </div>
