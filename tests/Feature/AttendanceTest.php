@@ -100,6 +100,62 @@ test('scan with invalid qr_token returns 404', function () {
     $response->assertNotFound();
 });
 
+test('first scan by nis records checked_in_at', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    $student = Student::factory()->create(['tenant_id' => $tenant->id]);
+
+    $response = $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'nis' => $student->nis,
+    ]);
+
+    $response->assertOk()
+        ->assertJson([
+            'success' => true,
+            'action' => 'check_in',
+        ]);
+
+    $this->assertDatabaseHas('attendances', [
+        'tenant_id' => $tenant->id,
+        'student_id' => $student->id,
+        'date' => now()->format('Y-m-d'),
+        'status' => 'hadir',
+    ]);
+});
+
+test('scan with invalid nis returns 404', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $response = $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'nis' => 'NIS-DOES-NOT-EXIST',
+    ]);
+
+    $response->assertNotFound();
+});
+
+test('scan without qr_token or nis returns validation error', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+
+    $response = $this->actingAsStaff($admin)->postJson(route('attendance.scan'), []);
+
+    $response->assertStatus(422);
+});
+
+test('scan by nis does not match a student from another tenant', function () {
+    $tenantA = Tenant::factory()->create();
+    $tenantB = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenantA->id]);
+    $studentInOtherTenant = Student::factory()->create(['tenant_id' => $tenantB->id, 'nis' => 'SHARED-NIS']);
+
+    $response = $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'nis' => $studentInOtherTenant->nis,
+    ]);
+
+    $response->assertNotFound();
+});
+
 test('admin can update attendance status', function () {
     $tenant = Tenant::factory()->create();
     $admin = User::factory()->create(['tenant_id' => $tenant->id]);

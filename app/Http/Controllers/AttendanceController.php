@@ -33,18 +33,27 @@ class AttendanceController extends Controller
         Gate::authorize('create', Attendance::class);
 
         $request->validate([
-            'qr_token' => ['required', 'string'],
+            'qr_token' => ['required_without:nis', 'nullable', 'string'],
+            'nis' => ['required_without:qr_token', 'nullable', 'string'],
         ]);
 
-        $student = Student::where('tenant_id', Auth::user()->tenant_id)
-            ->where('qr_token', $request->input('qr_token'))
-            ->where('status', 'active')
-            ->first();
+        $studentQuery = Student::where('tenant_id', Auth::user()->tenant_id)
+            ->where('status', 'active');
+
+        if ($request->filled('qr_token')) {
+            $studentQuery->where('qr_token', $request->input('qr_token'));
+            $notFoundMessage = 'Kode QR tidak dikenali atau santri tidak aktif.';
+        } else {
+            $studentQuery->where('nis', $request->input('nis'));
+            $notFoundMessage = 'NIS tidak ditemukan atau santri tidak aktif.';
+        }
+
+        $student = $studentQuery->first();
 
         if (! $student) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kode QR tidak dikenali atau santri tidak aktif.',
+                'message' => $notFoundMessage,
             ], 404);
         }
 
