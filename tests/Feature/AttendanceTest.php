@@ -1,10 +1,13 @@
 <?php
 
+use App\Jobs\SendTelegramMessage;
 use App\Models\Attendance;
+use App\Models\Guardian;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Queue;
 
 test('first scan records checked_in_at', function () {
     $tenant = Tenant::factory()->create();
@@ -154,6 +157,112 @@ test('scan by nis does not match a student from another tenant', function () {
     ]);
 
     $response->assertNotFound();
+});
+
+test('check-in telegram notification uses tenant timezone, not server UTC time', function () {
+    Queue::fake();
+    Carbon::setTestNow('2026-08-05 08:33:00'); // UTC -> 15:33 WIB
+
+    $tenant = Tenant::factory()->create(['timezone' => 'Asia/Jakarta']);
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    $student = Student::factory()->create(['tenant_id' => $tenant->id]);
+    $guardian = Guardian::factory()->create(['tenant_id' => $tenant->id, 'telegram_chat_id' => '12345678']);
+    $student->guardians()->attach($guardian->id, ['relation' => 'Ayah']);
+
+    $response = $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'qr_token' => $student->qr_token,
+    ]);
+
+    $response->assertOk()->assertJson(['time' => '15:33']);
+
+    Queue::assertPushed(SendTelegramMessage::class, fn ($job) => str_contains($job->messageText, '<b>15:33</b> WIB'));
+
+    Carbon::setTestNow();
+});
+
+test('check-out telegram notification uses tenant timezone, not server UTC time', function () {
+    Queue::fake();
+    Carbon::setTestNow('2026-08-05 08:00:00');
+
+    $tenant = Tenant::factory()->create(['timezone' => 'Asia/Jakarta', 'settings' => ['dedup_minutes' => 5]]);
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    $student = Student::factory()->create(['tenant_id' => $tenant->id]);
+    $guardian = Guardian::factory()->create(['tenant_id' => $tenant->id, 'telegram_chat_id' => '12345678']);
+    $student->guardians()->attach($guardian->id, ['relation' => 'Ayah']);
+
+    $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'qr_token' => $student->qr_token,
+    ])->assertOk();
+
+    Carbon::setTestNow('2026-08-05 08:33:00'); // 10 min later, UTC -> 15:33 WIB
+    $response = $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'qr_token' => $student->qr_token,
+    ]);
+
+    $response->assertOk()->assertJson(['action' => 'check_out', 'time' => '15:33']);
+
+    Queue::assertPushed(SendTelegramMessage::class, function ($job) {
+        return str_contains($job->messageText, 'PULANG') && str_contains($job->messageText, '<b>15:33</b> WIB');
+    });
+
+    Carbon::setTestNow();
+});
+
+test('deduplicated scan tells staff how long to wait before checkout is recorded', function () {
+    Carbon::setTestNow('2026-07-22 08:00:00');
+
+    $tenant = Tenant::factory()->create(['settings' => ['dedup_minutes' => 5]]);
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    $student = Student::factory()->create(['tenant_id' => $tenant->id]);
+
+    $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'qr_token' => $student->qr_token,
+    ]);
+
+    Carbon::setTestNow('2026-07-22 08:02:00');
+    $response = $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'qr_token' => $student->qr_token,
+    ]);
+
+    $response->assertOk()->assertJson(['action' => 'deduplicated']);
+    expect($response->json('message'))->toContain('3 menit lagi');
+
+    Carbon::setTestNow();
+});
+
+test('attendance date follows tenant timezone across the UTC day boundary', function () {
+    // 2026-08-05 23:30 WIB = 2026-08-05 16:30 UTC. Still same WIB day.
+    Carbon::setTestNow('2026-08-05 16:30:00');
+
+    $tenant = Tenant::factory()->create(['timezone' => 'Asia/Jakarta']);
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    $student = Student::factory()->create(['tenant_id' => $tenant->id]);
+
+    $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'qr_token' => $student->qr_token,
+    ])->assertOk();
+
+    $this->assertDatabaseHas('attendances', [
+        'tenant_id' => $tenant->id,
+        'student_id' => $student->id,
+        'date' => '2026-08-05',
+    ]);
+
+    // 2026-08-06 00:30 WIB = 2026-08-05 17:30 UTC. New WIB day, but still same UTC day-1.
+    Carbon::setTestNow('2026-08-05 17:30:00');
+
+    $student2 = Student::factory()->create(['tenant_id' => $tenant->id]);
+    $this->actingAsStaff($admin)->postJson(route('attendance.scan'), [
+        'qr_token' => $student2->qr_token,
+    ])->assertOk();
+
+    $this->assertDatabaseHas('attendances', [
+        'tenant_id' => $tenant->id,
+        'student_id' => $student2->id,
+        'date' => '2026-08-06',
+    ]);
+
+    Carbon::setTestNow();
 });
 
 test('admin can update attendance status', function () {

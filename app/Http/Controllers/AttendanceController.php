@@ -57,7 +57,8 @@ class AttendanceController extends Controller
             ], 404);
         }
 
-        $today = now()->format('Y-m-d');
+        $tenantTimezone = Auth::user()->tenant->timezone;
+        $today = now()->timezone($tenantTimezone)->format('Y-m-d');
         $attendance = Attendance::where('tenant_id', Auth::user()->tenant_id)
             ->where('student_id', $student->id)
             ->where('date', $today)
@@ -75,7 +76,8 @@ class AttendanceController extends Controller
                 'recorded_by' => Auth::id(),
             ]);
 
-            $checkInTime = $attendance->checked_in_at?->format('H:i') ?? now()->format('H:i');
+            $checkInTime = $attendance->checked_in_at?->copy()->timezone($tenantTimezone)->format('H:i')
+                ?? now()->timezone($tenantTimezone)->format('H:i');
 
             foreach ($student->guardians as $guardian) {
                 if (! empty($guardian->telegram_chat_id)) {
@@ -108,13 +110,15 @@ class AttendanceController extends Controller
             ? Carbon::parse($attendance->checked_in_at)->diffInMinutes(now())
             : 999;
 
-        $checkInTime = $attendance->checked_in_at?->format('H:i') ?? '-';
+        $checkInTime = $attendance->checked_in_at?->copy()->timezone($tenantTimezone)->format('H:i') ?? '-';
 
         if ($minsSinceCheckin < $dedupMinutes) {
+            $waitMinutes = max(1, $dedupMinutes - (int) $minsSinceCheckin);
+
             return response()->json([
                 'success' => true,
                 'action' => 'deduplicated',
-                'message' => "Presensi masuk {$student->name} sudah tercatat baru saja.",
+                'message' => "Presensi masuk {$student->name} sudah tercatat baru saja. Tunggu {$waitMinutes} menit lagi untuk mencatat presensi pulang.",
                 'student' => $student,
                 'time' => $checkInTime,
             ]);
@@ -125,7 +129,7 @@ class AttendanceController extends Controller
             'checked_out_at' => $now,
         ]);
 
-        $checkOutTime = $now->format('H:i');
+        $checkOutTime = $now->timezone($tenantTimezone)->format('H:i');
 
         foreach ($student->guardians as $guardian) {
             if (! empty($guardian->telegram_chat_id)) {
