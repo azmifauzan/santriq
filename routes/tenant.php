@@ -12,6 +12,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Settings\CardPrintController;
 use App\Http\Controllers\Settings\LembagaController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
@@ -127,6 +128,9 @@ $tenantRoutes = function (): void {
 
         Route::get('settings/lembaga', [LembagaController::class, 'edit'])->name('lembaga.edit');
         Route::put('settings/lembaga', [LembagaController::class, 'update'])->name('lembaga.update');
+
+        Route::get('settings/cetak-kartu', [CardPrintController::class, 'edit'])->name('card-print.edit');
+        Route::put('settings/cetak-kartu', [CardPrintController::class, 'update'])->name('card-print.update');
     });
 };
 
