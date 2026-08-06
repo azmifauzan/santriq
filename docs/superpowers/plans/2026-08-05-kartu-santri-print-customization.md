@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status: selesai (6 Agustus 2026).** Semua task diimplementasikan dan diverifikasi: `composer test` (258 test, pint, phpstan level 7) hijau, `npm run types:check` & `npm run lint` hijau. Detail di § 0 `docs/RENCANA-IMPLEMENTASI.md`.
+
 **Goal:** Fix the print-cards page losing its active sidebar highlight (it opens in a new tab via `window.open`), make better use of on-screen horizontal space, and let admins customize the printed card's columns, accent color, visible fields, and logo via a new Settings page.
 
 **Architecture:** Two independent bug fixes (sidebar active-state matching, screen-only layout width) plus a new per-tenant JSON setting (`tenants.settings['card_print']`) following the existing `settings['landing']` pattern, exposed through a new `Settings\CardPrintController` (mirrors `LembagaController`) and consumed by `StudentController::printCards` when rendering `Students/PrintCards.vue`.
@@ -31,7 +33,7 @@
 - Consumes: `useCurrentUrl()` composable (`resources/js/composables/useCurrentUrl.ts`), already exposing `isCurrentOrParentUrl`.
 - Produces: no new exports — both are leaf-level fixes.
 
-- [ ] **Step 1: Switch `NavMain` to prefix matching**
+- [x] **Step 1: Switch `NavMain` to prefix matching**
 
 In `resources/js/components/NavMain.vue`, replace line 17:
 
@@ -59,7 +61,7 @@ with:
 
 This is safe because every `mainNavItems` href in `resources/js/components/AppSidebar.vue:37-102` (`/dashboard`, `/scan`, `/attendance`, `/students`, `/classrooms`, `/guardians`, `/achievements`, `/invoices`, `/leave-requests`, `/reports`, `/teachers`) is a distinct, non-overlapping prefix — none is a prefix of another, and none is `/`.
 
-- [ ] **Step 2: Navigate to print-cards in the same tab**
+- [x] **Step 2: Navigate to print-cards in the same tab**
 
 In `resources/js/pages/Students/Index.vue`, replace lines 125-128:
 
@@ -81,7 +83,7 @@ function printSelectedCards() {
 
 `router` is already imported at the top of this file (`import { Head, useForm, router } from '@inertiajs/vue3';`), no import change needed.
 
-- [ ] **Step 3: Type-check, lint, and verify manually in the browser**
+- [x] **Step 3: Type-check, lint, and verify manually in the browser**
 
 Run: `npm run types:check && npm run lint`
 Expected: no errors.
@@ -92,7 +94,7 @@ Then in the browser:
 3. Confirm the sidebar's "Data Santri" item is highlighted as active.
 4. Click the browser back button — confirm it returns to `/students` with the sidebar still showing "Data Santri" active.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add resources/js/components/NavMain.vue resources/js/pages/Students/Index.vue
@@ -110,7 +112,7 @@ git commit -m "fix: keep Data Santri highlighted and navigate to cetak kartu in 
 - Consumes: nothing new.
 - Produces: nothing new — visual-only change to an existing leaf page.
 
-- [ ] **Step 1: Widen the container and add larger screen breakpoints**
+- [x] **Step 1: Widen the container and add larger screen breakpoints**
 
 In `resources/js/pages/Students/PrintCards.vue`, replace line 26:
 
@@ -138,7 +140,7 @@ with:
 
 The `print:grid-cols-2` class keeps the printed page unchanged for now — Task 6 replaces it with a dynamic value driven by the new setting.
 
-- [ ] **Step 2: Verify manually in the browser**
+- [x] **Step 2: Verify manually in the browser**
 
 Run: `npm run build` (or confirm `composer dev` is already running)
 
@@ -146,7 +148,7 @@ Then open `/students/print-cards` on a wide browser window (≥1600px):
 1. Confirm cards now lay out in 4-5 columns instead of leaving empty space on the sides.
 2. Open the browser's print preview (`Ctrl+P` / `Cmd+P`) — confirm the print layout still shows 2 columns per row, unchanged.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add resources/js/pages/Students/PrintCards.vue
@@ -172,7 +174,7 @@ git commit -m "fix: use more screen width on cetak kartu page"
   - `App\Support\CardPrintSettings::resolve(Tenant $tenant): array` — same shape, merging saved settings over defaults. Used by Task 5.
   - Named routes `card-print.edit` (GET `settings/cetak-kartu`) and `card-print.update` (PUT `settings/cetak-kartu`).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/Feature/Settings/CardPrintSettingsTest.php`:
 
@@ -270,12 +272,12 @@ test('pengajar cannot update card print settings', function () {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `php artisan test --compact --filter=CardPrintSettingsTest`
 Expected: FAIL — route `card-print.edit` / `card-print.update` don't exist yet (404s), and `App\Support\CardPrintSettings` doesn't exist yet (class-not-found in the first test).
 
-- [ ] **Step 3: Create the defaults/resolve helper**
+- [x] **Step 3: Create the defaults/resolve helper**
 
 Create `app/Support/CardPrintSettings.php`:
 
@@ -313,7 +315,7 @@ class CardPrintSettings
 }
 ```
 
-- [ ] **Step 4: Create the form request**
+- [x] **Step 4: Create the form request**
 
 Create `app/Http/Requests/Settings/UpdateCardPrintSettingsRequest.php`:
 
@@ -350,7 +352,7 @@ class UpdateCardPrintSettingsRequest extends FormRequest
 
 The boolean fields are `sometimes` (not `required`) because unchecked HTML checkboxes are omitted from the submitted form entirely — `$request->boolean(...)` in the next step already treats a missing key as `false`.
 
-- [ ] **Step 5: Create the trait that persists the settings**
+- [x] **Step 5: Create the trait that persists the settings**
 
 Create `app/Concerns/UpdatesTenantCardPrintSettings.php`:
 
@@ -387,7 +389,7 @@ trait UpdatesTenantCardPrintSettings
 }
 ```
 
-- [ ] **Step 6: Create the controller**
+- [x] **Step 6: Create the controller**
 
 Create `app/Http/Controllers/Settings/CardPrintController.php`:
 
@@ -432,7 +434,7 @@ class CardPrintController extends Controller
 }
 ```
 
-- [ ] **Step 7: Register the routes**
+- [x] **Step 7: Register the routes**
 
 In `routes/tenant.php`, add the import after line 14 (`use App\Http\Controllers\ReportController;`), keeping alphabetical order before `LembagaController`:
 
@@ -447,12 +449,12 @@ Then, in the settings route group (`routes/tenant.php:115-130`), add after line 
         Route::put('settings/cetak-kartu', [CardPrintController::class, 'update'])->name('card-print.update');
 ```
 
-- [ ] **Step 8: Run tests to verify they pass**
+- [x] **Step 8: Run tests to verify they pass**
 
 Run: `php artisan test --compact --filter=CardPrintSettingsTest`
 Expected: all 6 tests PASS.
 
-- [ ] **Step 9: Format and commit**
+- [x] **Step 9: Format and commit**
 
 ```bash
 vendor/bin/pint --dirty --format agent
@@ -472,7 +474,7 @@ git commit -m "feat: add card print settings backend"
 - Consumes: `settings/cetak-kartu` routes from Task 3 (Wayfinder-generated `resources/js/routes/card-print/index.ts`, exporting `edit`/`update`, same shape as `resources/js/routes/lembaga/index.ts`), Inertia props `cardPrint: { columns_per_print_row: number; accent_color: string; show_nis: boolean; show_classroom: boolean; show_gender: boolean; show_logo: boolean }` and `logoPath: string | null` from `CardPrintController::edit`.
 - Produces: nothing new — leaf settings page.
 
-- [ ] **Step 1: Regenerate Wayfinder routes**
+- [x] **Step 1: Regenerate Wayfinder routes**
 
 Run: `php artisan wayfinder:generate --with-form`
 
@@ -480,7 +482,7 @@ Run: `php artisan wayfinder:generate --with-form`
 
 Expected: `resources/js/routes/card-print/index.ts` is created, exporting `edit` and `update` with `.form()` helpers (same shape as `resources/js/routes/lembaga/index.ts`).
 
-- [ ] **Step 2: Add the settings nav entry**
+- [x] **Step 2: Add the settings nav entry**
 
 In `resources/js/layouts/settings/Layout.vue`, add the import after line 9 (`import { edit as editLembaga } from '@/routes/lembaga';`), keeping alphabetical order before it:
 
@@ -497,7 +499,7 @@ Then add to the `sidebarNavItems` array (after the `Lembaga` entry, currently li
     },
 ```
 
-- [ ] **Step 3: Create the settings page**
+- [x] **Step 3: Create the settings page**
 
 Create `resources/js/pages/settings/CardPrint.vue`:
 
@@ -705,12 +707,12 @@ const showLogo = ref(props.cardPrint.show_logo);
 </template>
 ```
 
-- [ ] **Step 4: Format, type-check, and lint**
+- [x] **Step 4: Format, type-check, and lint**
 
 Run: `npm run format && npm run types:check && npm run lint`
 Expected: Prettier reformats the new file's attribute wrapping to match project style; no type or lint errors.
 
-- [ ] **Step 5: Verify manually in the browser**
+- [x] **Step 5: Verify manually in the browser**
 
 Run: `npm run build` (or confirm `composer dev` is already running)
 
@@ -721,7 +723,7 @@ Then log in as an admin and go to `/settings/cetak-kartu`:
 4. Confirm "Tampilkan Logo Lembaga" is disabled with a hint linking to Settings → Lembaga (since no logo is uploaded yet in a fresh tenant).
 5. Change the column count to 3, click "Simpan" — confirm a success message appears and reloading the page keeps the saved values (column = 3, accent color, checkboxes).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add resources/js/pages/settings/CardPrint.vue resources/js/layouts/settings/Layout.vue
@@ -740,7 +742,7 @@ git commit -m "feat: add card print customization settings page"
 - Consumes: `App\Support\CardPrintSettings::resolve()` from Task 3.
 - Produces: `Inertia::render('Students/PrintCards', [...])` now includes `cardSettings` (shape from `CardPrintSettings::resolve()`) and `logoPath` (`string|null`), consumed by Task 6.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 In `tests/Feature/MasterDataTest.php`, add the import after line 7 (`use App\Models\User;`):
 
@@ -831,12 +833,12 @@ test('print cards page still returns logo path even when show_logo is off', func
 
 Note: the last test intentionally asserts `logoPath` is still returned even when `show_logo` is `false` — the frontend (Task 6) decides whether to render it based on `cardSettings.show_logo`, since the settings preview page (Task 4) also needs the raw path regardless of the toggle state. This keeps `printCards` a plain data-passthrough, with the display decision made once, in the Vue template.
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `php artisan test --compact --filter=MasterDataTest`
 Expected: the new/modified tests FAIL — `cardSettings` and `logoPath` are not yet present in the Inertia response.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `app/Http/Controllers/StudentController.php`, add imports after line 12 (`use App\Models\Student;`):
 
@@ -884,12 +886,12 @@ Then replace the `printCards` method (lines 139-170):
     }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `php artisan test --compact --filter=MasterDataTest`
 Expected: all tests in `MasterDataTest.php` PASS.
 
-- [ ] **Step 5: Format and commit**
+- [x] **Step 5: Format and commit**
 
 ```bash
 vendor/bin/pint --dirty --format agent
@@ -908,7 +910,7 @@ git commit -m "feat: expose card print settings from printCards"
 - Consumes: `cardSettings` and `logoPath` props from Task 5; `edit` from `resources/js/routes/card-print` (Task 3/4).
 - Produces: nothing new — leaf page.
 
-- [ ] **Step 1: Replace the full file**
+- [x] **Step 1: Replace the full file**
 
 Replace the entire contents of `resources/js/pages/Students/PrintCards.vue` with:
 
@@ -1069,12 +1071,12 @@ Notes on what changed from the previous version:
 - NIS/classroom/gender are conditionally rendered; the footer row switched from `justify-between` to `flex-wrap justify-center gap-x-3` since it may now show 0-3 items instead of always exactly 2.
 - Added the "⚙️ Kustomisasi Kartu" link next to the existing print button.
 
-- [ ] **Step 2: Format, type-check, and lint**
+- [x] **Step 2: Format, type-check, and lint**
 
 Run: `npm run format && npm run types:check && npm run lint`
 Expected: Prettier reformats the file's attribute wrapping to match project style; no type or lint errors.
 
-- [ ] **Step 3: Verify manually in the browser end-to-end**
+- [x] **Step 3: Verify manually in the browser end-to-end**
 
 Run: `npm run build` (or confirm `composer dev` is already running)
 
@@ -1086,7 +1088,7 @@ Run: `npm run build` (or confirm `composer dev` is already running)
 6. Click "⚙️ Kustomisasi Kartu" — confirm it navigates (same tab) to `/settings/cetak-kartu`, and the Settings sidebar shows "Cetak Kartu Santri" highlighted.
 7. If a logo was uploaded in Settings → Lembaga during earlier manual testing, toggle "Tampilkan Logo Lembaga" on, save, and confirm the logo appears next to the tenant name on each card.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add resources/js/pages/Students/PrintCards.vue
