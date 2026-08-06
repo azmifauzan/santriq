@@ -23,7 +23,7 @@ function triggerPrint() {
 <template>
     <Head title="Cetak Kartu QR Santri" />
 
-    <div class="mx-auto max-w-6xl p-6">
+    <div class="mx-auto max-w-[1600px] p-6">
         <!-- Print Header Action (hidden during print) -->
         <div
             class="mb-6 flex items-center justify-between rounded-lg border bg-muted/40 p-4 print:hidden"
@@ -45,7 +45,7 @@ function triggerPrint() {
 
         <!-- Cards Grid -->
         <div
-            class="grid grid-cols-2 gap-6 md:grid-cols-3 print:grid-cols-2 print:gap-4 print:p-0"
+            class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 print:grid-cols-2 print:gap-4 print:p-0"
         >
             <div
                 v-for="s in students"
