@@ -124,7 +124,7 @@ function filterStudents() {
 
 function printSelectedCards() {
     const url = `/students/print-cards?classroom_id=${selectedClassroom.value}`;
-    window.open(url, '_blank');
+    router.visit(url);
 }
 
 function exportStudents() {
