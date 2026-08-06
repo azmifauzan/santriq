@@ -5,6 +5,7 @@ use App\Models\Guardian;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Support\CardPrintSettings;
 
 test('user can perform CRUD on classrooms', function () {
     $tenant = Tenant::factory()->create();
@@ -83,5 +84,52 @@ test('print cards page renders SVG for students', function () {
     $response->assertInertia(fn ($page) => $page
         ->component('Students/PrintCards')
         ->has('students', 1)
+        ->where('cardSettings', CardPrintSettings::defaults())
+        ->where('logoPath', null)
+    );
+});
+
+test('print cards page reflects saved card print settings', function () {
+    $tenant = Tenant::factory()->create([
+        'settings' => [
+            'landing' => ['logo_path' => 'tenants/1/logo/logo.png'],
+            'card_print' => [
+                'columns_per_print_row' => 3,
+                'accent_color' => '#059669',
+                'show_nis' => false,
+                'show_classroom' => true,
+                'show_gender' => true,
+                'show_logo' => true,
+            ],
+        ],
+    ]);
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    $student = Student::factory()->create(['tenant_id' => $tenant->id]);
+
+    $response = $this->actingAsStaff($admin)->get(route('students.print-cards', ['ids' => $student->id]));
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('Students/PrintCards')
+        ->where('cardSettings.columns_per_print_row', 3)
+        ->where('cardSettings.accent_color', '#059669')
+        ->where('cardSettings.show_nis', false)
+        ->where('logoPath', 'tenants/1/logo/logo.png')
+    );
+});
+
+test('print cards page still returns logo path even when show_logo is off', function () {
+    $tenant = Tenant::factory()->create([
+        'settings' => [
+            'landing' => ['logo_path' => 'tenants/1/logo/logo.png'],
+            'card_print' => ['show_logo' => false],
+        ],
+    ]);
+    $admin = User::factory()->create(['tenant_id' => $tenant->id]);
+    $student = Student::factory()->create(['tenant_id' => $tenant->id]);
+
+    $response = $this->actingAsStaff($admin)->get(route('students.print-cards', ['ids' => $student->id]));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('logoPath', 'tenants/1/logo/logo.png')
     );
 });

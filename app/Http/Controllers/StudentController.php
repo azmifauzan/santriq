@@ -11,6 +11,8 @@ use App\Models\Classroom;
 use App\Models\Guardian;
 use App\Models\Student;
 use App\Services\QrCodeService;
+use App\Support\CardPrintSettings;
+use App\Support\CurrentTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -149,10 +151,10 @@ class StudentController extends Controller
             $query->where('classroom_id', $request->input('classroom_id'));
         }
 
-        $user = auth()->user();
-        $tenantName = ($user && $user->tenant) ? $user->tenant->name : 'SantriQ';
+        $tenant = CurrentTenant::get();
+        $landing = $tenant->settings['landing'] ?? [];
 
-        $students = $query->get()->map(function (Student $student) use ($tenantName) {
+        $students = $query->get()->map(function (Student $student) use ($tenant) {
             return [
                 'id' => $student->id,
                 'nis' => $student->nis,
@@ -160,12 +162,14 @@ class StudentController extends Controller
                 'gender' => $student->gender,
                 'classroom_name' => $student->classroom ? $student->classroom->name : 'Tanpa Kelas',
                 'qr_svg' => QrCodeService::generateSvg($student->qr_token, 180),
-                'tenant_name' => $tenantName,
+                'tenant_name' => $tenant->name,
             ];
         });
 
         return Inertia::render('Students/PrintCards', [
             'students' => $students,
+            'cardSettings' => CardPrintSettings::resolve($tenant),
+            'logoPath' => $landing['logo_path'] ?? null,
         ]);
     }
 }
