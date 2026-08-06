@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
+import { edit as editCardPrint } from '@/routes/card-print';
 import { edit as editLembaga } from '@/routes/lembaga';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
@@ -27,6 +28,10 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'Lembaga',
         href: editLembaga(),
+    },
+    {
+        title: 'Cetak Kartu Santri',
+        href: editCardPrint(),
     },
 ];
 
