@@ -131,10 +131,8 @@ const showLogo = ref(props.cardPrint.show_logo);
                             class="text-sm text-muted-foreground"
                         >
                             Belum ada logo. Upload dulu di
-                            <Link
-                                :href="editLembaga()"
-                                class="underline"
-                            >Settings &rarr; Lembaga</Link
+                            <Link :href="editLembaga()" class="underline"
+                                >Settings &rarr; Lembaga</Link
                             >.
                         </p>
                     </div>
