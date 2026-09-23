@@ -2,13 +2,23 @@
 
 namespace App\Http\Requests\Settings;
 
+use App\Support\DemoTenant;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LembagaUpdateRequest extends FormRequest
 {
+    /**
+     * The demo tenant's admin credentials are published on its own login
+     * page (see FortifyServiceProvider::configureViews) so visitors can
+     * explore without registering. Its landing page and login branding are
+     * public and never reset by `demo:reset`, so anyone with those
+     * credentials could otherwise deface a publicly crawlable page under
+     * this domain indefinitely — the pattern Google Safe Browsing flags as
+     * a "deceptive page".
+     */
     public function authorize(): bool
     {
-        return $this->user('web')?->isAdmin() ?? false;
+        return ($this->user('web')?->isAdmin() ?? false) && ! DemoTenant::isActive();
     }
 
     /**

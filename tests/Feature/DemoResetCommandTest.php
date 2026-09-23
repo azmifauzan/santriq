@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\DemoTenant;
 use Database\Seeders\DemoDataSeeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 test('demo:reset is a no-op when the demo tenant does not exist', function () {
     $this->artisan('demo:reset')->assertExitCode(0);
@@ -32,4 +33,30 @@ test('demo:reset wipes and reseeds only the demo tenant', function () {
 
     $admin->refresh();
     expect(Hash::check('password', $admin->password))->toBeTrue();
+});
+
+test('demo:reset clears public landing content a visitor could have defaced', function () {
+    Storage::fake('public');
+
+    (new DemoDataSeeder)->run();
+    $demoTenant = Tenant::where('subdomain', DemoTenant::SUBDOMAIN)->firstOrFail();
+
+    $logoPath = 'tenants/'.$demoTenant->id.'/logo/defaced.png';
+    Storage::disk('public')->put($logoPath, 'fake-image-bytes');
+
+    $demoTenant->update([
+        'settings' => [
+            ...$demoTenant->settings ?? [],
+            'landing' => [
+                'tagline' => 'Klaim hadiah gratis Anda sekarang',
+                'logo_path' => $logoPath,
+            ],
+        ],
+    ]);
+
+    $this->artisan('demo:reset')->assertExitCode(0);
+
+    $demoTenant->refresh();
+    expect($demoTenant->settings['landing'] ?? [])->toBe([]);
+    Storage::disk('public')->assertMissing($logoPath);
 });

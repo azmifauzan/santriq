@@ -2,6 +2,7 @@
 
 use App\Models\Tenant;
 use App\Models\User;
+use App\Support\DemoTenant;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,6 +40,16 @@ test('logo upload rejects svg to prevent stored xss', function () {
     ]);
 
     $response->assertSessionHasErrors('logo');
+});
+
+test('demo tenant admin cannot deface the public landing page', function () {
+    $tenant = Tenant::factory()->create(['subdomain' => DemoTenant::SUBDOMAIN]);
+    $admin = $this->actingAsStaff(User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']));
+
+    $admin->put(route('lembaga.update'), ['tagline' => 'Klaim hadiah gratis Anda sekarang'])
+        ->assertForbidden();
+
+    expect($tenant->refresh()->settings['landing'] ?? [])->toBe([]);
 });
 
 test('pengajar cannot update landing content', function () {

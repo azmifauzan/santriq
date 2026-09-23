@@ -10,6 +10,7 @@ use App\Support\DemoTenant;
 use Database\Seeders\DemoDataSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ResetDemoTenant extends Command
 {
@@ -33,10 +34,34 @@ class ResetDemoTenant extends Command
             Classroom::where('tenant_id', $tenant->id)->delete();
         });
 
+        $this->resetPublicLandingContent($tenant);
+
         (new DemoDataSeeder)->run();
 
         $this->info('Demo tenant reset.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * `LembagaUpdateRequest` now refuses writes to the demo tenant, but this
+     * clears out anything set before that guard existed (or any settings
+     * key never routed through that form request) — the tagline,
+     * description, and any uploaded logo/gallery files are public and
+     * otherwise untouched by the reset above.
+     */
+    private function resetPublicLandingContent(Tenant $tenant): void
+    {
+        $landing = $tenant->settings['landing'] ?? [];
+
+        foreach ([$landing['logo_path'] ?? null, ...($landing['gallery'] ?? [])] as $path) {
+            if ($path) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        $tenant->update([
+            'settings' => [...$tenant->settings ?? [], 'landing' => []],
+        ]);
     }
 }
