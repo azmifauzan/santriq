@@ -15,13 +15,20 @@ import {
     Sparkles,
     Users,
 } from '@lucide/vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import { login, privacy, register, terms } from '@/routes';
+import { login, privacy, register, requestFeature, terms } from '@/routes';
 
-defineProps<{
+const props = defineProps<{
     demoUrl?: string | null;
+    whatsappNumber?: string | null;
 }>();
+
+const whatsappHref = computed(() => {
+    const digits = props.whatsappNumber?.replace(/\D/g, '');
+
+    return digits ? `https://wa.me/${digits}` : null;
+});
 
 const githubStars = ref<number>();
 
@@ -712,6 +719,12 @@ const steps = [
                 </div>
                 <nav aria-label="Tautan legal" class="flex gap-5">
                     <Link
+                        :href="requestFeature()"
+                        class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                    >
+                        Request Fitur
+                    </Link>
+                    <Link
                         :href="privacy()"
                         class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
                     >
@@ -726,5 +739,25 @@ const steps = [
                 </nav>
             </div>
         </footer>
+
+        <a
+            v-if="whatsappHref"
+            :href="whatsappHref"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chat via WhatsApp"
+            class="fixed right-5 bottom-5 z-50 flex size-14 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg shadow-emerald-950/25 transition hover:-translate-y-0.5 hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25d366] sm:right-8 sm:bottom-8"
+        >
+            <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="size-7"
+                aria-hidden="true"
+            >
+                <path
+                    d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.33 4.99L2 22l5.2-1.36a9.94 9.94 0 0 0 4.84 1.23h.01c5.5 0 9.96-4.46 9.96-9.96 0-2.66-1.04-5.16-2.92-7.04A9.9 9.9 0 0 0 12.04 2Zm5.83 14.24c-.25.7-1.45 1.34-2 1.42-.51.08-1.15.11-1.86-.12-.43-.14-.98-.32-1.68-.63-2.96-1.28-4.89-4.26-5.04-4.46-.15-.2-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.46.27-.3.59-.37.79-.37.2 0 .4 0 .57.01.18.01.43-.07.67.51.25.6.85 2.08.92 2.23.07.15.12.33.02.53-.1.2-.15.32-.3.49-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.3.76 1.25 1.63 2.02 1.12.99 2.06 1.3 2.36 1.45.3.15.47.13.65-.08.18-.2.76-.88.96-1.18.2-.3.4-.25.67-.15.28.1 1.76.83 2.06.98.3.15.5.22.57.35.08.13.08.72-.17 1.42Z"
+                />
+            </svg>
+        </a>
     </div>
 </template>

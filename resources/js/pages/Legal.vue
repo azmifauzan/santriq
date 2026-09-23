@@ -2,7 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { GraduationCap } from '@lucide/vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import { home, privacy, terms } from '@/routes';
+import { home, privacy, requestFeature, terms } from '@/routes';
 
 type LegalDocument = 'privacy' | 'terms';
 
@@ -118,6 +118,12 @@ defineProps<{ document: LegalDocument; content: LegalContent }>();
                     class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
                 >
                     Syarat & Ketentuan
+                </Link>
+                <Link
+                    :href="requestFeature()"
+                    class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                >
+                    Request Fitur
                 </Link>
             </nav>
         </footer>

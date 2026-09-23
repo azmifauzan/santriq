@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AppSetting;
 use App\Models\Classroom;
 use App\Models\Guardian;
 use App\Models\Student;
@@ -211,6 +212,49 @@ test('verify link rejects a non-super-admin even with a validly signed url', fun
 
     $this->get($signedUrl)->assertForbidden();
     $this->assertGuest();
+});
+
+test('super admin can view and update the app-wide whatsapp number', function () {
+    $tenant = Tenant::factory()->create();
+    $superAdmin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin', 'is_super_admin' => true]);
+
+    $this->actingAsStaff($superAdmin)
+        ->get(route('super-admin.settings.edit'))
+        ->assertInertia(fn ($page) => $page
+            ->component('SuperAdmin/Settings')
+            ->where('settings.whatsapp_number', AppSetting::DEFAULT_WHATSAPP_NUMBER)
+        );
+
+    $this->actingAsStaff($superAdmin)
+        ->put(route('super-admin.settings.update'), ['whatsapp_number' => '+628123456789'])
+        ->assertRedirect(route('super-admin.settings.edit'));
+
+    expect(AppSetting::current()->whatsapp_number)->toBe('+628123456789');
+});
+
+test('regular tenant admin cannot update the app-wide whatsapp number', function () {
+    $tenant = Tenant::factory()->create();
+    $admin = User::factory()->create(['tenant_id' => $tenant->id, 'role' => 'admin']);
+
+    $this->actingAsStaff($admin)
+        ->get(route('super-admin.settings.edit'))
+        ->assertForbidden();
+
+    $this->actingAsStaff($admin)
+        ->put(route('super-admin.settings.update'), ['whatsapp_number' => '+628123456789'])
+        ->assertForbidden();
+
+    expect(AppSetting::current()->whatsapp_number)->toBe(AppSetting::DEFAULT_WHATSAPP_NUMBER);
+});
+
+test('home page exposes the app-wide whatsapp number', function () {
+    AppSetting::current()->update(['whatsapp_number' => '+628123456789']);
+
+    $this->get(route('home'))
+        ->assertInertia(fn ($page) => $page
+            ->component('Welcome')
+            ->where('whatsappNumber', '+628123456789')
+        );
 });
 
 test('verify link rejects a tampered signature', function () {

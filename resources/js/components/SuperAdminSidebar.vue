@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, LayoutGrid } from '@lucide/vue';
+import { ArrowLeft, LayoutGrid, Settings } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,6 +15,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { index } from '@/routes/super-admin';
+import { edit as editSettings } from '@/routes/super-admin/settings';
 import type { NavItem } from '@/types';
 
 const page = usePage();
@@ -27,6 +28,11 @@ const mainNavItems: NavItem[] = [
         title: 'Daftar Lembaga',
         href: index(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Pengaturan Aplikasi',
+        href: editSettings(),
+        icon: Settings,
     },
 ];
 </script>

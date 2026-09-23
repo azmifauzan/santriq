@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SuperAdmin\UpdateAppSettingsRequest;
+use App\Models\AppSetting;
 use App\Models\Guardian;
 use App\Models\Student;
 use App\Models\Tenant;
@@ -126,5 +128,21 @@ class SuperAdminController extends Controller
         return redirect()->back()->with('success', $tenant->isSuspended()
             ? 'Lembaga berhasil disuspend.'
             : 'Lembaga berhasil diaktifkan kembali.');
+    }
+
+    public function settingsEdit(Request $request): Response
+    {
+        abort_unless($request->user('web')?->isSuperAdmin(), 403);
+
+        return Inertia::render('SuperAdmin/Settings', [
+            'settings' => AppSetting::current()->only('whatsapp_number'),
+        ]);
+    }
+
+    public function settingsUpdate(UpdateAppSettingsRequest $request): RedirectResponse
+    {
+        AppSetting::current()->update($request->validated());
+
+        return to_route('super-admin.settings.edit')->with('success', 'Pengaturan berhasil disimpan.');
     }
 }

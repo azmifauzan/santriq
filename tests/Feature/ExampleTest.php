@@ -35,6 +35,16 @@ test('legal pages are available', function (string $route, string $document) {
     'terms' => ['terms', 'terms'],
 ]);
 
+test('the request-feature page links to the maintainer\'s social profiles', function () {
+    $this->get(route('request-feature'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('RequestFeature')
+            ->where('links.threads', 'https://www.threads.com/@azmifauzan')
+            ->where('links.facebook', 'https://www.facebook.com/azmifauzan/')
+            ->where('links.linkedin', 'https://www.linkedin.com/in/fauzan-azmi-29094522/'));
+});
+
 test('the landing page names the app and its purpose without running javascript', function () {
     $response = $this->get(route('home'))->assertOk();
 
