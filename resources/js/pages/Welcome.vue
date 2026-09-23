@@ -106,7 +106,7 @@ const steps = [
                     class="absolute inset-x-0 top-0 -z-0 h-[44rem] bg-[radial-gradient(circle_at_78%_20%,rgba(16,185,129,0.15),transparent_27%),radial-gradient(circle_at_10%_50%,rgba(251,191,36,0.11),transparent_25%)] dark:bg-[radial-gradient(circle_at_78%_20%,rgba(16,185,129,0.14),transparent_27%),radial-gradient(circle_at_10%_50%,rgba(251,191,36,0.06),transparent_25%)]"
                 />
                 <div
-                    class="relative mx-auto grid max-w-7xl items-center gap-14 px-5 pt-10 pb-18 sm:px-8 sm:pt-14 sm:pb-24 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:pt-16 lg:pb-28"
+                    class="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pt-8 pb-14 sm:px-8 sm:pt-14 sm:pb-24 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:pt-16 lg:pb-28"
                 >
                     <div class="max-w-2xl">
                         <div
@@ -313,7 +313,7 @@ const steps = [
                         </div>
 
                         <div
-                            class="absolute -right-3 -bottom-9 flex max-w-[15rem] items-start gap-3 rounded-2xl border border-emerald-100 bg-white p-3.5 shadow-xl sm:-right-7 dark:border-emerald-900 dark:bg-slate-900"
+                            class="absolute right-0 -bottom-8 flex max-w-[14.5rem] items-start gap-3 rounded-2xl border border-emerald-100 bg-white p-3 shadow-xl sm:-right-7 sm:-bottom-9 sm:max-w-[15rem] sm:p-3.5 dark:border-emerald-900 dark:bg-slate-900"
                         >
                             <span
                                 class="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#2aabee] text-white"
@@ -355,7 +355,7 @@ const steps = [
                 </div>
             </section>
 
-            <section id="fitur" class="py-20 sm:py-28">
+            <section id="fitur" class="py-14 sm:py-20 lg:py-28">
                 <div class="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
                     <div class="mx-auto max-w-2xl text-center">
                         <p
@@ -406,7 +406,7 @@ const steps = [
 
             <section
                 id="cara-kerja"
-                class="border-y border-emerald-950/5 bg-emerald-950 py-20 text-white sm:py-28 dark:border-white/10"
+                class="border-y border-emerald-950/5 bg-emerald-950 py-14 text-white sm:py-20 lg:py-28 dark:border-white/10"
             >
                 <div class="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
                     <div
@@ -454,7 +454,7 @@ const steps = [
                 </div>
             </section>
 
-            <section id="tentang" class="py-20 sm:py-28">
+            <section id="tentang" class="py-14 sm:py-20 lg:py-28">
                 <div
                     class="mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-2 lg:px-10"
                 >
@@ -549,9 +549,9 @@ const steps = [
                 </div>
             </section>
 
-            <section class="px-5 pb-20 sm:px-8 sm:pb-28 lg:px-10">
+            <section class="px-4 pb-14 sm:px-8 sm:pb-20 lg:px-10 lg:pb-28">
                 <div
-                    class="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-emerald-600 px-6 py-14 text-center text-white shadow-2xl shadow-emerald-950/15 sm:px-12 sm:py-18"
+                    class="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-emerald-600 px-5 py-10 text-center text-white shadow-2xl shadow-emerald-950/15 sm:px-12 sm:py-18"
                 >
                     <div
                         class="absolute -top-24 -left-16 size-64 rounded-full border-[2.5rem] border-white/8"
@@ -590,7 +590,7 @@ const steps = [
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Chat via WhatsApp"
-            class="fixed right-5 bottom-5 z-50 flex size-14 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg shadow-emerald-950/25 transition hover:-translate-y-0.5 hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25d366] sm:right-8 sm:bottom-8"
+            class="fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-[#25d366] text-white shadow-lg shadow-emerald-950/25 transition hover:-translate-y-0.5 hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25d366] sm:right-8 sm:bottom-8"
         >
             <svg
                 viewBox="0 0 24 24"

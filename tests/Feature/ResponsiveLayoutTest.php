@@ -54,3 +54,30 @@ test('paired form fields stack on mobile', function (string $page) {
     'leave requests' => 'LeaveRequests/Index.vue',
     'guardian leave requests' => 'guardian/LeaveRequests.vue',
 ]);
+
+test('public headers provide a mobile navigation drawer', function (string $component) {
+    $source = file_get_contents(resource_path("js/{$component}"));
+
+    expect($source)
+        ->toContain('isMobileMenuOpen')
+        ->toContain('md:hidden')
+        ->toContain('SheetContent');
+})->with([
+    'site header' => 'components/SiteHeader.vue',
+    'tenant landing' => 'pages/Tenant/Landing.vue',
+]);
+
+test('public headers keep login accessible across viewports', function (string $component) {
+    $source = file_get_contents(resource_path("js/{$component}"));
+
+    expect($source)->toContain(':href="login()"');
+})->with([
+    'site header' => 'components/SiteHeader.vue',
+    'tenant landing' => 'pages/Tenant/Landing.vue',
+]);
+
+test('public footer navigation wraps on mobile viewports', function () {
+    $source = file_get_contents(resource_path('js/components/SiteFooter.vue'));
+
+    expect($source)->toContain('flex-wrap');
+});

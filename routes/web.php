@@ -7,6 +7,7 @@ use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TenantSubdomainAvailabilityController;
 use App\Models\AppSetting;
 use App\Support\DemoTenant;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -56,5 +57,16 @@ Route::domain(config('tenancy.domain'))->group(function () {
         Route::patch('{tenant}/toggle-status', [SuperAdminController::class, 'toggleStatus'])->name('toggle-status');
     });
 });
+
+if (app()->isLocal() && config('tenancy.domain') === 'localhost') {
+    Route::domain('127.0.0.1')->group(function () {
+        Route::fallback(function (Request $request) {
+            $port = $request->getPort();
+            $portSuffix = ($port && ! in_array($port, [80, 443], true)) ? ":{$port}" : '';
+
+            return redirect()->to($request->getScheme().'://localhost'.$portSuffix.$request->getRequestUri());
+        });
+    });
+}
 
 require __DIR__.'/tenant.php';

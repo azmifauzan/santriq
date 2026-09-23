@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Foundation\DevCommands;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,21 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureErrorPages();
+        $this->configureDevServer();
+    }
+
+    /**
+     * Configure dev server port based on APP_PORT or APP_URL.
+     */
+    protected function configureDevServer(): void
+    {
+        if (app()->runningInConsole()) {
+            $port = parse_url((string) config('app.url'), PHP_URL_PORT);
+
+            if ($port && (int) $port !== 8000) {
+                DevCommands::artisan("serve --host=localhost --port={$port}", 'server');
+            }
+        }
     }
 
     /**

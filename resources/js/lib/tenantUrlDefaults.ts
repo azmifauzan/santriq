@@ -18,6 +18,10 @@ function applyFromProps(props: PageWithSubdomain['props']): void {
  * to pass `{ subdomain }` explicitly.
  */
 export function initializeTenantUrlDefaults(): void {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
     const el = document.getElementById('app');
     const initialPage: PageWithSubdomain | undefined = el?.dataset.page
         ? JSON.parse(el.dataset.page)

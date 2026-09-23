@@ -10,6 +10,7 @@ import {
 } from '@lucide/vue';
 import SiteFooter from '@/components/SiteFooter.vue';
 import SiteHeader from '@/components/SiteHeader.vue';
+import { home } from '@/routes';
 
 defineProps<{
     links: {
@@ -65,9 +66,9 @@ const features = [
     >
         <Head title="Fitur & Request Fitur" />
 
-        <SiteHeader />
+        <SiteHeader :sections-href="home.url()" />
 
-        <main class="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20 lg:px-10">
+        <main class="mx-auto max-w-7xl px-4 py-10 sm:px-8 sm:py-20 lg:px-10">
             <div class="mx-auto max-w-2xl text-center">
                 <p
                     class="text-sm font-bold tracking-widest text-emerald-600 uppercase"
@@ -113,7 +114,7 @@ const features = [
 
             <div
                 id="request"
-                class="mt-20 flex scroll-mt-24 flex-col items-center rounded-[2rem] border border-emerald-950/8 bg-white px-6 py-14 text-center sm:px-12 dark:border-white/10 dark:bg-slate-900"
+                class="mt-14 flex scroll-mt-24 flex-col items-center rounded-[2rem] border border-emerald-950/8 bg-white px-5 py-10 text-center sm:mt-20 sm:px-12 sm:py-14 dark:border-white/10 dark:bg-slate-900"
             >
                 <span
                     class="flex size-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
@@ -127,11 +128,13 @@ const features = [
                     class="mt-4 max-w-xl leading-7 text-slate-600 dark:text-slate-300"
                 >
                     Kirim usulan, kritik, atau ide fitur langsung ke pembuat
-                    SantriQ lewat salah satu kanal berikut. Semua masukan
-                    dibaca dan jadi bahan pengembangan berikutnya.
+                    SantriQ lewat salah satu kanal berikut. Semua masukan dibaca
+                    dan jadi bahan pengembangan berikutnya.
                 </p>
 
-                <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                <div
+                    class="mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center"
+                >
                     <a
                         :href="links.threads"
                         target="_blank"
