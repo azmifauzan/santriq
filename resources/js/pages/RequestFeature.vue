@@ -112,7 +112,8 @@ const features = [
             </div>
 
             <div
-                class="mt-20 flex flex-col items-center rounded-[2rem] border border-emerald-950/8 bg-white px-6 py-14 text-center sm:px-12 dark:border-white/10 dark:bg-slate-900"
+                id="request"
+                class="mt-20 flex scroll-mt-24 flex-col items-center rounded-[2rem] border border-emerald-950/8 bg-white px-6 py-14 text-center sm:px-12 dark:border-white/10 dark:bg-slate-900"
             >
                 <span
                     class="flex size-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"

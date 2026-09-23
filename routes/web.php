@@ -17,7 +17,7 @@ Route::domain(config('tenancy.domain'))->group(function () {
     ]))->name('home');
     Route::get('privacy', [LegalController::class, 'show'])->defaults('document', 'privacy')->name('privacy');
     Route::get('terms', [LegalController::class, 'show'])->defaults('document', 'terms')->name('terms');
-    Route::inertia('request-fitur', 'RequestFeature', [
+    Route::inertia('fitur', 'RequestFeature', [
         'links' => [
             'threads' => 'https://www.threads.com/@azmifauzan',
             'facebook' => 'https://www.facebook.com/azmifauzan/',

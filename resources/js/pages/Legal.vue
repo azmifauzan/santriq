@@ -119,12 +119,12 @@ defineProps<{ document: LegalDocument; content: LegalContent }>();
                 >
                     Syarat & Ketentuan
                 </Link>
-                <Link
-                    :href="requestFeature()"
+                <a
+                    :href="`${requestFeature.url()}#request`"
                     class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
                 >
                     Request Fitur
-                </Link>
+                </a>
             </nav>
         </footer>
     </div>

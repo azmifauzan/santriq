@@ -41,12 +41,12 @@ import { privacy, requestFeature, terms } from '@/routes';
                 </p>
             </div>
             <nav aria-label="Tautan legal" class="flex gap-5">
-                <Link
-                    :href="requestFeature()"
+                <a
+                    :href="`${requestFeature.url()}#request`"
                     class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
                 >
                     Request Fitur
-                </Link>
+                </a>
                 <Link
                     :href="privacy()"
                     class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
