@@ -4,6 +4,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
@@ -37,7 +38,11 @@ test('email can be verified', function () {
     // The emailed link is opened on the apex, so the dashboard is reached
     // through a signed handoff — see App\Support\TenantSessionHandoff.
     followTenantHandoff($response)
-        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/SigningIn')
+            ->where('redirectTo', route('dashboard', ['subdomain' => $user->tenant->subdomain]))
+        );
 });
 
 test('email is not verified with invalid hash', function () {
@@ -118,7 +123,11 @@ test('already verified user visiting verification link is redirected without fir
     );
 
     followTenantHandoff($this->actingAsStaff($user)->get($verificationUrl))
-        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/SigningIn')
+            ->where('redirectTo', route('dashboard', ['subdomain' => $user->tenant->subdomain]))
+        );
 
     Event::assertNotDispatched(Verified::class);
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();

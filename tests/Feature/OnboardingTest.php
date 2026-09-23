@@ -3,6 +3,7 @@
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
+use Inertia\Testing\AssertableInertia as Assert;
 
 test('admin without onboarding sees the onboarding page', function () {
     $tenant = Tenant::factory()->create();
@@ -122,9 +123,13 @@ test('manual registration lands on onboarding after email verification', functio
 
     // Verification happens on the apex, so the dashboard is reached through a
     // signed handoff onto the subdomain — see App\Support\TenantSessionHandoff.
-    $dashboardResponse = followTenantHandoff($this->get($verificationUrl));
-    $dashboardResponse->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+    $dashboardUrl = route('dashboard', ['subdomain' => $user->tenant->subdomain]);
+    followTenantHandoff($this->get($verificationUrl))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/SigningIn')
+            ->where('redirectTo', $dashboardUrl)
+        );
 
-    $this->get($dashboardResponse->headers->get('Location'))
-        ->assertRedirect(route('onboarding.show'));
+    $this->get($dashboardUrl)->assertRedirect(route('onboarding.show'));
 });

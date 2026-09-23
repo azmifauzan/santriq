@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
+use Inertia\Testing\AssertableInertia as Assert;
 
 test('is_super_admin flag and tenant suspension helpers work', function () {
     $tenant = Tenant::factory()->create();
@@ -196,7 +197,10 @@ test('visiting a valid signed verify link logs the super admin in on the apex do
 
     $response = $this->get($signedUrl);
 
-    $response->assertRedirect(route('super-admin.index'));
+    $response->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('auth/SigningIn')
+        ->where('redirectTo', route('super-admin.index'))
+    );
     $this->assertAuthenticatedAs($superAdmin);
 });
 

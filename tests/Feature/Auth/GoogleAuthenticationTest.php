@@ -34,7 +34,10 @@ test('google login authenticates an already linked user', function () {
     $response = $this->get($verifyLink);
 
     $this->assertAuthenticatedAs($user);
-    $response->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
+    $response->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('auth/SigningIn')
+        ->where('redirectTo', route('dashboard', ['subdomain' => $tenant->subdomain]))
+    );
 });
 
 test('google login authenticates an already linked user from the central login screen', function () {
@@ -53,7 +56,10 @@ test('google login authenticates an already linked user from the central login s
     $response = $this->get($response->headers->get('Location'));
 
     $this->assertAuthenticatedAs($user);
-    $response->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
+    $response->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('auth/SigningIn')
+        ->where('redirectTo', route('dashboard', ['subdomain' => $tenant->subdomain]))
+    );
 });
 
 test('google login auto-links a verified google email to a matching password account', function () {
@@ -217,7 +223,11 @@ test('submitting the register form with a google token creates a passwordless li
 
     $user = User::where('email', 'new-admin@example.com')->firstOrFail();
     followTenantHandoff($response)
-        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/SigningIn')
+            ->where('redirectTo', route('dashboard', ['subdomain' => $user->tenant->subdomain]))
+        );
 
     expect($user->google_id)->toBe('g-999')
         ->and($user->password)->toBeNull()
@@ -244,7 +254,11 @@ test('submitting the register form with a google token ignores a spoofed email b
 
     $user = User::where('email', 'real-owner@example.com')->firstOrFail();
     followTenantHandoff($response)
-        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/SigningIn')
+            ->where('redirectTo', route('dashboard', ['subdomain' => $user->tenant->subdomain]))
+        );
 
     expect($user->name)->toBe('Edited Name')
         ->and($user->google_id)->toBe('g-999');
@@ -276,6 +290,9 @@ test('google signup hands the session off to the tenant subdomain', function () 
         'user' => $user->id,
     ], absolute: false));
 
-    $this->get($handoff)->assertRedirect(route('dashboard', ['subdomain' => 'tpa-nurul-huda']));
+    $this->get($handoff)->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('auth/SigningIn')
+        ->where('redirectTo', route('dashboard', ['subdomain' => 'tpa-nurul-huda']))
+    );
     $this->assertAuthenticatedAs($user);
 });

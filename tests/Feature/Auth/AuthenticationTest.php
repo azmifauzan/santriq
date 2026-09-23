@@ -56,7 +56,11 @@ test('users can authenticate using the login screen', function () {
     // the apex and cannot follow the user to their subdomain — LoginResponse
     // hands it over through a signed link instead of redirecting straight in.
     followTenantHandoff($response)
-        ->assertRedirect(route('dashboard', ['subdomain' => $user->tenant->subdomain]));
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/SigningIn')
+            ->where('redirectTo', route('dashboard', ['subdomain' => $user->tenant->subdomain]))
+        );
 });
 
 test('inertia login requests get a 409 location response for the cross-domain handoff, not a followed redirect', function () {

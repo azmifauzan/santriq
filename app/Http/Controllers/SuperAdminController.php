@@ -38,14 +38,19 @@ class SuperAdminController extends Controller
         return redirect($link);
     }
 
-    public function verifyHandoff(Request $request, User $user): RedirectResponse
+    /**
+     * Renders a branded "signing you in" page that navigates onward
+     * client-side rather than issuing an immediate 302 — see
+     * TenantSessionController::verify for why.
+     */
+    public function verifyHandoff(Request $request, User $user): Response
     {
         abort_unless($request->hasValidSignature(), 403);
         abort_unless($user->isSuperAdmin(), 403);
 
         Auth::guard('web')->login($user);
 
-        return redirect()->route('super-admin.index');
+        return Inertia::render('auth/SigningIn', ['redirectTo' => route('super-admin.index')]);
     }
 
     public function index(): Response

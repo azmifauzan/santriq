@@ -4,6 +4,7 @@ use App\Models\Classroom;
 use App\Models\Student;
 use App\Models\Tenant;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 test('landing page is reachable at {domain}/{subdomain} when wildcard DNS is not active', function () {
     $tenant = Tenant::factory()->create(['subdomain' => 'tpq-fallback']);
@@ -73,5 +74,9 @@ test('registration and login stay on the apex regardless of fallback mode', func
     ]);
 
     followTenantHandoff($loginResponse)
-        ->assertRedirect(route('dashboard', ['subdomain' => $tenant->subdomain]));
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('auth/SigningIn')
+            ->where('redirectTo', route('dashboard', ['subdomain' => $tenant->subdomain]))
+        );
 });
