@@ -54,6 +54,15 @@ test('the landing page names the app and its purpose without running javascript'
     $response->assertSee('free and open source school management platform');
 });
 
+test('pages carry open graph tags for social link previews', function () {
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('<meta property="og:image" content="'.asset('og-image.jpg').'">', false)
+        ->assertSee('<meta name="twitter:card" content="summary_large_image">', false);
+
+    expect(public_path('og-image.jpg'))->toBeFile();
+});
+
 test('legal pages render their full text without running javascript', function (string $route, string $document) {
     $content = config("legal.{$document}");
 
