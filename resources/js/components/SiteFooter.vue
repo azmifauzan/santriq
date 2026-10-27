@@ -38,6 +38,14 @@ import { privacy, requestFeature, terms } from '@/routes';
                         class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
                         >SatsetOps</a
                     >
+                    &middot; Produk lain:
+                    <a
+                        href="https://fabriku.id/?utm_source=santriq.web.id&utm_medium=footer"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                        >Fabriku</a
+                    >
                 </p>
             </div>
             <nav
