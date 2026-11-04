@@ -93,3 +93,13 @@ test('sign-in pages identify the site without running javascript', function (str
     $response->assertSee('only ever asks for your', false)
         ->assertSee('tidak pernah meminta data kartu, PIN, atau OTP');
 })->with(['login', 'register', 'password.request']);
+
+test('the google analytics tag is rendered only when a measurement id is configured', function () {
+    $this->get(route('home'))->assertDontSee('googletagmanager.com', false);
+
+    config(['services.google_analytics.measurement_id' => 'G-TEST123']);
+
+    $this->get(route('home'))
+        ->assertSee('https://www.googletagmanager.com/gtag/js?id=G-TEST123', false)
+        ->assertSee("gtag('config', 'G-TEST123')", false);
+});
