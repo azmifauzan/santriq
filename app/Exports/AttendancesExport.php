@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 /**
  * @implements WithMapping<Attendance>
  */
-class AttendancesExport implements FromCollection, WithHeadings, WithMapping
+class AttendancesExport extends SafeSpreadsheetExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
      * @param  Collection<int, Attendance>  $attendances

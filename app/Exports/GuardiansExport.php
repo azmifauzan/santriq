@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 /**
  * @implements WithMapping<Guardian>
  */
-class GuardiansExport implements FromCollection, WithHeadings, WithMapping
+class GuardiansExport extends SafeSpreadsheetExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
      * @param  Collection<int, Guardian>  $guardians

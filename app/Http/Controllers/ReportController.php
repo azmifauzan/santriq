@@ -88,9 +88,9 @@ class ReportController extends Controller
                 foreach ($students as $student) {
                     $stAtts = $attendances->where('student_id', $student->id);
                     fputcsv($handle, [
-                        $student->nis,
-                        $student->name,
-                        $student->classroom ? $student->classroom->name : '-',
+                        $this->csvText($student->nis),
+                        $this->csvText($student->name),
+                        $student->classroom ? $this->csvText($student->classroom->name) : '-',
                         $stAtts->where('status', 'hadir')->count(),
                         $stAtts->where('status', 'izin')->count(),
                         $stAtts->where('status', 'sakit')->count(),
@@ -102,5 +102,14 @@ class ReportController extends Controller
                 fclose($handle);
             }
         }, 200, $headers);
+    }
+
+    /**
+     * Neutralizes CSV formula injection: spreadsheet apps run a cell starting
+     * with = + - @ (or a tab/CR) as a formula, so prefix those with a quote.
+     */
+    private function csvText(?string $value): ?string
+    {
+        return $value !== null && preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
     }
 }

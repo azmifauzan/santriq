@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 /**
  * @implements WithMapping<LeaveRequest>
  */
-class LeaveRequestsExport implements FromCollection, WithHeadings, WithMapping
+class LeaveRequestsExport extends SafeSpreadsheetExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
      * @param  Collection<int, LeaveRequest>  $leaveRequests

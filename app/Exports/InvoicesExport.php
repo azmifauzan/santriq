@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 /**
  * @implements WithMapping<Invoice>
  */
-class InvoicesExport implements FromCollection, WithHeadings, WithMapping
+class InvoicesExport extends SafeSpreadsheetExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
      * @param  Collection<int, Invoice>  $invoices
@@ -36,7 +36,7 @@ class InvoicesExport implements FromCollection, WithHeadings, WithMapping
 
     /**
      * @param  Invoice  $invoice
-     * @return array<int, string|null>
+     * @return array<int, float|int|string|null>
      */
     public function map($invoice): array
     {
@@ -44,7 +44,7 @@ class InvoicesExport implements FromCollection, WithHeadings, WithMapping
             $invoice->period,
             $invoice->student?->name,
             $invoice->student?->classroom?->name,
-            (string) $invoice->amount,
+            (float) $invoice->amount,
             $invoice->due_date,
             $invoice->status,
         ];
