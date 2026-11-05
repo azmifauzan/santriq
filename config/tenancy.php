@@ -3,15 +3,29 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Tenant Root Domain
+    | Apex Domain
     |--------------------------------------------------------------------------
     |
-    | Every lembaga is served from {subdomain}.{domain}. The apex domain
-    | itself only serves the marketing page, registration, and the Telegram
-    | webhook (see routes/web.php and routes/tenant.php).
+    | The central domain serving the marketing page, registration, login,
+    | email verification, Google OAuth, super admin panel, and the Telegram
+    | webhook (see routes/web.php).
     |
     */
     'domain' => env('APP_TENANT_DOMAIN', 'santriq.web.id'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tenant Root Domain
+    |--------------------------------------------------------------------------
+    |
+    | Every lembaga is served from {subdomain}.{tenant_domain}. Keeping the
+    | tenant root domain as a separate registrable domain from the apex isolates
+    | user-generated tenant content from the apex's Google Safe Browsing / GSC
+    | reputation. Defaults to `APP_TENANT_DOMAIN` so local dev and tests keep
+    | working without extra configuration.
+    |
+    */
+    'tenant_domain' => env('APP_TENANT_ROOT_DOMAIN') ?: env('APP_TENANT_DOMAIN', 'santriq.web.id'),
 
     /*
     |--------------------------------------------------------------------------

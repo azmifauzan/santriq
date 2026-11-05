@@ -39,3 +39,9 @@ test('known subdomain resolves the matching tenant', function () {
             ->where('tenant.id', $tenant->id)
         );
 });
+
+test('host with mismatched domain suffix does not resolve tenant', function () {
+    $tenant = Tenant::factory()->create(['subdomain' => 'tpq-cek']);
+
+    $this->get("http://{$tenant->subdomain}.otherdomain.test/")->assertNotFound();
+});

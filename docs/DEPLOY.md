@@ -1,6 +1,6 @@
 # Deploy Produksi
 
-Domain: `santriq.web.id` (+ wildcard `*.santriq.web.id`). Server: `43.129.52.206` (Ubuntu, akses lewat `DEPLOY_HOST`/`DEPLOY_USERNAME`/`DEPLOY_PASSWORD` di `.env` lokal).
+Domain: apex di `santriq.web.id`, subdomain lembaga di `*.santriq.my.id` (wildcard DNS-only). Wildcard `*.santriq.web.id` sudah dihapus untuk isolasi reputasi Google Safe Browsing. Server: `43.129.52.206` (Ubuntu, akses lewat `DEPLOY_HOST`/`DEPLOY_USERNAME`/`DEPLOY_PASSWORD` di `.env` lokal).
 
 ## Arsitektur di server
 
@@ -38,7 +38,9 @@ cd /home/ubuntu/santriq
 # Anchor pada baris "image:" saja — pola tanpa anchor sempat menimpa key
 # "santriq:" di services/networks juga dan merusak file (lihat git blame).
 sed -i "s|^\( *image: *\)azmifauzan/santriq:.*|\1azmifauzan/santriq:$TAG|" docker-compose.yml   # atau edit manual "image:" di docker-compose.yml
-sudo docker compose pull
+# Catatan: docker compose pull dilewati/gagal jika compose file memakai pull_policy: never,
+# jadi selalu lakukan docker pull eksplisit sebelum compose up:
+sudo docker pull azmifauzan/santriq:$TAG
 sudo docker compose up -d
 ```
 
@@ -62,28 +64,34 @@ File ini **tidak ada di git** (secret produksi), dan dibuat sekali secara manual
 
 - `DB_HOST=postgres`, `REDIS_HOST=redis` — nama service, resolve lewat Docker DNS karena container ini join network `postgres`/`redis`.
 - `SESSION_DRIVER=redis`, `CACHE_STORE=redis`, `QUEUE_CONNECTION=database` (queue tetap `database` sesuai keputusan arsitektur — **jangan diubah** ke `redis` tanpa mengubah dokumen arsitektur).
-- `APP_TENANT_SUBDOMAIN_ACTIVE=true` — wildcard DNS `*.santriq.web.id` sudah aktif (lihat bagian TLS di bawah), jadi mode subdomain penuh dipakai, bukan fallback path.
+- `APP_TENANT_DOMAIN=santriq.web.id` — domain apex (landing, auth, super admin, webhook).
+- `APP_TENANT_ROOT_DOMAIN=santriq.my.id` — root subdomain lembaga (`*.santriq.my.id`). Dipisah dari domain apex untuk mengisolasi reputasi Google Safe Browsing / GSC. Pada Dockerfile juga diset `ARG/ENV` sebelum `npm run build` agar Wayfinder membakukan rute domain dengan benar.
+- `APP_TENANT_SUBDOMAIN_ACTIVE=true` — wildcard DNS `*.santriq.my.id` aktif (lihat bagian TLS di bawah), jadi mode subdomain penuh dipakai, bukan fallback path.
 - `TELEGRAM_BOT_TOKEN` / `TELEGRAM_SECRET_TOKEN` — token bot produksi. Kalau token bot diganti, jalankan ulang `setWebhook` (lihat bagian Telegram di bawah).
 - `TELEGRAM_SUPER_ADMIN_CHAT_ID` — chat_id Telegram (grup/personal) yang menerima alert tenant baru mendaftar & kegagalan kirim Telegram ke wali. Kosong = alert dilewati diam-diam (dicatat di log), fitur lain tidak terganggu.
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI="${APP_URL}/auth/google/callback"` — login/registrasi via Google (`laravel/socialite`). **`https://santriq.web.id/auth/google/callback` wajib terdaftar sebagai Authorized redirect URI di Google Cloud Console** sebelum fitur ini jalan di produksi — kalau belum, Google menolak dengan `redirect_uri_mismatch`.
-- Kalau perlu ubah env (ganti password, ganti mode subdomain, dll): edit `/home/ubuntu/santriq/.env` langsung di server lalu `sudo docker compose up -d` (recreate container agar env baru terbaca). Ganti `APP_TENANT_SUBDOMAIN_ACTIVE` juga butuh `npm run build` ulang di image (Wayfinder membakukan bentuk rute saat build) — jadi build ulang image, bukan cukup ubah `.env`.
+- Kalau perlu ubah env (ganti password, ganti mode subdomain, dll): edit `/home/ubuntu/santriq/.env` langsung di server lalu `sudo docker compose up -d` (recreate container agar env baru terbaca). Ganti `APP_TENANT_SUBDOMAIN_ACTIVE` atau domain juga butuh `npm run build` ulang di image (Wayfinder membakukan bentuk rute saat build) — jadi build ulang image, bukan cukup ubah `.env`.
 
 ## TLS / Sertifikat wildcard
 
-Domain `santriq.web.id` di Cloudflare: root domain proxied (orange cloud), record wildcard `*.santriq.web.id` **DNS-only** (grey cloud, A record ke IP server) — sengaja dipisah karena sertifikat wildcard wajib pakai tantangan DNS-01, bukan HTTP-01.
+Aplikasi menggunakan dua sertifikat terpisah:
+1. `santriq.web.id` untuk apex dan `www.santriq.web.id` (proxied Cloudflare). Record wildcard `*.santriq.web.id` sudah dihapus total.
+2. `santriq.my.id` untuk domain lembaga: apex proxied Cloudflare (di-301 ke `santriq.web.id`), dan `*.santriq.my.id` **DNS-only** (grey cloud, A record ke IP server) — sertifikat wildcard wajib pakai tantangan DNS-01, bukan HTTP-01.
 
-Sertifikat wildcard diterbitkan sekali lewat plugin `certbot-dns-cloudflare` yang sudah include di image `jonasal/nginx-certbot`, memakai token API Cloudflare yang disimpan di `/home/ubuntu/nginxconf/nginx_secrets/cloudflare.ini` (persisten, ikut volume `nginx_secrets`). Auto-renewal certbot bawaan image ini akan memakai kredensial yang sama tanpa perlu diulang manual, selama file `cloudflare.ini` tidak dihapus.
+Sertifikat wildcard diterbitkan lewat plugin `certbot-dns-cloudflare` yang sudah include di image `jonasal/nginx-certbot`, memakai token API Cloudflare yang disimpan di `/home/ubuntu/nginxconf/nginx_secrets/cloudflare.ini` (persisten, ikut volume `nginx_secrets`). Auto-renewal certbot bawaan image ini akan memakai kredensial yang sama tanpa perlu diulang manual.
 
-Kalau sertifikat perlu diterbitkan ulang manual (mis. ganti akun Let's Encrypt, atau menambah domain):
+Penerbitan sertifikat wildcard `santriq.my.id`:
 
 ```bash
 sudo docker exec nginx certbot certonly \
   --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini \
   --dns-cloudflare-propagation-seconds 30 \
-  -d santriq.web.id -d "*.santriq.web.id" \
+  -d santriq.my.id -d "*.santriq.my.id" \
   --email mail2fauzan@gmail.com --agree-tos --non-interactive \
-  --cert-name santriq.web.id
+  --cert-name santriq.my.id
 ```
+
+Sertifikat apex `santriq.web.id` tetap menggunakan cert existing (`--cert-name santriq.web.id`).
 
 ## Cache Cloudflare untuk aset statis
 
@@ -94,6 +102,14 @@ Purge cache lewat dashboard Cloudflare (santriq.web.id → Caching → Configura
 ## Vhost nginx
 
 Config di `/home/ubuntu/nginxconf/user_conf.d/santriq.conf`, proxy ke container `santriq-app` lewat nama service `santriq` (network Docker). Perhatikan `proxy_buffer_size`/`proxy_buffers` sengaja dinaikkan (16k/8x16k) — default nginx terlalu kecil untuk header response Laravel (kena `upstream sent too big header` kalau default dipakai).
+
+Struktur server block di `santriq.conf`:
+1. `server_name santriq.web.id;` (cert `live/santriq.web.id`) → proxy ke `http://santriq` (apex).
+2. `server_name www.santriq.web.id;` (cert `live/santriq.web.id`) → `return 301 https://santriq.web.id$request_uri;`.
+3. `server_name *.santriq.my.id;` (cert `live/santriq.my.id`) → proxy ke `http://santriq` (tenant).
+4. `server_name santriq.my.id;` (cert `live/santriq.my.id`) → `return 301 https://santriq.web.id$request_uri;`.
+
+Tidak ada lagi `*.santriq.web.id` pada vhost mana pun.
 
 Setelah edit vhost:
 

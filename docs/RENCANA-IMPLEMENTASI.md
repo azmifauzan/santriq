@@ -196,6 +196,7 @@ Tiap fase menghasilkan sesuatu yang bisa dipakai, dan ditutup dengan `composer c
 7. ~~Onboarding admin pertama kali~~ — sudah (24 Juli 2026), lihat § 0.
 8. ~~Panel super admin (lintas-tenant: list lembaga, suspend/aktifkan)~~ — sudah (24 Juli 2026), lihat § 0. Provisioning super admin pertama masih manual lewat `tinker`, sengaja belum ada UI.
 9. ~~Impor & Ekspor Excel santri~~ — sudah, diperluas ke semua 8 panel admin (25 Juli 2026): export di semua 8, impor di 4 entity master data. Lihat § 0.
+10. ~~Pemisahan domain tenant ke santriq.my.id~~ — sudah (November 2026): domain apex (`santriq.web.id`) hanya menyajikan landing, registrasi, auth, super admin, dan webhook Telegram. Subdomain semua lembaga dipindah ke `*.santriq.my.id` untuk isolasi reputasi Google Safe Browsing / GSC. Wildcard `*.santriq.web.id` dihapus total. Detail di `docs/DEPLOY.md` dan `docs/superpowers/plans/2026-11-05-tenant-domain-santriq-my-id.md`.
 
 ## 4. Konvensi Pengerjaan
 

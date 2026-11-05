@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, usePage } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import { redirect as googleRedirect } from '@/actions/App/Http/Controllers/GoogleAuthController';
 import GoogleAuthButton from '@/components/GoogleAuthButton.vue';
@@ -23,6 +23,7 @@ defineProps<{
     };
 }>();
 
+const page = usePage();
 const googleRegisterUrl = googleRedirect.url({ query: { intent: 'register' } });
 
 defineOptions({
@@ -113,7 +114,7 @@ watch(subdomain, (value) => {
                     />
                     <span
                         class="text-sm whitespace-nowrap text-muted-foreground"
-                        >.santriq.web.id</span
+                        >.{{ page.props.tenantDomain }}</span
                     >
                 </div>
                 <p

@@ -19,6 +19,8 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            subdomain: string | null;
+            tenantDomain: string;
             [key: string]: unknown;
         };
     }

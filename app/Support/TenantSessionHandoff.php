@@ -11,12 +11,12 @@ use Symfony\Component\HttpFoundation\Response;
  * Moves an authenticated identity from the apex domain onto a tenant subdomain.
  *
  * Registration, login, and email verification all live on the apex domain
- * (their routes carry no domain constraint), but the dashboard only exists
- * under {subdomain}.santriq.web.id. SESSION_DOMAIN is deliberately null, so the
- * session cookie minted on the apex is host-scoped and never reaches the
- * subdomain — redirecting straight to the dashboard lands there as a guest and
- * bounces back to the login screen. Hand the identity over through a
- * short-lived signed link that the subdomain verifies and logs in itself.
+ * (santriq.web.id, their routes carry no domain constraint), but the dashboard
+ * only exists under {subdomain}.santriq.my.id (tenancy.tenant_domain). SESSION_DOMAIN
+ * is deliberately null, so the session cookie minted on the apex is host-scoped
+ * and never reaches the subdomain — redirecting straight to the dashboard lands
+ * there as a guest and bounces back to the login screen. Hand the identity over
+ * through a short-lived signed link that the subdomain verifies and logs in itself.
  */
 class TenantSessionHandoff
 {

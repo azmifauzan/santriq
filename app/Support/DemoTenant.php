@@ -28,6 +28,7 @@ class DemoTenant
             return null;
         }
 
+        $tenantDomain = config('tenancy.tenant_domain');
         $domain = config('tenancy.domain');
         $scheme = request()->getScheme();
         $port = request()->getPort();
@@ -35,7 +36,7 @@ class DemoTenant
         $portSuffix = $isDefaultPort ? '' : ":{$port}";
 
         return config('tenancy.subdomain_active')
-            ? "{$scheme}://".self::SUBDOMAIN.".{$domain}{$portSuffix}{$path}"
+            ? "{$scheme}://".self::SUBDOMAIN.".{$tenantDomain}{$portSuffix}{$path}"
             : "{$scheme}://{$domain}{$portSuffix}/".self::SUBDOMAIN.$path;
     }
 }

@@ -47,11 +47,11 @@ class ResolveTenantFromDomain
 
     /**
      * Subdomain-active mode: the lembaga is encoded in the Host header
-     * ({subdomain}.{tenancy.domain}).
+     * ({subdomain}.{tenancy.tenant_domain}).
      */
     private function subdomainFromHost(Request $request): ?string
     {
-        $suffix = '.'.config('tenancy.domain');
+        $suffix = '.'.config('tenancy.tenant_domain');
         $host = $request->getHost();
 
         if (! str_ends_with($host, $suffix)) {

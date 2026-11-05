@@ -234,6 +234,7 @@ npm run lint / format / types:check
 
 ## Keputusan arsitektur yang mengikat
 
+- **Subdomain lembaga di registrable domain terpisah (`*.santriq.my.id`) dari apex (`santriq.web.id`)**: untuk isolasi reputasi Safe Browsing; jangan pernah menyajikan konten tenant atau redirect tenant di bawah apex.
 - **Multi-tenant satu database**: kolom `tenant_id` + global scope Eloquent. Jangan pernah `withoutGlobalScopes()` pada jalur permintaan pengguna biasa — satu-satunya pengecualian yang disengaja adalah `SuperAdminController` (dijaga `TenantPolicy`), yang justru butuh menghitung data lintas semua lembaga.
 - **Foreign key dari request wajib `App\Rules\TenantExists::in('tabel')`**, bukan `exists:tabel,id`. Aturan `exists` bawaan bertanya langsung ke tabel sehingga melewati global scope dan membuka IDOR lintas lembaga.
 - **Peran**: kolom `role` pada `users` (`admin`, `pengajar`) + Policy Laravel. Tanpa paket permission. **Super admin** (`users.is_super_admin`, boolean) terpisah dari `role` — kapabilitas lintas-tenant tambahan, bukan pengganti peran; panel di `/super-admin` (domain utama). Lembaga bisa disuspend (`tenants.suspended_at`), ditegakkan sekali di `ResolveTenantFromDomain`.

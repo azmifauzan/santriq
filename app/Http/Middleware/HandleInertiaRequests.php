@@ -56,6 +56,7 @@ class HandleInertiaRequests extends Middleware
             // route function that needs a `subdomain` keeps working without passing it
             // explicitly at every call site.
             'subdomain' => CurrentTenant::resolved() ? CurrentTenant::get()->subdomain : $user?->tenant?->subdomain,
+            'tenantDomain' => config('tenancy.tenant_domain'),
             // Points at the tenant-subdomain handoff route, not the apex panel
             // directly — SESSION_DOMAIN is null, so a session on this subdomain
             // isn't visible on the apex domain where /super-admin lives. See

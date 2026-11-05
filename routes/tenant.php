@@ -141,8 +141,8 @@ $tenantRoutes = function (): void {
 // matches one of these routes with no subdomain segment still can't resolve
 // a Tenant, and any controller that needs one 404s via CurrentTenant::get().
 if (config('tenancy.subdomain_active')) {
-    // Wildcard DNS is live: every lembaga gets {subdomain}.{tenancy.domain}.
-    Route::domain('{subdomain?}.'.config('tenancy.domain'))->group($tenantRoutes);
+    // Wildcard DNS is live: every lembaga gets {subdomain}.{tenancy.tenant_domain}.
+    Route::domain('{subdomain?}.'.config('tenancy.tenant_domain'))->group($tenantRoutes);
 } else {
     // No wildcard DNS yet: serve the same routes as {tenancy.domain}/{subdomain}/...
     // on the apex, which only needs a plain A record. See config/tenancy.php.
