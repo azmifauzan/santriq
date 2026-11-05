@@ -92,5 +92,6 @@ test('guardian portal pages never render inside the staff app shell', function (
 
     expect($app)->toMatch("/startsWith\\('guardian\\/'\\):\\s*return GuardianLayout;/")
         ->and($layout)->not->toContain('AppSidebar')
-        ->and($layout)->toContain('<Toaster />');
+        ->and($layout)->toContain('<Toaster />')
+        ->and($layout)->toContain('min-h-screen');
 });
