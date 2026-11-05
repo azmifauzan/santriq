@@ -5,13 +5,18 @@ namespace App\Exports;
 use App\Models\Achievement;
 use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
 /**
+ * Every cell is bound as text so staff-entered values starting with "=" are
+ * never evaluated as formulas when an admin opens the export (formula injection).
+ *
  * @implements WithMapping<Achievement>
  */
-class AchievementsExport implements FromCollection, WithHeadings, WithMapping
+class AchievementsExport extends StringValueBinder implements FromCollection, WithCustomValueBinder, WithHeadings, WithMapping
 {
     /**
      * @param  Collection<int, Achievement>  $achievements
