@@ -31,7 +31,7 @@ class AchievementsExport implements FromCollection, WithHeadings, WithMapping
      */
     public function headings(): array
     {
-        return ['Tanggal', 'Nama Santri', 'Kategori', 'Judul / Materi', 'Nilai', 'Catatan'];
+        return ['Tanggal', 'Nama Santri', 'Kategori', 'Judul / Materi', 'Nilai', 'Catatan', 'Metode', 'Jilid / Tingkat', 'Halaman Awal', 'Halaman Akhir', 'Surah', 'Ayat Awal', 'Ayat Akhir', 'Jenis Kegiatan', 'Kelancaran', 'Latihan Berikutnya'];
     }
 
     /**
@@ -47,6 +47,16 @@ class AchievementsExport implements FromCollection, WithHeadings, WithMapping
             $achievement->title,
             $achievement->score !== null ? (string) $achievement->score : null,
             $achievement->note,
+            $achievement->learning_method,
+            $achievement->level,
+            $achievement->page_start !== null ? (string) $achievement->page_start : null,
+            $achievement->page_end !== null ? (string) $achievement->page_end : null,
+            $achievement->surah,
+            $achievement->ayah_start !== null ? (string) $achievement->ayah_start : null,
+            $achievement->ayah_end !== null ? (string) $achievement->ayah_end : null,
+            $achievement->activity_type,
+            $achievement->fluency,
+            $achievement->practice_note,
         ];
     }
 }

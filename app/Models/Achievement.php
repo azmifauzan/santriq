@@ -19,11 +19,21 @@ use Illuminate\Support\Carbon;
  * @property string|null $note
  * @property int|null $score
  * @property string $achieved_at
+ * @property string|null $learning_method
+ * @property string|null $level
+ * @property int|null $page_start
+ * @property int|null $page_end
+ * @property string|null $surah
+ * @property int|null $ayah_start
+ * @property int|null $ayah_end
+ * @property string|null $activity_type
+ * @property string|null $fluency
+ * @property string|null $practice_note
  * @property int|null $recorded_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['tenant_id', 'student_id', 'category', 'title', 'note', 'score', 'achieved_at', 'recorded_by'])]
+#[Fillable(['tenant_id', 'student_id', 'category', 'title', 'note', 'score', 'achieved_at', 'recorded_by', 'learning_method', 'level', 'page_start', 'page_end', 'surah', 'ayah_start', 'ayah_end', 'activity_type', 'fluency', 'practice_note'])]
 class Achievement extends Model
 {
     /** @use HasFactory<AchievementFactory> */

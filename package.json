@@ -10,7 +10,8 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
-        "types:check": "vue-tsc --noEmit"
+        "types:check": "vue-tsc --noEmit",
+        "test:frontend": "node --test tests/*.test.mjs"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",

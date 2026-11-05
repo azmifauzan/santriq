@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Achievement;
 use App\Models\Attendance;
 use App\Models\Guardian;
 use App\Models\Student;
@@ -40,6 +41,15 @@ test('guardian sees attendance and achievements for their own child', function (
     $child = Student::factory()->create(['tenant_id' => $tenant->id]);
     $guardian->students()->attach($child->id, ['relation' => 'Ayah']);
 
+    Achievement::factory()->create([
+        'tenant_id' => $tenant->id,
+        'student_id' => $child->id,
+        'learning_method' => 'Iqra',
+        'level' => '3',
+        'page_start' => 12,
+        'practice_note' => 'Ulangi panjang pendek.',
+    ]);
+
     Attendance::factory()->create([
         'tenant_id' => $tenant->id,
         'student_id' => $child->id,
@@ -53,5 +63,8 @@ test('guardian sees attendance and achievements for their own child', function (
         ->assertInertia(fn ($page) => $page
             ->component('guardian/StudentDetail')
             ->has('attendances', 1)
+            ->where('achievements.0.learning_method', 'Iqra')
+            ->where('achievements.0.page_start', 12)
+            ->where('achievements.0.practice_note', 'Ulangi panjang pendek.')
         );
 });

@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { preview } from '@/routes/report-cards';
+import { index, exportCsv as exportCsvRoute } from '@/routes/reports';
 
 interface Classroom {
     id: number;
@@ -42,7 +44,7 @@ const selectedClassroom = ref(props.filters.classroom_id || '');
 
 function applyFilters() {
     router.get(
-        '/reports',
+        index.url(),
         {
             start_date: startDate.value,
             end_date: endDate.value,
@@ -53,29 +55,29 @@ function applyFilters() {
 }
 
 function exportCsv() {
-    const params = new URLSearchParams({
-        start_date: startDate.value,
-        end_date: endDate.value,
-        classroom_id: selectedClassroom.value,
+    window.location.href = exportCsvRoute.url(undefined, {
+        query: {
+            start_date: startDate.value,
+            end_date: endDate.value,
+            classroom_id: selectedClassroom.value,
+        },
     });
-    window.location.href = `/reports/export-csv?${params.toString()}`;
 }
 </script>
 
 <template>
-    <Head title="Laporan & Rekap Kehadiran" />
-
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 sm:p-6">
+        <Head title="Laporan & Rapor Santri" />
         <div
             class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">
-                    Laporan & Rekap Kehadiran Santri
+                    Laporan & Rapor Santri
                 </h1>
                 <p class="text-sm text-muted-foreground">
                     Rekap agregat statistik kehadiran per santri per rentang
-                    tanggal.
+                    tanggal. Tinjau dan terbitkan rapor perkembangan untuk wali.
                 </p>
             </div>
             <Button
@@ -83,7 +85,7 @@ function exportCsv() {
                 class="w-full sm:w-auto"
                 @click="exportCsv"
             >
-                📥 Ekspor CSV
+                Ekspor CSV
             </Button>
         </div>
 
@@ -92,21 +94,36 @@ function exportCsv() {
             class="flex flex-wrap items-center gap-4 rounded-lg border bg-muted/30 p-4"
         >
             <div class="flex items-center gap-2">
-                <span class="text-xs font-medium text-muted-foreground"
-                    >Dari:</span
+                <label
+                    for="report-start"
+                    class="text-xs font-medium text-muted-foreground"
+                    >Dari:</label
                 >
-                <Input type="date" v-model="startDate" class="w-40" />
+                <Input
+                    id="report-start"
+                    type="date"
+                    v-model="startDate"
+                    class="min-h-11 w-40"
+                />
             </div>
             <div class="flex items-center gap-2">
-                <span class="text-xs font-medium text-muted-foreground"
-                    >Sampai:</span
+                <label
+                    for="report-end"
+                    class="text-xs font-medium text-muted-foreground"
+                    >Sampai:</label
                 >
-                <Input type="date" v-model="endDate" class="w-40" />
+                <Input
+                    id="report-end"
+                    type="date"
+                    v-model="endDate"
+                    class="min-h-11 w-40"
+                />
             </div>
             <div>
                 <select
                     v-model="selectedClassroom"
-                    class="flex h-9 w-44 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                    aria-label="Kelas"
+                    class="flex h-11 w-44 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     <option value="">Semua Kelas</option>
                     <option v-for="c in classrooms" :key="c.id" :value="c.id">
@@ -114,7 +131,12 @@ function exportCsv() {
                     </option>
                 </select>
             </div>
-            <Button variant="secondary" size="sm" @click="applyFilters">
+            <Button
+                variant="secondary"
+                size="sm"
+                class="min-h-11"
+                @click="applyFilters"
+            >
                 Tampilkan Rekap
             </Button>
         </div>
@@ -140,6 +162,7 @@ function exportCsv() {
                         </th>
                         <th class="px-4 py-3 text-center text-red-700">Alpa</th>
                         <th class="px-4 py-3 text-center">Total Presensi</th>
+                        <th class="px-4 py-3">Rapor</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -178,10 +201,29 @@ function exportCsv() {
                         <td class="px-4 py-3 text-center font-mono font-bold">
                             {{ row.total }} Hari
                         </td>
+                        <td class="px-4 py-3">
+                            <Link
+                                :href="
+                                    preview(
+                                        { student: row.student_id },
+                                        {
+                                            query: {
+                                                start_date: filters.start_date,
+                                                end_date: filters.end_date,
+                                            },
+                                        },
+                                    )
+                                "
+                                class="inline-flex min-h-11 items-center whitespace-nowrap underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-ring"
+                                >Tinjau rapor<span class="sr-only">
+                                    {{ row.name }}</span
+                                ></Link
+                            >
+                        </td>
                     </tr>
                     <tr v-if="rekap.length === 0">
                         <td
-                            colspan="8"
+                            colspan="9"
                             class="px-4 py-8 text-center text-muted-foreground"
                         >
                             Tidak ada data santri/presensi untuk rentang tanggal

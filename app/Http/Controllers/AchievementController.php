@@ -48,7 +48,7 @@ class AchievementController extends Controller
     private function filteredQuery(Request $request): Builder
     {
         $query = Achievement::with(['student.classroom', 'recorder'])
-            ->latest('achieved_at');
+            ->latest('achieved_at')->latest('id');
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));

@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import LearningProgressSummary from '@/components/LearningProgress.vue';
+import type { LearningProgress } from '@/lib/learningProgress';
+import { index } from '@/routes/guardian/portal';
+import { show } from '@/routes/guardian/portal/report-cards';
 
 defineProps<{
     student: { id: number; name: string; nis: string };
@@ -9,23 +13,25 @@ defineProps<{
         checked_out_at: string | null;
         status: string;
     }>;
-    achievements: Array<{
-        category: string;
-        title: string;
-        note: string | null;
-        score: number | null;
-        achieved_at: string;
-    }>;
+    reportCards: Array<{ id: number; start_date: string; end_date: string }>;
+    achievements: Array<
+        LearningProgress & {
+            category: string;
+            title: string;
+            note: string | null;
+            score: number | null;
+            achieved_at: string;
+        }
+    >;
 }>();
 </script>
 
 <template>
-    <Head :title="student.name" />
-
-    <div class="mx-auto max-w-2xl space-y-6 p-4">
+    <main class="mx-auto max-w-2xl space-y-6 p-4">
+        <Head :title="student.name" />
         <div class="flex items-center gap-2">
             <Link
-                href="/wali/portal"
+                :href="index()"
                 class="text-sm text-muted-foreground hover:underline"
                 >&larr; Kembali</Link
             >
@@ -34,6 +40,23 @@ defineProps<{
         <h1 class="text-xl font-semibold">
             {{ student.name }} ({{ student.nis }})
         </h1>
+
+        <section class="space-y-2">
+            <h2 class="font-medium">Rapor Terbit</h2>
+            <p v-if="!reportCards.length" class="text-sm text-muted-foreground">
+                Belum ada rapor yang diterbitkan pengajar.
+            </p>
+            <ul v-else class="space-y-2">
+                <li v-for="report in reportCards" :key="report.id">
+                    <Link
+                        :href="show({ reportCard: report.id })"
+                        class="flex min-h-11 items-center rounded-md border p-3 text-sm underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-ring"
+                        >Rapor {{ report.start_date }} sampai
+                        {{ report.end_date }}</Link
+                    >
+                </li>
+            </ul>
+        </section>
 
         <section class="space-y-2">
             <h2 class="font-medium">Kehadiran Terbaru</h2>
@@ -67,6 +90,7 @@ defineProps<{
                             >{{ ach.score }}</span
                         >
                     </div>
+                    <LearningProgressSummary :progress="ach" />
                     <p v-if="ach.note" class="text-xs text-muted-foreground">
                         {{ ach.note }}
                     </p>
@@ -76,5 +100,5 @@ defineProps<{
                 </li>
             </ul>
         </section>
-    </div>
+    </main>
 </template>

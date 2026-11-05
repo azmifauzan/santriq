@@ -30,8 +30,12 @@ test('panel page actions stack on mobile', function (string $page) {
 test('panel modals scroll within the mobile viewport', function (string $page) {
     $source = file_get_contents(resource_path("js/pages/{$page}"));
 
+    // Achievements uses the shared Dialog component, which supplies its own overlay.
+    if ($page !== 'Achievements/Index.vue') {
+        expect($source)->toContain('fixed inset-0 z-50 flex items-start justify-center overflow-y-auto');
+    }
+
     expect($source)
-        ->toContain('fixed inset-0 z-50 flex items-start justify-center overflow-y-auto')
         ->toMatch('/max-h-\[calc\(100dvh-2rem\)\][^"\n]*overflow-y-auto/');
 })->with([
     'teachers' => 'Teachers/Index.vue',

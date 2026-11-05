@@ -11,6 +11,7 @@ use App\Http\Controllers\GuardianPortalController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\ReportCardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Settings\CardPrintController;
 use App\Http\Controllers\Settings\LembagaController;
@@ -53,6 +54,7 @@ $tenantRoutes = function (): void {
         Route::middleware('auth:guardian')->prefix('portal')->name('portal.')->group(function () {
             Route::get('/', [GuardianPortalController::class, 'index'])->name('index');
             Route::get('anak/{student}', [GuardianPortalController::class, 'show'])->name('student');
+            Route::get('rapor/{reportCard}', [ReportCardController::class, 'show'])->name('report-cards.show');
             Route::get('izin', [GuardianLeaveRequestController::class, 'index'])->name('leave-requests.index');
             Route::post('izin', [GuardianLeaveRequestController::class, 'store'])->name('leave-requests.store');
         });
@@ -88,6 +90,10 @@ $tenantRoutes = function (): void {
 
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('reports/export-csv', [ReportController::class, 'exportCsv'])->name('reports.export-csv');
+        Route::get('reports/students/{student}', [ReportCardController::class, 'preview'])->name('report-cards.preview');
+        Route::post('reports/students/{student}', [ReportCardController::class, 'store'])->name('report-cards.store');
+        Route::get('reports/cards/{reportCard}', [ReportCardController::class, 'show'])->name('report-cards.show');
+        Route::delete('reports/cards/{reportCard}', [ReportCardController::class, 'destroy'])->name('report-cards.destroy');
 
         Route::get('invoices/export', [InvoiceController::class, 'export'])->name('invoices.export');
         Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');

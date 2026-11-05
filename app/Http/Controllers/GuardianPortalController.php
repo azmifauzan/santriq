@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Achievement;
 use App\Models\Attendance;
 use App\Models\Guardian;
+use App\Models\ReportCard;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -53,9 +54,12 @@ class GuardianPortalController extends Controller
                 ->take(30)
                 ->get(['date', 'checked_in_at', 'checked_out_at', 'status']),
             'achievements' => Achievement::where('student_id', $student->id)
-                ->latest('achieved_at')
+                ->latest('achieved_at')->latest('id')
                 ->take(20)
-                ->get(['category', 'title', 'note', 'score', 'achieved_at']),
+                ->get(['category', 'title', 'note', 'score', 'achieved_at', 'learning_method', 'level', 'page_start', 'page_end', 'surah', 'ayah_start', 'ayah_end', 'activity_type', 'fluency', 'practice_note']),
+            'reportCards' => ReportCard::where('tenant_id', $guardian->tenant_id)
+                ->where('student_id', $student->id)->latest('published_at')
+                ->get(['id', 'start_date', 'end_date']),
         ]);
     }
 }

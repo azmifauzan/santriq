@@ -17,16 +17,10 @@ function applyFromProps(props: PageWithSubdomain['props']): void {
  * `dashboard()` resolve the current lembaga without every call site having
  * to pass `{ subdomain }` explicitly.
  */
-export function initializeTenantUrlDefaults(): void {
-    if (typeof document === 'undefined') {
-        return;
-    }
-
-    const el = document.getElementById('app');
-    const initialPage: PageWithSubdomain | undefined = el?.dataset.page
-        ? JSON.parse(el.dataset.page)
-        : undefined;
-    applyFromProps(initialPage?.props);
+export function initializeTenantUrlDefaults(
+    initialPage: PageWithSubdomain,
+): void {
+    applyFromProps(initialPage.props);
 
     router.on('navigate', (event) => {
         applyFromProps(

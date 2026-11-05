@@ -9,6 +9,11 @@ import { initializeTenantUrlDefaults } from '@/lib/tenantUrlDefaults';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
+    withApp(_app, { page, ssr }) {
+        if (!ssr) {
+            initializeTenantUrlDefaults(page);
+        }
+    },
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {
         switch (true) {
@@ -18,6 +23,7 @@ createInertiaApp({
                 'RequestFeature',
                 'Tenant/Landing',
                 'ErrorPage',
+                'Reports/ReportCard',
             ].includes(name):
                 return null;
             case name.startsWith('auth/'):
@@ -38,7 +44,3 @@ initializeTheme();
 
 // This will listen for flash toast data from the server...
 initializeFlashToast();
-
-// This feeds the current lembaga's subdomain into Wayfinder's client-side
-// URL defaults so tenant-route helpers like dashboard() work with no args...
-initializeTenantUrlDefaults();
