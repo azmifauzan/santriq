@@ -85,3 +85,12 @@ test('public footer navigation wraps on mobile viewports', function () {
 
     expect($source)->toContain('flex-wrap');
 });
+
+test('guardian portal pages never render inside the staff app shell', function () {
+    $app = file_get_contents(resource_path('js/app.ts'));
+    $layout = file_get_contents(resource_path('js/layouts/GuardianLayout.vue'));
+
+    expect($app)->toMatch("/startsWith\\('guardian\\/'\\):\\s*return GuardianLayout;/")
+        ->and($layout)->not->toContain('AppSidebar')
+        ->and($layout)->toContain('<Toaster />');
+});

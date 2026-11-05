@@ -7,14 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 
-defineOptions({
-    layout: {
-        title: 'Portal Wali',
-        description:
-            'Masuk dengan nomor HP yang terdaftar untuk melihat kehadiran dan pencapaian anak Anda.',
-    },
-});
-
 defineProps<{
     isDemo?: boolean;
 }>();
