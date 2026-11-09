@@ -109,7 +109,7 @@ return [
         'related' => ['notifikasi-wali', 'absensi-qr'],
     ],
     'kartu-santri' => [
-        'title' => 'Kartu Santri QR Code: Cetak Otomatis dari SantriQ',
+        'title' => 'Kartu Santri QR Code: Cetak Otomatis dari Aplikasi',
         'heading' => 'Cetak kartu santri ber-QR code langsung dari aplikasi',
         'nav' => 'Kartu santri',
         'description' => 'Setiap santri otomatis punya QR code unik. Cetak kartu semua santri sekaligus dan atur tampilannya sesuai lembaga.',
