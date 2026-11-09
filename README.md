@@ -2,11 +2,13 @@
 
 Platform gratis dan open source untuk manajemen TPA/TPQ: absensi berbasis pemindaian QR code, notifikasi kehadiran realtime ke wali santri via Telegram, serta pencatatan pencapaian, pembayaran SPP, dan perizinan santri.
 
-Situs: [santriq.web.id](https://santriq.web.id) (rencana)
+Situs: [santriq.web.id](https://santriq.web.id) · Coba demo: [demo.santriq.my.id](https://demo.santriq.my.id/login)
+
+Panduan dan template gratis untuk pengelola TPQ/TPA: [format rapor TPQ](https://santriq.web.id/panduan/format-rapor-tpq) dan [buku kas serta rekap SPP](https://santriq.web.id/panduan/buku-kas-spp-tpq). Penjelasan tiap fitur: [absensi QR](https://santriq.web.id/fitur/absensi-qr), [notifikasi wali via Telegram](https://santriq.web.id/fitur/notifikasi-wali), [SPP](https://santriq.web.id/fitur/spp), [rapor santri](https://santriq.web.id/fitur/rapor-santri), [perizinan](https://santriq.web.id/fitur/perizinan), dan [kartu santri](https://santriq.web.id/fitur/kartu-santri).
 
 ## Fitur
 
-- **Landing page per lembaga** — tiap lembaga punya subdomain sendiri (`{subdomain}.santriq.web.id`) dengan landing page publik yang kontennya (tagline, deskripsi, logo, galeri, jam operasional, warna aksen) bisa diubah admin lewat `settings/lembaga`.
+- **Landing page per lembaga** — tiap lembaga punya subdomain sendiri (`{subdomain}.santriq.my.id` di produksi) dengan landing page publik yang kontennya (tagline, deskripsi, logo, galeri, jam operasional, warna aksen) bisa diubah admin lewat `settings/lembaga`.
 - **Onboarding admin** — admin yang baru registrasi diarahkan ke wizard dua langkah (info lembaga + konten landing page) sebelum masuk dashboard, bisa dilewati.
 - **Portal wali** — wali santri masuk tanpa password lewat tautan magic-link yang dikirim ke Telegram (`/wali/masuk`), lalu memantau kehadiran, pencapaian, dan mengajukan izin dari portal web (`/wali/portal`).
 - **Multi-tenant** — satu instance melayani banyak lembaga, data antar lembaga terisolasi.
@@ -19,9 +21,9 @@ Situs: [santriq.web.id](https://santriq.web.id) (rencana)
 - **Perizinan mandiri** — wali mengajukan izin/sakit, admin menyetujui, status kehadiran tercatat otomatis.
 - **Panel super admin** — pengelola platform memantau seluruh lembaga terdaftar (jumlah santri/pengajar/wali) dan bisa menonaktifkan lembaga bermasalah dari `/super-admin` di domain utama.
 - **Login/registrasi dengan Google** — alternatif form email/password lewat `laravel/socialite`.
-- **Tenant demo publik** — subdomain `demo.santriq.web.id` bisa dijajal tanpa registrasi (kredensial demo tampil otomatis di halaman masuk), data direset ulang tiap jam.
+- **Tenant demo publik** — subdomain `demo.santriq.my.id` bisa dijajal tanpa registrasi (kredensial demo tampil otomatis di halaman masuk), data direset ulang tiap jam.
 
-Semua fitur di atas sudah berjalan, termasuk deploy produksi di santriq.web.id (wildcard TLS + webhook Telegram aktif — lihat [docs/DEPLOY.md](docs/DEPLOY.md) untuk prosedur redeploy). Yang belum: backup terjadwal, impor CSV santri, dan 2FA.
+Semua fitur di atas sudah berjalan, termasuk deploy produksi di santriq.web.id (wildcard TLS + webhook Telegram aktif — lihat [docs/DEPLOY.md](docs/DEPLOY.md) untuk prosedur redeploy). Yang belum: backup terjadwal dan 2FA.
 
 Detail kebutuhan produk ada di [docs/SantriQ-PRD.md](docs/SantriQ-PRD.md). Status per fase dan keputusan arsitektur ada di [docs/RENCANA-IMPLEMENTASI.md](docs/RENCANA-IMPLEMENTASI.md).
 
@@ -69,13 +71,14 @@ php artisan db:seed
 
 Akun demo: `admin@santriq.test` / `pengajar@santriq.test`, password `password`.
 
-Registrasi lewat halaman `/register` (domain utama) membuat lembaga baru sekaligus akun admin pertamanya — pendaftar memilih subdomain sendiri (permanen), lalu diarahkan ke halaman masuk lembaganya (`{subdomain}.santriq.web.id/login`) setelah berhasil daftar.
+Registrasi lewat halaman `/register` (domain utama) membuat lembaga baru sekaligus akun admin pertamanya — pendaftar memilih subdomain sendiri (permanen), lalu diarahkan ke halaman masuk lembaganya (`{subdomain}.santriq.my.id/login` di produksi) setelah berhasil daftar.
 Pilihan tema dapat diubah dari landing page, halaman masuk, dan halaman registrasi; preferensi disimpan di browser.
 
 ### Subdomain lembaga
 
 ```dotenv
-APP_TENANT_DOMAIN=santriq.web.id       # domain akar; ganti sesuai environment
+APP_TENANT_DOMAIN=santriq.web.id       # domain utama (marketing, /register); ganti sesuai environment
+APP_TENANT_ROOT_DOMAIN=                # kosong = sama dengan di atas; produksi: santriq.my.id (domain terpisah untuk subdomain lembaga)
 APP_TENANT_SUBDOMAIN_ACTIVE=true       # false = fallback tanpa wildcard DNS (lihat di bawah)
 ```
 
