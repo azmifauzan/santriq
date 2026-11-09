@@ -92,7 +92,7 @@ Beranda menautkan ke semua halaman fitur, dan setiap halaman fitur menautkan bal
 
 ### Status Fase 2 (9 November 2026)
 
-Enam halaman sudah dibuat dan teruji (commit `2f6278d`, belum di-deploy: image `20261109-4` sudah dibangun lokal, push ke Docker Hub menunggu persetujuan). Teks tiap halaman ada di `config/features.php`; gunakan file itu untuk mengubah isi. Tiap halaman punya title, meta description, canonical, JSON-LD `FAQPage`, fallback tanpa JavaScript, tautan CTA ke `/register`, dan masuk ke `sitemap.xml`. Beranda menautkan ke keenamnya. Halaman belum memuat tangkapan layar dan masih menaut ke sesama halaman fitur saja; tautan ke artikel menunggu Fase 3. Setelah deploy: submit ulang sitemap di GSC dan minta pengindeksan untuk keenam URL.
+Enam halaman sudah dibuat dan teruji (commit `2f6278d`, live sejak image `20261109-4`, digest `sha256:9abaa7ce…0184`; sitemap kini memuat 10 URL). Teks tiap halaman ada di `config/features.php`; gunakan file itu untuk mengubah isi. Tiap halaman punya title, meta description, canonical, JSON-LD `FAQPage`, fallback tanpa JavaScript, tautan CTA ke `/register`, dan masuk ke `sitemap.xml`. Beranda menautkan ke keenamnya. Halaman belum memuat tangkapan layar dan masih menaut ke sesama halaman fitur saja; tautan ke artikel menunggu Fase 3. Berikutnya: minta pengindeksan keenam URL di GSC (URL Inspection). Kecil: title `/fitur/kartu-santri` memuat "SantriQ" dua kali.
 
 ## 4. Fase 3: konten rutin (mulai bulan 2, 1–2 artikel per minggu)
 
