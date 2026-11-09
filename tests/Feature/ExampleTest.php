@@ -136,5 +136,6 @@ test('the sitemap lists the public pages', function () {
         ->assertOk()
         ->assertHeader('Content-Type', 'application/xml')
         ->assertSee(route('home'), false)
-        ->assertSee(route('privacy'), false);
+        ->assertSee(route('privacy'), false)
+        ->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false);
 });
