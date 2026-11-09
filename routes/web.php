@@ -16,6 +16,9 @@ Route::domain(config('tenancy.domain'))->group(function () {
         'demoUrl' => DemoTenant::url('/login'),
         'whatsappNumber' => AppSetting::current()->whatsapp_number,
     ]))->name('home');
+    Route::get('sitemap.xml', fn () => response()
+        ->view('sitemap', ['urls' => [route('home'), route('request-feature'), route('privacy'), route('terms')]])
+        ->header('Content-Type', 'application/xml'))->name('sitemap');
     Route::get('privacy', [LegalController::class, 'show'])->defaults('document', 'privacy')->name('privacy');
     Route::get('terms', [LegalController::class, 'show'])->defaults('document', 'terms')->name('terms');
     Route::inertia('fitur', 'RequestFeature', [

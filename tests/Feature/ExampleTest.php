@@ -103,3 +103,38 @@ test('the google analytics tag is rendered only when a measurement id is configu
         ->assertSee('https://www.googletagmanager.com/gtag/js?id=G-TEST123', false)
         ->assertSee("gtag('config', 'G-TEST123')", false);
 });
+
+test('the google analytics tag is not rendered on tenant app screens', function () {
+    config(['services.google_analytics.measurement_id' => 'G-TEST123']);
+
+    $this->get(route('login'))->assertSee('googletagmanager.com', false);
+
+    $tenant = Tenant::factory()->create();
+    $this->get(route('tenant.landing', ['subdomain' => $tenant->subdomain]))
+        ->assertDontSee('googletagmanager.com', false);
+});
+
+test('the landing page carries SEO tags in its server-rendered HTML', function () {
+    $this->get(route('home'))
+        ->assertSee('<link rel="canonical" href="'.route('home').'">', false)
+        ->assertSee('Aplikasi Manajemen TPQ/TPA Gratis', false)
+        ->assertSee('"@type":"SoftwareApplication"', false)
+        ->assertDontSee('noindex', false);
+});
+
+test('the canonical url drops tracking query strings', function () {
+    $this->get(route('home', ['ref' => 'artifisial']))
+        ->assertSee('<link rel="canonical" href="'.route('home').'">', false);
+});
+
+test('screens outside the marketing pages are noindex', function () {
+    $this->get(route('login'))->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+});
+
+test('the sitemap lists the public pages', function () {
+    $this->get(route('sitemap'))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/xml')
+        ->assertSee(route('home'), false)
+        ->assertSee(route('privacy'), false);
+});

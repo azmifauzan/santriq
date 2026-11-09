@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -17,6 +18,26 @@ defineOptions({
 defineProps<{
     status?: string;
 }>();
+
+// Registration lands here right after the account is created. Report the
+// signup once per browser session so reloading this page does not recount it.
+onMounted(() => {
+    try {
+        if (sessionStorage.getItem('signup_reported')) {
+            return;
+        }
+
+        sessionStorage.setItem('signup_reported', '1');
+    } catch {
+        return;
+    }
+
+    (window as { gtag?: (...args: unknown[]) => void }).gtag?.(
+        'event',
+        'sign_up',
+        { method: 'email' },
+    );
+});
 </script>
 
 <template>

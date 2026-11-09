@@ -96,7 +96,9 @@ const steps = [
     >
         <!-- The description meta is rendered server-side in app.blade.php so crawlers
              that do not execute JavaScript can read it. -->
-        <Head title="Manajemen TPA/TPQ yang Lebih Mudah" />
+        <Head
+            title="Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali"
+        />
 
         <SiteHeader />
 

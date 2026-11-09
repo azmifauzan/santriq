@@ -7,8 +7,40 @@
         {{-- Rendered server-side so crawlers that do not execute JavaScript (Google's
              OAuth branding verification among them) can read what this app is for. --}}
         @php($siteDescription = 'SantriQ adalah platform gratis dan open source untuk manajemen TPA/TPQ: absensi QR, notifikasi kehadiran ke wali santri via Telegram, pencatatan pencapaian, SPP, dan perizinan santri.')
-        @if (($page['component'] ?? null) === 'Welcome')
+        @php($publicPages = ['Welcome', 'Legal', 'RequestFeature'])
+        @php($isWelcome = ($page['component'] ?? null) === 'Welcome')
+        @if (in_array($page['component'] ?? null, $publicPages, true))
+            <link rel="canonical" href="{{ url()->current() }}">
+        @else
+            {{-- Everything outside the marketing pages is a tenant or account screen. --}}
+            <meta name="robots" content="noindex, nofollow">
+        @endif
+        @if ($isWelcome)
             <meta name="description" content="{{ $siteDescription }}">
+            <script type="application/ld+json">
+                {!! json_encode([
+                    '@context' => 'https://schema.org',
+                    '@graph' => [
+                        [
+                            '@type' => 'SoftwareApplication',
+                            'name' => 'SantriQ',
+                            'url' => url('/'),
+                            'description' => $siteDescription,
+                            'applicationCategory' => 'EducationalApplication',
+                            'operatingSystem' => 'Web',
+                            'inLanguage' => 'id',
+                            'isAccessibleForFree' => true,
+                            'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'IDR'],
+                        ],
+                        [
+                            '@type' => 'Organization',
+                            'name' => 'SantriQ',
+                            'url' => url('/'),
+                            'logo' => asset('apple-touch-icon.png'),
+                        ],
+                    ],
+                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
+            </script>
         @elseif (($page['component'] ?? null) === 'Legal')
             <meta name="description" content="{{ $page['props']['content']['description'] }}">
         @endif
@@ -52,7 +84,10 @@
             }
         </style>
 
-        @if ($gaId = config('services.google_analytics.measurement_id'))
+        {{-- Marketing and signup pages only: tenant screens (dashboard, students, ...)
+             would otherwise flood the property with app traffic. --}}
+        @if (in_array($page['component'] ?? null, [...$publicPages, 'auth/Login', 'auth/Register', 'auth/VerifyEmail'], true)
+            && ($gaId = config('services.google_analytics.measurement_id')))
             <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
             <script>
                 window.dataLayer = window.dataLayer || [];
@@ -70,7 +105,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ $isWelcome ? 'Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali - SantriQ' : config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

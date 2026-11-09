@@ -1,2 +1,4 @@
 User-agent: *
-Disallow:
+Disallow: /telegram/
+
+Sitemap: https://santriq.web.id/sitemap.xml
