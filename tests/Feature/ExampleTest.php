@@ -141,3 +141,36 @@ test('the sitemap lists the public pages', function () {
         ->assertSee(route('privacy'), false)
         ->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false);
 });
+
+test('every feature page renders its own title, canonical, description and FAQ JSON-LD', function (string $slug) {
+    $feature = config("features.{$slug}");
+
+    $this->get(route('feature', $slug))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('Feature')->where('slug', $slug))
+        ->assertSee('<title inertia>'.e($feature['title']).' - SantriQ</title>', false)
+        ->assertSee('<link rel="canonical" href="'.route('feature', $slug).'">', false)
+        ->assertSee('<meta name="description" content="'.e($feature['description']).'">', false)
+        ->assertSee('"@type":"FAQPage"', false)
+        ->assertDontSee('noindex', false)
+        ->assertSee('<h1>'.e($feature['heading']).'</h1>', false);
+})->with(fn () => array_keys(config('features')));
+
+test('an unknown feature page is a 404', function () {
+    $this->get('/fitur/tidak-ada')->assertNotFound();
+});
+
+test('the request-feature page still lives at /fitur', function () {
+    $this->get(route('request-feature'))->assertOk();
+});
+
+test('the sitemap lists every feature page and the landing page links to them', function () {
+    $response = $this->get(route('sitemap'))->assertOk();
+
+    foreach (array_keys(config('features')) as $slug) {
+        $response->assertSee(route('feature', $slug), false);
+    }
+
+    $this->get(route('home'))
+        ->assertInertia(fn (Assert $page) => $page->has('featurePages', count(config('features'))));
+});

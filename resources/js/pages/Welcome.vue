@@ -23,6 +23,7 @@ import { register } from '@/routes';
 const props = defineProps<{
     demoUrl?: string | null;
     whatsappNumber?: string | null;
+    featurePages?: { title: string; href: string }[];
 }>();
 
 const whatsappHref = computed(() => {
@@ -403,6 +404,21 @@ const steps = [
                             </p>
                         </article>
                     </div>
+
+                    <nav
+                        v-if="featurePages?.length"
+                        aria-label="Halaman fitur"
+                        class="mt-8 flex flex-wrap justify-center gap-3"
+                    >
+                        <Link
+                            v-for="page in featurePages"
+                            :key="page.href"
+                            :href="page.href"
+                            class="inline-flex h-10 items-center rounded-full border border-emerald-200 px-4 text-sm font-medium text-emerald-800 transition hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-300 dark:hover:bg-emerald-950"
+                        >
+                            {{ page.title }}
+                        </Link>
+                    </nav>
                 </div>
             </section>
 

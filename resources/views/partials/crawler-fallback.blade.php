@@ -34,6 +34,9 @@
             pencapaian, SPP, dan perizinan santri.
         </p>
         <p>
+            @foreach ($page['props']['featurePages'] ?? [] as $featurePage)
+                <a href="{{ $featurePage['href'] }}">{{ $featurePage['title'] }}</a> &middot;
+            @endforeach
             <a href="{{ route('privacy') }}">Kebijakan Privasi</a> &middot;
             <a href="{{ route('terms') }}">Syarat &amp; Ketentuan</a>
         </p>
@@ -62,6 +65,30 @@
         @endforeach
 
         <p>
+            <a href="{{ route('home') }}">Beranda</a> &middot;
+            <a href="{{ route('privacy') }}">Kebijakan Privasi</a> &middot;
+            <a href="{{ route('terms') }}">Syarat &amp; Ketentuan</a>
+        </p>
+    </noscript>
+@elseif ($component === 'Feature')
+    @php($feature = $page['props']['content'])
+    <noscript>
+        <h1>{{ $feature['heading'] }}</h1>
+        <p>{{ $feature['description'] }}</p>
+        <p>{{ $feature['problem'] }}</p>
+        <h2>Cara kerjanya</h2>
+        <ol>
+            @foreach ($feature['steps'] as $step)
+                <li>{{ $step }}</li>
+            @endforeach
+        </ol>
+        <h2>Pertanyaan umum</h2>
+        @foreach ($feature['faq'] as $item)
+            <h3>{{ $item['q'] }}</h3>
+            <p>{{ $item['a'] }}</p>
+        @endforeach
+        <p>
+            <a href="{{ route('register') }}">Daftarkan lembaga gratis</a> &middot;
             <a href="{{ route('home') }}">Beranda</a> &middot;
             <a href="{{ route('privacy') }}">Kebijakan Privasi</a> &middot;
             <a href="{{ route('terms') }}">Syarat &amp; Ketentuan</a>

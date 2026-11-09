@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\SuperAdminController;
@@ -15,9 +16,19 @@ Route::domain(config('tenancy.domain'))->group(function () {
     Route::get('/', fn () => Inertia::render('Welcome', [
         'demoUrl' => DemoTenant::url('/login'),
         'whatsappNumber' => AppSetting::current()->whatsapp_number,
+        'featurePages' => array_map(
+            fn (string $slug): array => ['title' => config("features.{$slug}.nav"), 'href' => route('feature', $slug)],
+            array_map('strval', array_keys(config('features'))),
+        ),
     ]))->name('home');
     Route::get('sitemap.xml', fn () => response()
-        ->view('sitemap', ['urls' => [route('home'), route('request-feature'), route('privacy'), route('terms')]])
+        ->view('sitemap', ['urls' => [
+            route('home'),
+            route('request-feature'),
+            ...array_map(fn (string $slug) => route('feature', $slug), array_map('strval', array_keys(config('features')))),
+            route('privacy'),
+            route('terms'),
+        ]])
         ->header('Content-Type', 'application/xml'))->name('sitemap');
     Route::get('privacy', [LegalController::class, 'show'])->defaults('document', 'privacy')->name('privacy');
     Route::get('terms', [LegalController::class, 'show'])->defaults('document', 'terms')->name('terms');
@@ -28,6 +39,10 @@ Route::domain(config('tenancy.domain'))->group(function () {
             'linkedin' => 'https://www.linkedin.com/in/fauzan-azmi-29094522/',
         ],
     ])->name('request-feature');
+
+    Route::get('fitur/{feature}', [FeatureController::class, 'show'])
+        ->whereIn('feature', array_keys(config('features')))
+        ->name('feature');
 
     Route::get('subdomain-availability', [TenantSubdomainAvailabilityController::class, 'check'])
         ->middleware('throttle:30,1')
