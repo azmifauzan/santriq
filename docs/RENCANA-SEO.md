@@ -70,8 +70,8 @@ Setiap perubahan kode disertai test feature (respons berisi title, canonical, si
 
 | # | Status |
 |---|---|
-| 1.1–1.5 | Selesai di commit `5da8496`; menunggu deploy ke produksi. |
-| 1.6 | Tag GA hanya dimuat di halaman marketing, login, daftar, dan verifikasi email. Event `sign_up` dikirim dari halaman verifikasi email setelah pendaftaran manual. **Belum:** tandai `sign_up` sebagai key event di GA4 Admin (event baru muncul di daftar setelah terkirim pertama kali). `onboarding_complete` ditunda karena onboarding berjalan di domain `santriq.my.id` yang tidak memuat tag; butuh Measurement Protocol atau cross-domain bila diperlukan. Pendaftaran via Google tidak terhitung `sign_up`. |
+| 1.1–1.5 | Selesai dan live (image `20261109-3`, commit `9411eb1`). Sitemap sudah disubmit di GSC: status Success, 4 halaman ditemukan. |
+| 1.6 | Tag GA hanya dimuat di halaman marketing, login, daftar, dan verifikasi email. Event `sign_up` dikirim dari halaman verifikasi email setelah pendaftaran manual. Tag tidak dimuat di host tenant `*.santriq.my.id`. **Belum:** tandai `sign_up` sebagai key event: di GA4 Admin > Events > tab Recent events, beri bintang setelah event terkirim pertama kali (event belum bisa ditandai sebelum itu). `onboarding_complete` ditunda karena onboarding berjalan di domain `santriq.my.id` yang tidak memuat tag; butuh Measurement Protocol atau cross-domain bila diperlukan. Pendaftaran via Google tidak terhitung `sign_up`. |
 | 1.7 | Bot Fight Mode sudah mati dan tidak ada custom rule. Tombol "Start a new review" sudah diklik, tetapi status masih "Cloudflare blocked". RankMySEO membatasi review baru tiap 12 jam (berikutnya mulai 9 Nov 2026 15:58 UTC). Cek ulang setelahnya; bila masih diblokir, buat Skip rule WAF untuk IP/verified-bot RankMySEO. |
 | 1.8 | Dua halaman tak terindeks ternyata wajar: `/telegram/webhook` (hanya menerima POST, kini di-`Disallow` di robots.txt) dan `http://santriq.web.id/` (redirect ke HTTPS). Tidak perlu Validate Fix. |
 
