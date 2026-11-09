@@ -109,6 +109,18 @@ Urutan prioritas:
 7. Cara memberi kabar kehadiran santri ke orang tua
 8. Perbandingan aplikasi manajemen TPQ gratis (jujur, termasuk pesaing)
 
+### Status Fase 3 (9 November 2026)
+
+Fondasi dan dua artikel pertama selesai: `/panduan` (indeks) dan `/panduan/{slug}`, dengan teks di `config/articles.php`. Tiap artikel punya title, description, canonical, JSON-LD `Article` + `FAQPage`, fallback tanpa JavaScript, template Excel yang bisa diunduh (`/panduan/{slug}/template`), CTA ke pendaftaran, dan tautan dua arah ke halaman fiturnya. Menu header dan footer memuat "Panduan", dan sitemap memuat semua URL panduan.
+
+| # | Artikel | Status |
+|---|---|---|
+| 1 | Format rapor TPQ + contoh catatan akhlak (`/panduan/format-rapor-tpq`) | selesai, template rapor Excel |
+| 2 | Contoh buku kas dan pencatatan SPP (`/panduan/buku-kas-spp-tpq`) | selesai, template buku kas + rekap SPP 12 bulan (rumus saldo dan total sudah terisi) |
+| 3–8 | Kartu santri QR, administrasi TPQ lengkap, kenaikan jilid dan hafalan, surat izin, kabar kehadiran ke orang tua, perbandingan aplikasi | belum, 1–2 artikel per minggu |
+
+Menambah artikel: tambahkan entri di `config/articles.php`, daftarkan template di `ArticleController::template()` bila perlu, lalu deploy.
+
 ## 5. Daftar long-tail keyword
 
 Volume pencarian belum diukur. Validasi lewat Google Keyword Planner atau RankMySEO sebelum menetapkan prioritas akhir. Kolom "Peluang" menilai persaingan dari isi halaman 1 Google saat riset.

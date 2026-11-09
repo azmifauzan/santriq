@@ -4,6 +4,7 @@ use App\Models\Tenant;
 use App\Support\DemoTenant;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 test('the public landing page is available', function () {
     $this->get(route('home'))
@@ -180,4 +181,56 @@ test('every public marketing page opts out of the panel layout in app.ts', funct
     $nullLayoutList = Str::between(file_get_contents(resource_path('js/app.ts')), 'case [', '].includes(name)');
 
     expect($nullLayoutList)->toContain("'{$component}'");
-})->with(['Welcome', 'Legal', 'RequestFeature', 'Feature']);
+})->with(['Welcome', 'Legal', 'RequestFeature', 'Feature', 'Article', 'ArticleIndex']);
+
+test('every guide article renders its title, canonical, JSON-LD and fallback', function (string $slug) {
+    $article = config("articles.{$slug}");
+
+    $this->get(route('article', $slug))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('Article')->where('slug', $slug)->where('templateHref', route('article.template', $slug)))
+        ->assertSee('<title inertia>'.e($article['title']).' - SantriQ</title>', false)
+        ->assertSee('<link rel="canonical" href="'.route('article', $slug).'">', false)
+        ->assertSee('<meta name="description" content="'.e($article['description']).'">', false)
+        ->assertSee('"@type":"Article"', false)
+        ->assertSee('"@type":"FAQPage"', false)
+        ->assertDontSee('noindex', false)
+        ->assertSee('<h1>'.e($article['heading']).'</h1>', false);
+})->with(fn () => array_keys(config('articles')));
+
+test('the guide index lists every article and an unknown guide is a 404', function () {
+    $this->get(route('articles.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('ArticleIndex')->has('articles', count(config('articles'))))
+        ->assertSee('<link rel="canonical"', false);
+
+    $this->get('/panduan/tidak-ada')->assertNotFound();
+    $this->get('/panduan/tidak-ada/template')->assertNotFound();
+});
+
+test('the sitemap lists the guides and feature pages link back to their guides', function () {
+    $response = $this->get(route('sitemap'))->assertOk()->assertSee(route('articles.index'), false);
+
+    foreach (array_keys(config('articles')) as $slug) {
+        $response->assertSee(route('article', $slug), false);
+    }
+
+    $this->get(route('feature', 'spp'))
+        ->assertInertia(fn (Assert $page) => $page->where('guides.0.href', route('article', 'buku-kas-spp-tpq')));
+});
+
+test('the guide templates download as spreadsheets with working formulas', function () {
+    $load = fn (string $slug) => IOFactory::load(
+        $this->get(route('article.template', $slug))->assertOk()->baseResponse->getFile()->getPathname()
+    );
+
+    $report = $load('format-rapor-tpq');
+    expect($report->getSheetByName('Rapor')->getCell('A1')->getValue())->toBe('RAPOR SANTRI TPQ/TPA');
+
+    $cash = $load('buku-kas-spp-tpq');
+    expect($cash->getSheetNames())->toBe(['Buku Kas', 'Rekap SPP']);
+    $cash->getSheetByName('Buku Kas')->setCellValue('D2', 50000)->setCellValue('E3', 10000)->setCellValue('D3', 0);
+    expect($cash->getSheetByName('Buku Kas')->getCell('F3')->getCalculatedValue())->toBe(40000);
+    $cash->getSheetByName('Rekap SPP')->setCellValue('C2', 25000)->setCellValue('D2', 25000);
+    expect($cash->getSheetByName('Rekap SPP')->getCell('O2')->getCalculatedValue())->toBe(50000);
+});

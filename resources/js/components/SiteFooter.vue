@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { GraduationCap } from '@lucide/vue';
 import { feature, privacy, requestFeature, terms } from '@/routes';
+import { index as articlesIndex } from '@/routes/articles';
 
 const featurePages = [
     ['absensi-qr', 'Absensi QR'],
@@ -68,6 +69,12 @@ const featurePages = [
                     class="inline-flex min-h-[44px] items-center py-2 transition hover:text-emerald-700 dark:hover:text-emerald-400"
                 >
                     {{ label }}
+                </Link>
+                <Link
+                    :href="articlesIndex()"
+                    class="inline-flex min-h-[44px] items-center py-2 transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                >
+                    Panduan
                 </Link>
                 <a
                     :href="`${requestFeature.url()}#request`"

@@ -19,6 +19,7 @@ defineProps<{
     slug: string;
     content: FeatureContent;
     related: { slug: string; title: string; href: string }[];
+    guides: { title: string; href: string }[];
 }>();
 </script>
 
@@ -79,6 +80,20 @@ defineProps<{
                         {{ item.a }}
                     </p>
                 </div>
+            </section>
+
+            <section v-if="guides.length" class="mt-12 flex flex-col gap-3">
+                <h2 class="text-xl font-bold tracking-tight">Panduan</h2>
+                <ul class="flex flex-wrap gap-3">
+                    <li v-for="guide in guides" :key="guide.href">
+                        <Link
+                            :href="guide.href"
+                            class="inline-flex h-10 items-center rounded-full border border-emerald-200 px-4 text-sm font-medium text-emerald-800 transition hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-300 dark:hover:bg-emerald-950"
+                        >
+                            {{ guide.title }}
+                        </Link>
+                    </li>
+                </ul>
             </section>
 
             <section class="mt-12 flex flex-col gap-3">

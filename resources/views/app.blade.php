@@ -7,7 +7,7 @@
         {{-- Rendered server-side so crawlers that do not execute JavaScript (Google's
              OAuth branding verification among them) can read what this app is for. --}}
         @php($siteDescription = 'SantriQ adalah platform gratis dan open source untuk manajemen TPA/TPQ: absensi QR, notifikasi kehadiran ke wali santri via Telegram, pencatatan pencapaian, SPP, dan perizinan santri.')
-        @php($publicPages = ['Welcome', 'Legal', 'RequestFeature', 'Feature'])
+        @php($publicPages = ['Welcome', 'Legal', 'RequestFeature', 'Feature', 'Article', 'ArticleIndex'])
         @php($isWelcome = ($page['component'] ?? null) === 'Welcome')
         @if (in_array($page['component'] ?? null, $publicPages, true))
             <link rel="canonical" href="{{ url()->current() }}">
@@ -43,6 +43,36 @@
             </script>
         @elseif (($page['component'] ?? null) === 'Legal')
             <meta name="description" content="{{ $page['props']['content']['description'] }}">
+        @elseif (($page['component'] ?? null) === 'ArticleIndex')
+            <meta name="description" content="Panduan praktis dan template gratis untuk pengelola TPQ/TPA: rapor, keuangan, absensi, dan komunikasi dengan wali santri.">
+        @elseif (($page['component'] ?? null) === 'Article')
+            @php($article = $page['props']['content'])
+            <meta name="description" content="{{ $article['description'] }}">
+            <script type="application/ld+json">
+                {!! json_encode([
+                    '@context' => 'https://schema.org',
+                    '@graph' => [
+                        [
+                            '@type' => 'Article',
+                            'headline' => $article['heading'],
+                            'description' => $article['description'],
+                            'datePublished' => $article['published_at'],
+                            'inLanguage' => 'id',
+                            'mainEntityOfPage' => url()->current(),
+                            'author' => ['@type' => 'Organization', 'name' => 'SantriQ'],
+                            'publisher' => ['@type' => 'Organization', 'name' => 'SantriQ', 'logo' => ['@type' => 'ImageObject', 'url' => asset('apple-touch-icon.png')]],
+                        ],
+                        [
+                            '@type' => 'FAQPage',
+                            'mainEntity' => array_map(fn (array $item): array => [
+                                '@type' => 'Question',
+                                'name' => $item['q'],
+                                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['a']],
+                            ], $article['faq']),
+                        ],
+                    ],
+                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
+            </script>
         @elseif (($page['component'] ?? null) === 'Feature')
             @php($feature = $page['props']['content'])
             <meta name="description" content="{{ $feature['description'] }}">
@@ -120,7 +150,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ $isWelcome ? 'Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali - SantriQ' : (($page['component'] ?? null) === 'Feature' ? $page['props']['content']['title'].' - SantriQ' : config('app.name', 'Laravel')) }}</title>
+            <title>{{ $isWelcome ? 'Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali - SantriQ' : (in_array($page['component'] ?? null, ['Feature', 'Article'], true) ? $page['props']['content']['title'].' - SantriQ' : (($page['component'] ?? null) === 'ArticleIndex' ? 'Panduan Administrasi TPQ dan TPA - SantriQ' : config('app.name', 'Laravel'))) }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

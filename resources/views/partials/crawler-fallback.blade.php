@@ -94,6 +94,46 @@
             <a href="{{ route('terms') }}">Syarat &amp; Ketentuan</a>
         </p>
     </noscript>
+@elseif ($component === 'Article')
+    @php($article = $page['props']['content'])
+    <noscript>
+        <h1>{{ $article['heading'] }}</h1>
+        <p>{{ $article['intro'] }}</p>
+        @foreach ($article['sections'] as $section)
+            <h2>{{ $section['title'] }}</h2>
+            @foreach ($section['paragraphs'] ?? [] as $paragraph)
+                <p>{{ $paragraph }}</p>
+            @endforeach
+            @if (! empty($section['items']))
+                <ul>
+                    @foreach ($section['items'] as $item)
+                        <li>{{ $item }}</li>
+                    @endforeach
+                </ul>
+            @endif
+        @endforeach
+        <h2>Pertanyaan umum</h2>
+        @foreach ($article['faq'] as $item)
+            <h3>{{ $item['q'] }}</h3>
+            <p>{{ $item['a'] }}</p>
+        @endforeach
+        <p>
+            <a href="{{ $page['props']['templateHref'] }}">{{ $article['template']['label'] }}</a> &middot;
+            <a href="{{ $page['props']['featureLink']['href'] }}">{{ $page['props']['featureLink']['title'] }}</a> &middot;
+            <a href="{{ route('articles.index') }}">Panduan</a> &middot;
+            <a href="{{ route('home') }}">Beranda</a>
+        </p>
+    </noscript>
+@elseif ($component === 'ArticleIndex')
+    <noscript>
+        <h1>Panduan administrasi TPQ dan TPA</h1>
+        <ul>
+            @foreach ($page['props']['articles'] as $item)
+                <li><a href="{{ $item['href'] }}">{{ $item['title'] }}</a></li>
+            @endforeach
+        </ul>
+        <p><a href="{{ route('home') }}">Beranda</a></p>
+    </noscript>
 @elseif (isset($authTitles[$component]))
     <noscript>
         <h1>SantriQ &mdash; {{ $authTitles[$component] }}</h1>

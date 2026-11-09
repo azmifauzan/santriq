@@ -11,6 +11,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { home, login, register, requestFeature } from '@/routes';
+import { index as articlesIndex } from '@/routes/articles';
 
 // On the landing page itself this stays empty so "Cara kerja"/"Tentang" are
 // plain same-page anchors ("#cara-kerja"); other pages pass home().url so
@@ -76,6 +77,12 @@ onMounted(async () => {
                     class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
                 >
                     Fitur
+                </Link>
+                <Link
+                    :href="articlesIndex()"
+                    class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                >
+                    Panduan
                 </Link>
                 <a
                     :href="`${sectionsHref}#cara-kerja`"
@@ -181,6 +188,13 @@ onMounted(async () => {
                                         @click="closeMobileMenu"
                                     >
                                         Fitur
+                                    </Link>
+                                    <Link
+                                        :href="articlesIndex()"
+                                        class="flex h-11 items-center rounded-xl px-3 transition hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400"
+                                        @click="closeMobileMenu"
+                                    >
+                                        Panduan
                                     </Link>
                                     <a
                                         :href="`${sectionsHref}#cara-kerja`"

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LegalController;
@@ -26,6 +27,8 @@ Route::domain(config('tenancy.domain'))->group(function () {
             route('home'),
             route('request-feature'),
             ...array_map(fn (string $slug) => route('feature', $slug), array_map('strval', array_keys(config('features')))),
+            route('articles.index'),
+            ...array_map(fn (string $slug) => route('article', $slug), array_map('strval', array_keys(config('articles')))),
             route('privacy'),
             route('terms'),
         ]])
@@ -43,6 +46,15 @@ Route::domain(config('tenancy.domain'))->group(function () {
     Route::get('fitur/{feature}', [FeatureController::class, 'show'])
         ->whereIn('feature', array_keys(config('features')))
         ->name('feature');
+
+    Route::get('panduan', [ArticleController::class, 'index'])->name('articles.index');
+    Route::get('panduan/{article}', [ArticleController::class, 'show'])
+        ->whereIn('article', array_keys(config('articles')))
+        ->name('article');
+    Route::get('panduan/{article}/template', [ArticleController::class, 'template'])
+        ->whereIn('article', array_keys(config('articles')))
+        ->middleware('throttle:30,1')
+        ->name('article.template');
 
     Route::get('subdomain-availability', [TenantSubdomainAvailabilityController::class, 'check'])
         ->middleware('throttle:30,1')
