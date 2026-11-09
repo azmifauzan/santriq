@@ -90,6 +90,10 @@ Satu halaman per klaster keyword, di domain apex. Masing-masing berisi H1 sesuai
 
 Beranda menautkan ke semua halaman fitur, dan setiap halaman fitur menautkan balik serta ke artikel terkait.
 
+### Status Fase 2 (9 November 2026)
+
+Enam halaman sudah dibuat dan teruji (commit `2f6278d`, belum di-deploy: image `20261109-4` sudah dibangun lokal, push ke Docker Hub menunggu persetujuan). Teks tiap halaman ada di `config/features.php`; gunakan file itu untuk mengubah isi. Tiap halaman punya title, meta description, canonical, JSON-LD `FAQPage`, fallback tanpa JavaScript, tautan CTA ke `/register`, dan masuk ke `sitemap.xml`. Beranda menautkan ke keenamnya. Halaman belum memuat tangkapan layar dan masih menaut ke sesama halaman fitur saja; tautan ke artikel menunggu Fase 3. Setelah deploy: submit ulang sitemap di GSC dan minta pengindeksan untuk keenam URL.
+
 ## 4. Fase 3: konten rutin (mulai bulan 2, 1–2 artikel per minggu)
 
 Format: panduan + template unduhan (Excel/PDF/Word). Hasil pencarian untuk topik ini sekarang didominasi PDF jurnal dan skripsi, belum ada halaman praktis yang kuat. Setiap artikel menautkan ke halaman fitur yang relevan.
