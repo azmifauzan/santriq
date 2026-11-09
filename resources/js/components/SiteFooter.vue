@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { GraduationCap } from '@lucide/vue';
-import { privacy, requestFeature, terms } from '@/routes';
+import { feature, privacy, requestFeature, terms } from '@/routes';
+
+const featurePages = [
+    ['absensi-qr', 'Absensi QR'],
+    ['notifikasi-wali', 'Notifikasi wali'],
+    ['spp', 'SPP'],
+    ['rapor-santri', 'Rapor santri'],
+    ['perizinan', 'Perizinan'],
+    ['kartu-santri', 'Kartu santri'],
+] as const;
 </script>
 
 <template>
@@ -52,6 +61,14 @@ import { privacy, requestFeature, terms } from '@/routes';
                 aria-label="Tautan legal"
                 class="flex flex-wrap items-center gap-x-6 gap-y-1"
             >
+                <Link
+                    v-for="[slug, label] in featurePages"
+                    :key="slug"
+                    :href="feature.url(slug)"
+                    class="inline-flex min-h-[44px] items-center py-2 transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                >
+                    {{ label }}
+                </Link>
                 <a
                     :href="`${requestFeature.url()}#request`"
                     class="inline-flex min-h-[44px] items-center py-2 transition hover:text-emerald-700 dark:hover:text-emerald-400"

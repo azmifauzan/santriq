@@ -18,7 +18,7 @@ import {
 import { computed } from 'vue';
 import SiteFooter from '@/components/SiteFooter.vue';
 import SiteHeader from '@/components/SiteHeader.vue';
-import { register } from '@/routes';
+import { feature, register } from '@/routes';
 
 const props = defineProps<{
     demoUrl?: string | null;
@@ -36,30 +36,35 @@ const features = [
     {
         icon: ScanLine,
         title: 'Absensi QR yang cepat',
+        slug: 'absensi-qr',
         description:
             'Cukup pindai kartu santri untuk mencatat waktu datang dan pulang tanpa antrean panjang.',
     },
     {
         icon: Bell,
         title: 'Notifikasi langsung',
+        slug: 'notifikasi-wali',
         description:
             'Wali menerima kabar kehadiran anak secara real-time melalui Telegram.',
     },
     {
         icon: BookOpenCheck,
         title: 'Pencapaian terdokumentasi',
+        slug: 'rapor-santri',
         description:
             'Catat hafalan, bacaan, dan perkembangan belajar santri dalam satu riwayat yang rapi.',
     },
     {
         icon: CircleDollarSign,
         title: 'SPP lebih tertib',
+        slug: 'spp',
         description:
             'Kelola tagihan, pembayaran, dan status pelunasan setiap santri dengan mudah.',
     },
     {
         icon: MessageCircleMore,
         title: 'Terhubung lewat Telegram',
+        slug: 'perizinan',
         description:
             'Wali dapat melihat kehadiran, pencapaian, tagihan, dan mengajukan izin lewat bot.',
     },
@@ -381,27 +386,34 @@ const steps = [
 
                     <div class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         <article
-                            v-for="feature in features"
-                            :key="feature.title"
+                            v-for="item in features"
+                            :key="item.title"
                             class="group rounded-3xl border border-emerald-950/8 bg-white p-6 transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-white/10 dark:bg-slate-900 dark:hover:border-emerald-800"
                         >
                             <span
                                 class="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 transition group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-950 dark:text-emerald-400"
                             >
                                 <component
-                                    :is="feature.icon"
+                                    :is="item.icon"
                                     class="size-5"
                                     aria-hidden="true"
                                 />
                             </span>
                             <h3 class="mt-5 text-lg font-bold">
-                                {{ feature.title }}
+                                {{ item.title }}
                             </h3>
                             <p
                                 class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400"
                             >
-                                {{ feature.description }}
+                                {{ item.description }}
                             </p>
+                            <Link
+                                v-if="item.slug"
+                                :href="feature.url(item.slug)"
+                                class="mt-4 inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                            >
+                                Pelajari selengkapnya &rarr;
+                            </Link>
                         </article>
                     </div>
 
