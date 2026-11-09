@@ -66,6 +66,15 @@ Tujuan: menambah trafik organik non-merek dari pengelola TPA/TPQ dan mengubahnya
 
 Setiap perubahan kode disertai test feature (respons berisi title, canonical, sitemap, header noindex).
 
+### Status Fase 1 (9 November 2026)
+
+| # | Status |
+|---|---|
+| 1.1–1.5 | Selesai di commit `5da8496`; menunggu deploy ke produksi. |
+| 1.6 | Tag GA hanya dimuat di halaman marketing, login, daftar, dan verifikasi email. Event `sign_up` dikirim dari halaman verifikasi email setelah pendaftaran manual. **Belum:** tandai `sign_up` sebagai key event di GA4 Admin (event baru muncul di daftar setelah terkirim pertama kali). `onboarding_complete` ditunda karena onboarding berjalan di domain `santriq.my.id` yang tidak memuat tag; butuh Measurement Protocol atau cross-domain bila diperlukan. Pendaftaran via Google tidak terhitung `sign_up`. |
+| 1.7 | Bot Fight Mode sudah mati dan tidak ada custom rule. Tombol "Start a new review" sudah diklik, tetapi status masih "Cloudflare blocked". RankMySEO membatasi review baru tiap 12 jam (berikutnya mulai 9 Nov 2026 15:58 UTC). Cek ulang setelahnya; bila masih diblokir, buat Skip rule WAF untuk IP/verified-bot RankMySEO. |
+| 1.8 | Dua halaman tak terindeks ternyata wajar: `/telegram/webhook` (hanya menerima POST, kini di-`Disallow` di robots.txt) dan `http://santriq.web.id/` (redirect ke HTTPS). Tidak perlu Validate Fix. |
+
 ## 3. Fase 2: halaman fitur (minggu 2–4)
 
 Satu halaman per klaster keyword, di domain apex. Masing-masing berisi H1 sesuai keyword utama, penjelasan masalah, cara kerja di SantriQ, tangkapan layar, FAQ (dengan JSON-LD `FAQPage`), dan CTA "Daftarkan lembaga gratis".
