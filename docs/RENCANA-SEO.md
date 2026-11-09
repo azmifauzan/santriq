@@ -119,6 +119,8 @@ Fondasi dan dua artikel pertama selesai: `/panduan` (indeks) dan `/panduan/{slug
 | 2 | Contoh buku kas dan pencatatan SPP (`/panduan/buku-kas-spp-tpq`) | selesai, template buku kas + rekap SPP 12 bulan (rumus saldo dan total sudah terisi) |
 | 3–8 | Kartu santri QR, administrasi TPQ lengkap, kenaikan jilid dan hafalan, surat izin, kabar kehadiran ke orang tua, perbandingan aplikasi | belum, 1–2 artikel per minggu |
 
+Deploy: image `20261109-7` (digest `sha256:da6657c5…53a2`), live dan terverifikasi di browser. Pengindeksan GSC (9 Nov 2026) diminta untuk kedua artikel; `/panduan` belum, karena kuota harian URL Inspection habis. Ajukan `/panduan` besok. Sitemap sudah memuatnya.
+
 Menambah artikel: tambahkan entri di `config/articles.php`, daftarkan template di `ArticleController::template()` bila perlu, lalu deploy.
 
 ## 5. Daftar long-tail keyword
