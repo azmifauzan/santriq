@@ -22,6 +22,7 @@ createInertiaApp({
                 'Legal',
                 'Welcome',
                 'RequestFeature',
+                'Feature',
                 'Tenant/Landing',
                 'ErrorPage',
                 'Reports/ReportCard',

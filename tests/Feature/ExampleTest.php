@@ -2,6 +2,7 @@
 
 use App\Models\Tenant;
 use App\Support\DemoTenant;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('the public landing page is available', function () {
@@ -174,3 +175,9 @@ test('the sitemap lists every feature page and the landing page links to them', 
     $this->get(route('home'))
         ->assertInertia(fn (Assert $page) => $page->has('featurePages', count(config('features'))));
 });
+
+test('every public marketing page opts out of the panel layout in app.ts', function (string $component) {
+    $nullLayoutList = Str::between(file_get_contents(resource_path('js/app.ts')), 'case [', '].includes(name)');
+
+    expect($nullLayoutList)->toContain("'{$component}'");
+})->with(['Welcome', 'Legal', 'RequestFeature', 'Feature']);
