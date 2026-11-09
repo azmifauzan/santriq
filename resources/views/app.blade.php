@@ -86,7 +86,8 @@
 
         {{-- Marketing and signup pages only: tenant screens (dashboard, students, ...)
              would otherwise flood the property with app traffic. --}}
-        @if (in_array($page['component'] ?? null, [...$publicPages, 'auth/Login', 'auth/Register', 'auth/VerifyEmail'], true)
+        @if (! app()->bound(\App\Models\Tenant::class)
+            && in_array($page['component'] ?? null, [...$publicPages, 'auth/Login', 'auth/Register', 'auth/VerifyEmail'], true)
             && ($gaId = config('services.google_analytics.measurement_id')))
             <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
             <script>

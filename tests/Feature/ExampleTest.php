@@ -112,6 +112,8 @@ test('the google analytics tag is not rendered on tenant app screens', function 
     $tenant = Tenant::factory()->create();
     $this->get(route('tenant.landing', ['subdomain' => $tenant->subdomain]))
         ->assertDontSee('googletagmanager.com', false);
+    $this->get(route('login', ['subdomain' => $tenant->subdomain]))
+        ->assertDontSee('googletagmanager.com', false);
 });
 
 test('the landing page carries SEO tags in its server-rendered HTML', function () {
