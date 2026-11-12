@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\TelegramWebhookController;
@@ -29,10 +30,14 @@ Route::domain(config('tenancy.domain'))->group(function () {
             ...array_map(fn (string $slug) => route('feature', $slug), array_map('strval', array_keys(config('features')))),
             route('articles.index'),
             ...array_map(fn (string $slug) => route('article', $slug), array_map('strval', array_keys(config('articles')))),
+            ...array_map(fn (string $slug) => route('guide', $slug), array_map('strval', array_keys(GuideController::GUIDES))),
             route('privacy'),
             route('terms'),
         ]])
         ->header('Content-Type', 'application/xml'))->name('sitemap');
+    Route::get('panduan/{guide}', [GuideController::class, 'show'])
+        ->whereIn('guide', array_keys(GuideController::GUIDES))
+        ->name('guide');
     Route::get('privacy', [LegalController::class, 'show'])->defaults('document', 'privacy')->name('privacy');
     Route::get('terms', [LegalController::class, 'show'])->defaults('document', 'terms')->name('terms');
     Route::inertia('fitur', 'RequestFeature', [

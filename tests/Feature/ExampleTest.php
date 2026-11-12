@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GuideController;
 use App\Models\Tenant;
 use App\Support\DemoTenant;
 use Illuminate\Support\Str;
@@ -181,7 +182,7 @@ test('every public marketing page opts out of the panel layout in app.ts', funct
     $nullLayoutList = Str::between(file_get_contents(resource_path('js/app.ts')), 'case [', '].includes(name)');
 
     expect($nullLayoutList)->toContain("'{$component}'");
-})->with(['Welcome', 'Legal', 'RequestFeature', 'Feature', 'Article', 'ArticleIndex']);
+})->with(['Welcome', 'Legal', 'RequestFeature', 'Feature', 'Article', 'ArticleIndex', 'Guide']);
 
 test('every guide article renders its title, canonical, JSON-LD and fallback', function (string $slug) {
     $article = config("articles.{$slug}");
@@ -201,7 +202,7 @@ test('every guide article renders its title, canonical, JSON-LD and fallback', f
 test('the guide index lists every article and an unknown guide is a 404', function () {
     $this->get(route('articles.index'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('ArticleIndex')->has('articles', count(config('articles'))))
+        ->assertInertia(fn (Assert $page) => $page->component('ArticleIndex')->has('articles', count(config('articles')) + count(GuideController::GUIDES)))
         ->assertSee('<link rel="canonical"', false);
 
     $this->get('/panduan/tidak-ada')->assertNotFound();

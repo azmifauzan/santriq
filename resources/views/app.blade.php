@@ -43,6 +43,8 @@
             </script>
         @elseif (($page['component'] ?? null) === 'Legal')
             <meta name="description" content="{{ $page['props']['content']['description'] }}">
+        @elseif (($page['component'] ?? null) === 'Guide')
+            <meta name="description" content="{{ $page['props']['content']['description'] }}">
         @elseif (($page['component'] ?? null) === 'ArticleIndex')
             <meta name="description" content="Panduan praktis dan template gratis untuk pengelola TPQ/TPA: rapor, keuangan, absensi, dan komunikasi dengan wali santri.">
         @elseif (($page['component'] ?? null) === 'Article')

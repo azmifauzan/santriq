@@ -15,11 +15,18 @@ class ArticleController extends Controller
     public function index(): Response
     {
         return Inertia::render('ArticleIndex', [
-            'articles' => array_map(fn (string $slug): array => [
-                'title' => config("articles.{$slug}.title"),
-                'description' => config("articles.{$slug}.description"),
-                'href' => route('article', $slug),
-            ], array_map('strval', array_keys(config('articles')))),
+            'articles' => [
+                ...array_map(fn (string $slug): array => [
+                    'title' => config("articles.{$slug}.title"),
+                    'description' => config("articles.{$slug}.description"),
+                    'href' => route('article', $slug),
+                ], array_map('strval', array_keys(config('articles')))),
+                ...array_map(fn (string $slug): array => [
+                    'title' => GuideController::GUIDES[$slug]['title'],
+                    'description' => GuideController::GUIDES[$slug]['description'],
+                    'href' => route('guide', $slug),
+                ], array_map('strval', array_keys(GuideController::GUIDES))),
+            ],
         ]);
     }
 

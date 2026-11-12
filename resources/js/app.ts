@@ -25,6 +25,7 @@ createInertiaApp({
                 'Feature',
                 'Article',
                 'ArticleIndex',
+                'Guide',
                 'Tenant/Landing',
                 'ErrorPage',
                 'Reports/ReportCard',
