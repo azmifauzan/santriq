@@ -52,10 +52,10 @@ return [
         'related' => ['absensi-qr', 'perizinan'],
     ],
     'spp' => [
-        'title' => 'Aplikasi SPP TPQ Gratis: Tagihan dan Pembayaran Santri',
+        'title' => 'SPP TPQ dan TPA: Aplikasi Tagihan Santri Gratis',
         'heading' => 'Catat SPP santri dengan rapi, gratis untuk TPQ dan TPA',
         'nav' => 'SPP',
-        'description' => 'Buat tagihan SPP semua santri sekaligus, catat pembayaran, dan pantau status lunas per santri. Wali bisa cek tagihan lewat Telegram.',
+        'description' => 'Buat tagihan SPP TPQ atau TPA untuk semua santri sekaligus, catat pembayaran, dan lihat siapa yang belum lunas. Wali cek tagihan dengan /tagihan di Telegram.',
         'problem' => 'SPP yang dicatat di buku kas atau lembar Excel terpisah mudah terlewat, dan sulit menjawab pertanyaan "bulan ini siapa yang belum bayar?".',
         'steps' => [
             'Admin membuat tagihan untuk satu santri atau sekaligus untuk seluruh santri.',
@@ -74,7 +74,7 @@ return [
         'title' => 'Rapor Santri TPQ Online dan Catatan Perkembangan',
         'heading' => 'Rapor dan catatan perkembangan santri dalam satu riwayat',
         'nav' => 'Rapor santri',
-        'description' => 'Catat hafalan, bacaan, dan perkembangan belajar santri, lalu terbitkan rapor per periode yang bisa dibuka wali dari ponsel.',
+        'description' => 'Catat hafalan, bacaan, dan perkembangan santri TPQ, lalu terbitkan rapor per periode yang bisa dibuka wali dari ponsel. Ada juga template rapor Excel gratis.',
         'problem' => 'Catatan perkembangan santri tercecer di buku pribadi pengajar, sehingga rapor akhir periode harus disusun ulang dari ingatan.',
         'steps' => [
             'Pengajar mencatat pencapaian santri sepanjang periode: hafalan, bacaan, dan perkembangan lainnya.',
@@ -109,10 +109,10 @@ return [
         'related' => ['notifikasi-wali', 'absensi-qr'],
     ],
     'kartu-santri' => [
-        'title' => 'Kartu Santri QR Code: Cetak Otomatis dari Aplikasi',
+        'title' => 'Kartu Santri QR Code: Cetak Massal dan Gratis',
         'heading' => 'Cetak kartu santri ber-QR code langsung dari aplikasi',
         'nav' => 'Kartu santri',
-        'description' => 'Setiap santri otomatis punya QR code unik. Cetak kartu semua santri sekaligus dan atur tampilannya sesuai lembaga.',
+        'description' => 'Setiap santri otomatis punya QR code acak yang unik. Atur tampilan kartu santri sesuai lembaga, cetak semua kartu sekaligus, lalu pakai untuk absensi QR.',
         'problem' => 'Membuat kartu santri satu per satu di aplikasi desain memakan waktu, dan nomor urut pada kartu mudah ditiru.',
         'steps' => [
             'Tambahkan santri satu per satu atau impor dari Excel. QR code dibuat otomatis.',

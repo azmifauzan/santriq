@@ -10,6 +10,7 @@ import { index as articlesIndex } from '@/routes/articles';
 defineProps<{
     content: { title: string; description: string; published_at: string };
     html: string;
+    featureLink: { title: string; href: string };
 }>();
 </script>
 
@@ -22,17 +23,29 @@ defineProps<{
         <SiteHeader :sections-href="home.url()" />
 
         <main class="mx-auto max-w-3xl px-4 py-10 sm:px-8 sm:py-20">
-            <p class="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                <Link :href="articlesIndex()" class="hover:underline">Panduan</Link>
+            <p
+                class="text-sm font-semibold text-emerald-700 dark:text-emerald-400"
+            >
+                <Link :href="articlesIndex()" class="hover:underline"
+                    >Panduan</Link
+                >
                 &middot; {{ content.published_at }}
             </p>
-            <h1 class="mt-3 text-3xl font-bold tracking-tight text-balance sm:text-5xl">
+            <h1
+                class="mt-3 text-3xl font-bold tracking-tight text-balance sm:text-5xl"
+            >
                 {{ content.title }}
             </h1>
             <article
                 class="mt-8 text-base text-slate-600 dark:text-slate-300 [&_a]:font-medium [&_a]:text-emerald-700 [&_a]:underline dark:[&_a]:text-emerald-400 [&_h2]:mt-12 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-slate-950 dark:[&_h2]:text-white [&_li]:mt-2 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-4 [&_p]:leading-7 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6"
                 v-html="html"
             />
+            <Link
+                :href="featureLink.href"
+                class="mt-12 inline-flex min-h-11 items-center rounded-full border border-emerald-300 px-6 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-900"
+            >
+                Lihat fitur {{ featureLink.title }}
+            </Link>
         </main>
 
         <SiteFooter />

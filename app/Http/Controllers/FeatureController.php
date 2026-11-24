@@ -23,10 +23,16 @@ class FeatureController extends Controller
         return Inertia::render('Feature', [
             'slug' => $feature,
             'content' => $content,
-            'guides' => array_map(fn (string $slug): array => [
-                'title' => config("articles.{$slug}.nav"),
-                'href' => route('article', $slug),
-            ], array_keys(array_filter(config('articles'), fn (array $article): bool => $article['feature'] === $feature))),
+            'guides' => [
+                ...array_map(fn (string $slug): array => [
+                    'title' => config("articles.{$slug}.nav"),
+                    'href' => route('article', $slug),
+                ], array_keys(array_filter(config('articles'), fn (array $article): bool => $article['feature'] === $feature))),
+                ...array_map(fn (string $slug): array => [
+                    'title' => GuideController::GUIDES[$slug]['title'],
+                    'href' => route('guide', $slug),
+                ], array_keys(array_filter(GuideController::GUIDES, fn (array $guide): bool => $guide['feature'] === $feature))),
+            ],
             'related' => array_map(fn (string $slug): array => [
                 'slug' => $slug,
                 'title' => config("features.{$slug}.nav"),

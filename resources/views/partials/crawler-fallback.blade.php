@@ -88,6 +88,9 @@
             <p>{{ $item['a'] }}</p>
         @endforeach
         <p>
+            @foreach ($page['props']['guides'] as $guide)
+                <a href="{{ $guide['href'] }}">{{ $guide['title'] }}</a> &middot;
+            @endforeach
             <a href="{{ route('register') }}">Daftarkan lembaga gratis</a> &middot;
             <a href="{{ route('home') }}">Beranda</a> &middot;
             <a href="{{ route('privacy') }}">Kebijakan Privasi</a> &middot;
@@ -123,6 +126,32 @@
             <a href="{{ route('articles.index') }}">Panduan</a> &middot;
             <a href="{{ route('home') }}">Beranda</a>
         </p>
+    </noscript>
+@elseif ($component === 'Guide')
+    <noscript>
+        <h1>{{ $page['props']['content']['title'] }}</h1>
+        <p>{{ $page['props']['content']['description'] }}</p>
+        {{-- Rendered from a repo markdown file with html_input stripped (GuideController). --}}
+        {!! $page['props']['html'] !!}
+        <p>
+            <a href="{{ $page['props']['featureLink']['href'] }}">{{ $page['props']['featureLink']['title'] }}</a> &middot;
+            <a href="{{ route('articles.index') }}">Panduan</a> &middot;
+            <a href="{{ route('home') }}">Beranda</a>
+        </p>
+    </noscript>
+@elseif ($component === 'RequestFeature')
+    <noscript>
+        <h1>Semua yang dibutuhkan untuk mengelola TPA/TPQ</h1>
+        <p>
+            Fitur SantriQ untuk TPQ/TPA: absensi QR, notifikasi wali via Telegram,
+            SPP, rapor, perizinan, dan kartu santri.
+        </p>
+        <ul>
+            @foreach (config('features') as $slug => $feature)
+                <li><a href="{{ route('feature', $slug) }}">{{ $feature['title'] }}</a></li>
+            @endforeach
+        </ul>
+        <p><a href="{{ route('home') }}">Beranda</a></p>
     </noscript>
 @elseif ($component === 'ArticleIndex')
     <noscript>

@@ -14,7 +14,7 @@ defineProps<{
         class="min-h-screen bg-[#fbfdf9] text-slate-950 dark:bg-slate-950 dark:text-white"
     >
         <!-- The description meta is rendered server-side in app.blade.php. -->
-        <Head title="Panduan Administrasi TPQ dan TPA" />
+        <Head title="Template dan Panduan Administrasi TPQ/TPA Gratis" />
 
         <SiteHeader :sections-href="home.url()" />
 

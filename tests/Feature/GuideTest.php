@@ -17,6 +17,34 @@ test('guide page renders markdown with one suaranetijen link and a server-side d
     );
 });
 
+test('guide page is indexable with its own title, canonical and no-javascript fallback', function () {
+    $this->withoutVite();
+    $slug = 'operator-seluler-untuk-notifikasi-wali-telegram';
+    $guide = GuideController::GUIDES[$slug];
+
+    $this->get(route('guide', $slug))
+        ->assertOk()
+        ->assertDontSee('noindex', false)
+        ->assertSee('<link rel="canonical" href="'.route('guide', $slug).'">', false)
+        ->assertSee('<title>'.e($guide['title']).' - SantriQ</title>', false)
+        ->assertSee('<h1>'.e($guide['title']).'</h1>', false)
+        ->assertSee('https://suaranetijen.id/', false);
+});
+
+test('guide and its feature page link to each other', function () {
+    $this->withoutVite();
+    $slug = 'operator-seluler-untuk-notifikasi-wali-telegram';
+    $feature = GuideController::GUIDES[$slug]['feature'];
+
+    $this->get(route('guide', $slug))
+        ->assertInertia(fn ($page) => $page->where('featureLink.href', route('feature', $feature)))
+        ->assertSee('href="'.route('feature', $feature).'"', false);
+
+    $this->get(route('feature', $feature))
+        ->assertInertia(fn ($page) => $page->where('guides', fn ($guides) => collect($guides)->contains('href', route('guide', $slug))))
+        ->assertSee('href="'.route('guide', $slug).'"', false);
+});
+
 test('guide is listed in the sitemap and the guides index', function () {
     $slug = 'operator-seluler-untuk-notifikasi-wali-telegram';
 

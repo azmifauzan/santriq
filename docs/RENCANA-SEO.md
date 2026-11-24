@@ -180,7 +180,57 @@ Target di atas adalah perkiraan awal dari baseline yang sangat kecil. Tinjau ula
 
 Tinjauan bulanan: catat angka di tabel ini, cari query baru di GSC dengan impresi tinggi dan CTR rendah, lalu perbarui title/meta atau buat artikel untuk query tersebut.
 
-## 8. Sumber riset
+## 8. Audit baseline 24 November 2026
+
+Sumber: GSC lewat RankMySEO (27 Okt–23 Nov, 28 hari), rank RankMySEO (cek 24 Nov), audit on-page RankMySEO (crawl 18 Nov, 14 halaman), dan HTML mentah tiap URL di sitemap (user-agent Googlebot).
+
+- GSC: 7 klik, 79 impresi, rata-rata posisi 7,3 (angka Google). Data baru masuk sejak ±11 Nov, belum ada periode pembanding.
+- Rank RankMySEO: 1 dari 8 keyword masuk top 20 ("spp tpq" posisi 9); 7 lainnya di luar posisi 20.
+- Skor on-page RankMySEO 57. Laporan "13 halaman tipis / tanpa H1" tidak cocok dengan HTML mentah (11 dari 14 halaman punya H1 dan 200–740 kata). Kemungkinan crawler RankMySEO terblokir Cloudflare atau mengabaikan `<noscript>`. Tunggu crawl ulang setelah deploy sebelum bertindak.
+
+### Inventaris dan keputusan
+
+| URL | Keputusan | Alasan |
+|---|---|---|
+| `/` | Keep | 5 klik, 31 impresi, posisi GSC ~2 |
+| `/fitur/rapor-santri` | Keep | 1 klik, 19 impresi, posisi GSC 6,8 |
+| `/fitur/absensi-qr` | Keep | 1 klik, 5 impresi, posisi GSC 5 |
+| `/fitur/spp` | Refresh (selesai) | 16 impresi, posisi GSC 7,5, 0 klik; "spp tpq" rank 9. Title → "SPP TPQ dan TPA: Aplikasi Tagihan Santri Gratis" (57 karakter dengan merek), meta 157 karakter menyebut TPQ/TPA dan /tagihan. Pantau "spp tpq"/"spp tpa" ±8 Des |
+| `/fitur/kartu-santri` | Refresh (selesai) | 13 impresi, posisi GSC 12,5 (halaman 2); "kartu santri" posisi GSC ~47. Title → "Kartu Santri QR Code: Cetak Massal dan Gratis" (55), meta 153 karakter. Pantau "kartu santri" ±8 Des |
+| `/fitur/notifikasi-wali` | Keep | 5 impresi, posisi GSC 5,8 |
+| `/fitur/perizinan` | Keep | belum ada data GSC; dasar halaman sudah rapi, tunggu |
+| `/panduan` | Keep | 15 impresi, posisi GSC 6,7 |
+| `/panduan/format-rapor-tpq` | Keep | 740 kata, belum ada data GSC; tunggu |
+| `/panduan/buku-kas-spp-tpq` | Keep | 684 kata, belum ada data GSC; tunggu |
+| `/panduan/operator-seluler-untuk-notifikasi-wali-telegram` | Fix (selesai) | Tadinya `noindex, nofollow` karena komponen `Guide` tidak ada di `$publicPages`; judul "SantriQ", tanpa canonical/H1 fallback |
+| `/fitur` | Fix (selesai) | Tadinya judul "SantriQ", tanpa meta description, tanpa H1 di HTML mentah |
+| `/privacy`, `/terms` | Fix (selesai) | Tadinya judul duplikat "SantriQ" |
+
+Di luar cakupan: halaman login/daftar (sengaja tidak di sitemap) dan halaman tenant `*.santriq.my.id`.
+
+**Halaman bersaing:** `/fitur/spp` dan `/panduan/buku-kas-spp-tpq` sama-sama menyasar "spp tpq" (dikelompokkan dari title/H1; `page_updates` RankMySEO masih kosong). Niat berbeda (aplikasi vs template Excel): keep keduanya, `/fitur/spp` pemilik "aplikasi spp tpq", saling bertaut (sudah).
+
+**Redirect:** tidak ada. `?ref=artifisial` ditangani canonical; `demo.santriq.web.id` sudah tidak merespons dan akan keluar dari indeks.
+
+### Langkah setelah deploy (pemilik)
+
+1. GSC → URL Inspection → `https://santriq.web.id/panduan/operator-seluler-untuk-notifikasi-wali-telegram` → Request indexing.
+2. Dasbor RankMySEO → Santriq → jalankan ulang site audit dan baca ulang halaman (pages), lalu cek apakah laporan halaman tipis/H1 hilang.
+3. Judul yang masih lewat 60 karakter (terpotong di hasil Google): beranda (75, sengaja dibiarkan karena satu-satunya halaman dengan klik), `/fitur/perizinan` (68), `/panduan/operator-seluler-…` (69), `/fitur/notifikasi-wali` (64). Pendekkan bila data GSC menunjukkan CTR rendah.
+
+### Sprint quick win 24 November 2026 (cek 22 Desember)
+
+Data tipis: GSC 79 impresi/28 hari, hanya 2 query terlapor, `page_updates` RankMySEO kosong (crawl halaman 4 Nov). Kandidat diambil dari data per halaman GSC.
+
+| Halaman | Sinyal (GSC 27 Okt–23 Nov) | Perubahan | Cek 22 Des |
+|---|---|---|---|
+| `/panduan` | 15 impresi, posisi 6,7, 0 klik | Title → "Template dan Panduan Administrasi TPQ/TPA Gratis" (58 dengan merek); meta 149 karakter menyebut template Excel rapor dan buku kas SPP | Klik GSC halaman |
+| `/fitur/rapor-santri` | 19 impresi, posisi 6,8, 1 klik | Meta/paragraf pembuka menyebut "santri TPQ" dan template rapor Excel gratis (157 karakter) | Klik GSC halaman |
+| `/panduan/operator-seluler-…` ↔ `/fitur/notifikasi-wali` | Artikel tadinya hanya ditaut dari `/panduan` | Tautan dua arah: tombol "Lihat fitur" di artikel; daftar panduan halaman fitur kini memuat guide (`GuideController::GUIDES[...]['feature']`) | Impresi GSC artikel (baru bisa terindeks setelah deploy) |
+
+Tidak masuk sprint: `/fitur/spp` dan `/fitur/kartu-santri` (diubah 24 Nov, tunggu 6 minggu), beranda (keep), `/fitur/absensi-qr` dan `/fitur/notifikasi-wali` (5 impresi, terlalu sedikit), "wali santri" dan "nomor induk siswa" (di luar top 20, masuk perencanaan konten).
+
+## 9. Sumber riset
 
 - Jibble, aplikasi absensi offline: https://www.jibble.io/id/aplikasi-kehadiran-offline
 - KantorKu, daftar aplikasi absensi gratis: https://kantorku.id/blog/aplikasi-absensi-online-gratis/

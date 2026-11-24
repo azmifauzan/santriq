@@ -151,13 +151,13 @@ test('every feature page renders its own title, canonical, description and FAQ J
     $this->get(route('feature', $slug))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->component('Feature')->where('slug', $slug))
-        ->assertSee('<title inertia>'.e($feature['title']).' - SantriQ</title>', false)
+        ->assertSee('<title>'.e($feature['title']).' - SantriQ</title>', false)
         ->assertSee('<link rel="canonical" href="'.route('feature', $slug).'">', false)
         ->assertSee('<meta name="description" content="'.e($feature['description']).'">', false)
         ->assertSee('"@type":"FAQPage"', false)
         ->assertDontSee('noindex', false)
         ->assertSee('<h1>'.e($feature['heading']).'</h1>', false);
-})->with(fn () => array_keys(config('features')));
+})->with(array_keys(require __DIR__.'/../../config/features.php'));
 
 test('an unknown feature page is a 404', function () {
     $this->get('/fitur/tidak-ada')->assertNotFound();
@@ -166,6 +166,26 @@ test('an unknown feature page is a 404', function () {
 test('the request-feature page still lives at /fitur', function () {
     $this->get(route('request-feature'))->assertOk();
 });
+
+test('the request-feature page has its own title, description and fallback linking every feature page', function () {
+    $response = $this->get(route('request-feature'))
+        ->assertOk()
+        ->assertSee('<title>Fitur Aplikasi Manajemen TPQ/TPA - SantriQ</title>', false)
+        ->assertSee('<meta name="description" content="Daftar fitur SantriQ', false)
+        ->assertSee('<h1>Semua yang dibutuhkan untuk mengelola TPA/TPQ</h1>', false);
+
+    foreach (array_keys(config('features')) as $slug) {
+        $response->assertSee('href="'.route('feature', $slug).'"', false);
+    }
+});
+
+test('legal pages have their own title', function (string $route, string $document) {
+    $this->get(route($route))
+        ->assertSee('<title>'.e(config("legal.{$document}.title")).' - SantriQ</title>', false);
+})->with([
+    'privacy' => ['privacy', 'privacy'],
+    'terms' => ['terms', 'terms'],
+]);
 
 test('the sitemap lists every feature page and the landing page links to them', function () {
     $response = $this->get(route('sitemap'))->assertOk();
@@ -190,20 +210,22 @@ test('every guide article renders its title, canonical, JSON-LD and fallback', f
     $this->get(route('article', $slug))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->component('Article')->where('slug', $slug)->where('templateHref', route('article.template', $slug)))
-        ->assertSee('<title inertia>'.e($article['title']).' - SantriQ</title>', false)
+        ->assertSee('<title>'.e($article['title']).' - SantriQ</title>', false)
         ->assertSee('<link rel="canonical" href="'.route('article', $slug).'">', false)
         ->assertSee('<meta name="description" content="'.e($article['description']).'">', false)
         ->assertSee('"@type":"Article"', false)
         ->assertSee('"@type":"FAQPage"', false)
         ->assertDontSee('noindex', false)
         ->assertSee('<h1>'.e($article['heading']).'</h1>', false);
-})->with(fn () => array_keys(config('articles')));
+})->with(array_keys(require __DIR__.'/../../config/articles.php'));
 
 test('the guide index lists every article and an unknown guide is a 404', function () {
     $this->get(route('articles.index'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->component('ArticleIndex')->has('articles', count(config('articles')) + count(GuideController::GUIDES)))
-        ->assertSee('<link rel="canonical"', false);
+        ->assertSee('<link rel="canonical"', false)
+        ->assertSee('<title>Template dan Panduan Administrasi TPQ/TPA Gratis - SantriQ</title>', false)
+        ->assertSee('<meta name="description" content="Unduh template Excel gratis', false);
 
     $this->get('/panduan/tidak-ada')->assertNotFound();
     $this->get('/panduan/tidak-ada/template')->assertNotFound();

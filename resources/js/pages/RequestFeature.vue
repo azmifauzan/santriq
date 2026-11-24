@@ -64,7 +64,7 @@ const features = [
     <div
         class="min-h-screen bg-[#fbfdf9] text-slate-950 dark:bg-slate-950 dark:text-white"
     >
-        <Head title="Fitur & Request Fitur" />
+        <Head title="Fitur Aplikasi Manajemen TPQ/TPA" />
 
         <SiteHeader :sections-href="home.url()" />
 

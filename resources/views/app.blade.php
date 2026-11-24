@@ -7,8 +7,16 @@
         {{-- Rendered server-side so crawlers that do not execute JavaScript (Google's
              OAuth branding verification among them) can read what this app is for. --}}
         @php($siteDescription = 'SantriQ adalah platform gratis dan open source untuk manajemen TPA/TPQ: absensi QR, notifikasi kehadiran ke wali santri via Telegram, pencatatan pencapaian, SPP, dan perizinan santri.')
-        @php($publicPages = ['Welcome', 'Legal', 'RequestFeature', 'Feature', 'Article', 'ArticleIndex'])
+        @php($publicPages = ['Welcome', 'Legal', 'RequestFeature', 'Feature', 'Article', 'ArticleIndex', 'Guide'])
         @php($isWelcome = ($page['component'] ?? null) === 'Welcome')
+        {{-- Must match each page's client-side <Head> title, which app.ts suffixes with " - SantriQ". --}}
+        @php($pageTitle = match ($page['component'] ?? null) {
+            'Welcome' => 'Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali - SantriQ',
+            'Feature', 'Article', 'Guide', 'Legal' => $page['props']['content']['title'].' - SantriQ',
+            'ArticleIndex' => 'Template dan Panduan Administrasi TPQ/TPA Gratis - SantriQ',
+            'RequestFeature' => 'Fitur Aplikasi Manajemen TPQ/TPA - SantriQ',
+            default => config('app.name', 'Laravel'),
+        })
         @if (in_array($page['component'] ?? null, $publicPages, true))
             <link rel="canonical" href="{{ url()->current() }}">
         @else
@@ -45,8 +53,10 @@
             <meta name="description" content="{{ $page['props']['content']['description'] }}">
         @elseif (($page['component'] ?? null) === 'Guide')
             <meta name="description" content="{{ $page['props']['content']['description'] }}">
+        @elseif (($page['component'] ?? null) === 'RequestFeature')
+            <meta name="description" content="Daftar fitur SantriQ untuk TPQ/TPA: absensi QR, notifikasi wali via Telegram, SPP, rapor, perizinan, dan kartu santri. Usulkan fitur baru di sini.">
         @elseif (($page['component'] ?? null) === 'ArticleIndex')
-            <meta name="description" content="Panduan praktis dan template gratis untuk pengelola TPQ/TPA: rapor, keuangan, absensi, dan komunikasi dengan wali santri.">
+            <meta name="description" content="Unduh template Excel gratis untuk rapor TPQ dan buku kas SPP, lengkap dengan contoh catatan akhlak santri, plus panduan notifikasi wali via Telegram.">
         @elseif (($page['component'] ?? null) === 'Article')
             @php($article = $page['props']['content'])
             <meta name="description" content="{{ $article['description'] }}">
@@ -152,7 +162,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ $isWelcome ? 'Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali - SantriQ' : (in_array($page['component'] ?? null, ['Feature', 'Article'], true) ? $page['props']['content']['title'].' - SantriQ' : (($page['component'] ?? null) === 'ArticleIndex' ? 'Panduan Administrasi TPQ dan TPA - SantriQ' : config('app.name', 'Laravel'))) }}</title>
+            <title>{{ $pageTitle }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
