@@ -51,10 +51,14 @@ test('the request-feature page links to the maintainer\'s social profiles', func
 test('the landing page names the app and its purpose without running javascript', function () {
     $response = $this->get(route('home'))->assertOk();
 
-    $response->assertSee('<meta name="description" content="SantriQ adalah platform', false);
+    $response->assertSee('<meta name="description" content="SantriQ menyediakan absensi QR santri', false);
     $response->assertSee('<noscript>', false);
-    $response->assertSee('<h1>SantriQ</h1>', false);
+    $response->assertSee('<h1>Absensi QR santri, kelola TPQ/TPA lebih mudah.</h1>', false);
     $response->assertSee('free and open source school management platform');
+    $response->assertSee('href="'.route('register').'"', false);
+    $response->assertSee('href="#tentang"', false);
+    $response->assertSee('href="'.route('request-feature').'#request"', false);
+    $response->assertSee('href="'.route('privacy').'"', false);
 });
 
 test('pages carry open graph tags for social link previews', function () {
@@ -120,11 +124,63 @@ test('the google analytics tag is not rendered on tenant app screens', function 
 });
 
 test('the landing page carries SEO tags in its server-rendered HTML', function () {
-    $this->get(route('home'))
+    $response = $this->get(route('home'))->assertOk();
+    $html = $response->getContent();
+
+    $response
         ->assertSee('<link rel="canonical" href="'.route('home').'">', false)
-        ->assertSee('Aplikasi Manajemen TPQ/TPA Gratis', false)
+        ->assertSee('<title>Absensi QR Santri &amp; Aplikasi TPQ/TPA Gratis - SantriQ</title>', false)
+        ->assertSee('"@type":"WebSite"', false)
+        ->assertSee('"@type":"Organization"', false)
+        ->assertSee('"@type":"Person"', false)
         ->assertSee('"@type":"SoftwareApplication"', false)
-        ->assertDontSee('noindex', false);
+        ->assertDontSee('noindex', false)
+        ->assertDontSee('<meta name="keywords"', false);
+
+    preg_match('/<title>([^<]+)<\/title>/', $html, $titleMatch);
+    $title = html_entity_decode($titleMatch[1] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    preg_match('/<meta name="description" content="([^"]+)">/', $html, $descriptionMatch);
+    $description = html_entity_decode($descriptionMatch[1] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    preg_match_all('/<h1>([^<]+)<\/h1>/', $html, $h1Matches);
+
+    expect(mb_strlen($title))->toBeLessThan(60)
+        ->and(mb_strtolower($title))->toContain('qr santri')
+        ->and(mb_strlen($description))->toBeGreaterThanOrEqual(120)->toBeLessThanOrEqual(155)
+        ->and(mb_strtolower($description))->toContain('qr santri')
+        ->and($h1Matches[1])->toHaveCount(1)
+        ->and(mb_strtolower($h1Matches[1][0]))->toContain('qr santri');
+
+    preg_match('/<script type="application\/ld\+json">\s*(\{.*?\})\s*<\/script>/s', $html, $jsonLdMatch);
+    $schema = json_decode($jsonLdMatch[1] ?? '', true, 512, JSON_THROW_ON_ERROR);
+    $types = collect($schema['@graph'] ?? [])->pluck('@type')->all();
+
+    preg_match('/<main>(.*?)<\/main>/s', $html, $mainMatch);
+    $mainWords = count(array_filter(preg_split('/\s+/u', trim(strip_tags($mainMatch[1] ?? '')))));
+
+    expect($types)->toContain('Organization', 'Person', 'SoftwareApplication', 'WebSite')
+        ->and($mainWords)->toBeGreaterThanOrEqual(400);
+});
+
+test('every public sitemap page renders substantive non-thin content without javascript', function () {
+    $this->withoutVite();
+
+    $sitemap = $this->get(route('sitemap'))->assertOk()->getContent();
+    preg_match_all('/<loc>([^<]+)<\/loc>/', $sitemap, $matches);
+
+    expect($matches[1])->not->toBeEmpty();
+
+    foreach ($matches[1] as $url) {
+        $html = $this->get($url)->assertOk()->getContent();
+
+        preg_match('/<main>(.*?)<\/main>/s', $html, $mainMatch);
+        $mainWords = count(array_filter(preg_split('/\s+/u', trim(strip_tags($mainMatch[1] ?? '')))));
+        preg_match_all('/<h1>([^<]+)<\/h1>/', $html, $h1Matches);
+
+        expect($h1Matches[1])->toHaveCount(1, "Expected 1 <h1> on {$url}")
+            ->and($mainWords)->toBeGreaterThanOrEqual(300, "Thin content on {$url} ({$mainWords} words)");
+    }
 });
 
 test('the canonical url drops tracking query strings', function () {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { GraduationCap } from '@lucide/vue';
-import { feature, privacy, requestFeature, terms } from '@/routes';
+import { feature, home, privacy, requestFeature, terms } from '@/routes';
 import { index as articlesIndex } from '@/routes/articles';
 
 const featurePages = [
@@ -30,7 +30,16 @@ const featurePages = [
                     </span>
                     <span class="font-bold">SantriQ</span>
                 </div>
-                <p>Platform manajemen TPA/TPQ gratis dan open source.</p>
+                <p>
+                    Platform manajemen TPA/TPQ gratis dan open source oleh
+                    <a
+                        href="https://github.com/azmifauzan"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-semibold transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                        >Fauzan Azmi</a
+                    >.
+                </p>
                 <p>
                     Design by
                     <a
@@ -59,7 +68,7 @@ const featurePages = [
                 </p>
             </div>
             <nav
-                aria-label="Tautan legal"
+                aria-label="Tautan situs dan legal"
                 class="flex flex-wrap items-center gap-x-6 gap-y-1"
             >
                 <Link
@@ -77,10 +86,16 @@ const featurePages = [
                     Panduan
                 </Link>
                 <a
+                    :href="`${home.url()}#tentang`"
+                    class="inline-flex min-h-[44px] items-center py-2 transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                >
+                    Tentang
+                </a>
+                <a
                     :href="`${requestFeature.url()}#request`"
                     class="inline-flex min-h-[44px] items-center py-2 transition hover:text-emerald-700 dark:hover:text-emerald-400"
                 >
-                    Request Fitur
+                    Kontak
                 </a>
                 <Link
                     :href="privacy()"

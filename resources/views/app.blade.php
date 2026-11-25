@@ -6,12 +6,12 @@
 
         {{-- Rendered server-side so crawlers that do not execute JavaScript (Google's
              OAuth branding verification among them) can read what this app is for. --}}
-        @php($siteDescription = 'SantriQ adalah platform gratis dan open source untuk manajemen TPA/TPQ: absensi QR, notifikasi kehadiran ke wali santri via Telegram, pencatatan pencapaian, SPP, dan perizinan santri.')
+        @php($siteDescription = 'SantriQ menyediakan absensi QR santri TPQ/TPA lewat kamera HP tanpa alat tambahan, plus notifikasi Telegram dan SPP. Daftar gratis atau coba demo.')
         @php($publicPages = ['Welcome', 'Legal', 'RequestFeature', 'Feature', 'Article', 'ArticleIndex', 'Guide'])
         @php($isWelcome = ($page['component'] ?? null) === 'Welcome')
         {{-- Must match each page's client-side <Head> title, which app.ts suffixes with " - SantriQ". --}}
         @php($pageTitle = match ($page['component'] ?? null) {
-            'Welcome' => 'Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali - SantriQ',
+            'Welcome' => 'Absensi QR Santri & Aplikasi TPQ/TPA Gratis - SantriQ',
             'Feature', 'Article', 'Guide', 'Legal' => $page['props']['content']['title'].' - SantriQ',
             'ArticleIndex' => 'Template dan Panduan Administrasi TPQ/TPA Gratis - SantriQ',
             'RequestFeature' => 'Fitur Aplikasi Manajemen TPQ/TPA - SantriQ',
@@ -30,7 +30,51 @@
                     '@context' => 'https://schema.org',
                     '@graph' => [
                         [
+                            '@type' => 'WebSite',
+                            '@id' => url('/').'#website',
+                            'name' => 'SantriQ',
+                            'url' => url('/'),
+                            'inLanguage' => 'id',
+                            'publisher' => ['@id' => url('/').'#organization'],
+                        ],
+                        [
+                            '@type' => 'Organization',
+                            '@id' => url('/').'#organization',
+                            'name' => 'SantriQ',
+                            'url' => url('/'),
+                            'description' => $siteDescription,
+                            'logo' => [
+                                '@type' => 'ImageObject',
+                                'url' => asset('apple-touch-icon.png'),
+                            ],
+                            'founder' => ['@id' => url('/').'#founder'],
+                            'sameAs' => [
+                                'https://github.com/azmifauzan/santriq',
+                            ],
+                            'contactPoint' => [
+                                '@type' => 'ContactPoint',
+                                'contactType' => 'customer support',
+                                'url' => route('request-feature').'#request',
+                                'availableLanguage' => ['id', 'en'],
+                            ],
+                        ],
+                        [
+                            '@type' => 'Person',
+                            '@id' => url('/').'#founder',
+                            'name' => 'Fauzan Azmi',
+                            'jobTitle' => 'Pembuat dan Pengelola SantriQ',
+                            'url' => 'https://github.com/azmifauzan',
+                            'sameAs' => [
+                                'https://github.com/azmifauzan',
+                                'https://www.threads.com/@azmifauzan',
+                                'https://www.facebook.com/azmifauzan/',
+                                'https://www.linkedin.com/in/fauzan-azmi-29094522/',
+                            ],
+                            'worksFor' => ['@id' => url('/').'#organization'],
+                        ],
+                        [
                             '@type' => 'SoftwareApplication',
+                            '@id' => url('/').'#app',
                             'name' => 'SantriQ',
                             'url' => url('/'),
                             'description' => $siteDescription,
@@ -38,13 +82,9 @@
                             'operatingSystem' => 'Web',
                             'inLanguage' => 'id',
                             'isAccessibleForFree' => true,
+                            'author' => ['@id' => url('/').'#founder'],
+                            'publisher' => ['@id' => url('/').'#organization'],
                             'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'IDR'],
-                        ],
-                        [
-                            '@type' => 'Organization',
-                            'name' => 'SantriQ',
-                            'url' => url('/'),
-                            'logo' => asset('apple-touch-icon.png'),
                         ],
                     ],
                 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
@@ -104,13 +144,13 @@
         {{-- Link previews on WhatsApp, Telegram, Facebook, X, etc. --}}
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="SantriQ">
-        <meta property="og:title" content="SantriQ — Kelola santri lebih mudah, dampingi lebih dekat">
+        <meta property="og:title" content="{{ $isWelcome ? $pageTitle : 'SantriQ — Kelola santri lebih mudah, dampingi lebih dekat' }}">
         <meta property="og:description" content="{{ $siteDescription }}">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image" content="{{ asset('og-image.jpg') }}">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="SantriQ — aplikasi manajemen TPA/TPQ gratis dengan absensi QR dan notifikasi Telegram">
+        <meta property="og:image:alt" content="SantriQ — aplikasi absensi QR santri dan manajemen TPA/TPQ gratis dengan notifikasi Telegram">
         <meta property="og:locale" content="id_ID">
         <meta name="twitter:card" content="summary_large_image">
 

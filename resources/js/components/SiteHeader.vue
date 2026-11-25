@@ -70,7 +70,7 @@ onMounted(async () => {
             </Link>
 
             <div
-                class="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex dark:text-slate-300"
+                class="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex lg:gap-8 dark:text-slate-300"
             >
                 <Link
                     :href="requestFeature()"
@@ -95,6 +95,12 @@ onMounted(async () => {
                     class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
                 >
                     Tentang
+                </a>
+                <a
+                    :href="`${requestFeature.url()}#request`"
+                    class="transition hover:text-emerald-700 dark:hover:text-emerald-400"
+                >
+                    Kontak
                 </a>
             </div>
 
@@ -209,6 +215,13 @@ onMounted(async () => {
                                         @click="closeMobileMenu"
                                     >
                                         Tentang
+                                    </a>
+                                    <a
+                                        :href="`${requestFeature.url()}#request`"
+                                        class="flex h-11 items-center rounded-xl px-3 transition hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/50 dark:hover:text-emerald-400"
+                                        @click="closeMobileMenu"
+                                    >
+                                        Kontak
                                     </a>
                                 </nav>
 

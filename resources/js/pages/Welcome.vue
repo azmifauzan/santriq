@@ -18,7 +18,7 @@ import {
 import { computed } from 'vue';
 import SiteFooter from '@/components/SiteFooter.vue';
 import SiteHeader from '@/components/SiteHeader.vue';
-import { feature, register } from '@/routes';
+import { feature, privacy, register, requestFeature } from '@/routes';
 
 const props = defineProps<{
     demoUrl?: string | null;
@@ -35,10 +35,10 @@ const whatsappHref = computed(() => {
 const features = [
     {
         icon: ScanLine,
-        title: 'Absensi QR yang cepat',
+        title: 'Absensi QR santri yang cepat',
         slug: 'absensi-qr',
         description:
-            'Cukup pindai kartu santri untuk mencatat waktu datang dan pulang tanpa antrean panjang.',
+            'Cukup pindai kartu QR santri lewat kamera ponsel untuk mencatat waktu datang dan pulang tanpa alat tambahan.',
     },
     {
         icon: Bell,
@@ -94,6 +94,34 @@ const steps = [
         description: 'Pindai kehadiran dan pantau kegiatan dari satu dasbor.',
     },
 ];
+
+const faqs = [
+    {
+        question: 'Apakah absensi QR santri butuh alat scanner khusus?',
+        answer: 'Tidak. Pengajar cukup membuka halaman pindai di browser Chrome atau Edge pada ponsel maupun laptop yang memiliki kamera. Kartu QR santri diarahkan ke kamera, lalu jam masuk dan jam pulang tercatat otomatis mengikuti zona waktu lembaga.',
+    },
+    {
+        question: 'Apakah SantriQ benar-benar gratis untuk TPA dan TPQ?',
+        answer: 'Ya. SantriQ gratis tanpa biaya langganan dan bersifat open source di GitHub. Pengelola lembaga dapat langsung mendaftar, menambahkan data santri, mencetak kartu QR, dan memakai semua fitur inti tanpa batas masa percobaan.',
+    },
+    {
+        question:
+            'Apakah QR code di kartu santri bisa ditebak dari nomor urut?',
+        answer: 'Tidak. Setiap kartu santri memakai kode acak unik (ULID), bukan nomor induk atau ID berurutan, sehingga tidak bisa ditiru dari kartu santri lain. Sistem juga mencegah pemindaian ganda dalam rentang beberapa menit.',
+    },
+    {
+        question: 'Apakah wali santri perlu memasang aplikasi SantriQ?',
+        answer: 'Tidak perlu. Wali cukup menghubungkan akun Telegram melalui tautan khusus dari lembaga. Setelah terhubung, wali menerima notifikasi otomatis saat anak datang atau pulang, serta bisa mengetik /kehadiran, /prestasi, /tagihan, dan /izin di bot Telegram.',
+    },
+    {
+        question: 'Bagaimana jika santri lupa membawa kartu QR saat mengaji?',
+        answer: 'Pengajar tetap dapat mencatat atau mengoreksi status kehadiran santri secara manual dari halaman kehadiran di dasbor lembaga.',
+    },
+    {
+        question: 'Apakah data lembaga kami terpisah dari TPA/TPQ lain?',
+        answer: 'Ya. Setiap lembaga memperoleh ruang kerja dan subdomain sendiri sehingga data santri, pengajar, kelas, absensi, rapor, dan SPP terisolasi dari lembaga lain. Data juga dapat diekspor ke Excel kapan saja.',
+    },
+];
 </script>
 
 <template>
@@ -102,9 +130,7 @@ const steps = [
     >
         <!-- The description meta is rendered server-side in app.blade.php so crawlers
              that do not execute JavaScript can read it. -->
-        <Head
-            title="Aplikasi Manajemen TPQ/TPA Gratis, Absensi QR & Notifikasi Wali"
-        />
+        <Head title="Absensi QR Santri & Aplikasi TPQ/TPA Gratis" />
 
         <SiteHeader />
 
@@ -126,45 +152,43 @@ const steps = [
                         <h1
                             class="text-4xl leading-[1.08] font-bold tracking-[-0.04em] text-balance sm:text-6xl lg:text-[4.25rem]"
                         >
-                            SantriQ: kelola santri lebih mudah,
+                            Absensi QR santri,
                             <span class="text-emerald-600"
-                                >dampingi lebih dekat.</span
+                                >kelola TPQ/TPA lebih mudah.</span
                             >
                         </h1>
                         <p
                             class="mt-6 max-w-xl text-base leading-8 text-slate-600 sm:text-lg dark:text-slate-300"
                         >
-                            Dari absensi QR hingga notifikasi wali, semua
-                            kebutuhan administrasi TPA/TPQ hadir dalam satu
-                            platform yang sederhana dan mudah digunakan.
+                            SantriQ membantu pengelola TPA/TPQ mencatat
+                            kehadiran lewat pindai kartu QR santri di kamera
+                            ponsel, mengirim notifikasi otomatis ke wali via
+                            Telegram, serta mengelola rapor, SPP, dan perizinan
+                            tanpa biaya langganan.
                         </p>
                         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link
                                 :href="register()"
                                 class="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 text-sm font-semibold text-white shadow-lg shadow-emerald-900/15 transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
                             >
-                                Mulai gratis
+                                Daftarkan lembaga gratis
                                 <ArrowRight class="size-4" aria-hidden="true" />
                             </Link>
                             <a
+                                v-if="demoUrl"
+                                :href="demoUrl"
+                                class="inline-flex h-12 items-center justify-center rounded-full border border-slate-200 bg-white/70 px-6 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:border-emerald-700 dark:hover:text-emerald-400"
+                            >
+                                Coba demo tanpa daftar
+                            </a>
+                            <a
+                                v-else
                                 href="#fitur"
                                 class="inline-flex h-12 items-center justify-center rounded-full border border-slate-200 bg-white/70 px-6 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:border-emerald-700 dark:hover:text-emerald-400"
                             >
                                 Lihat semua fitur
                             </a>
                         </div>
-                        <p
-                            v-if="demoUrl"
-                            class="mt-4 text-sm text-slate-500 dark:text-slate-400"
-                        >
-                            Ingin coba dulu?
-                            <a
-                                :href="demoUrl"
-                                class="font-semibold text-emerald-700 transition hover:underline dark:text-emerald-400"
-                            >
-                                Jelajahi demo tanpa daftar &rarr;
-                            </a>
-                        </p>
                         <div
                             class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500 dark:text-slate-400"
                         >
@@ -180,7 +204,7 @@ const steps = [
                                     class="size-4 text-emerald-600"
                                     aria-hidden="true"
                                 />
-                                Siap dipakai di ponsel
+                                Cukup kamera browser HP
                             </span>
                         </div>
                     </div>
@@ -532,10 +556,10 @@ const steps = [
                         <p
                             class="mt-5 leading-7 text-slate-600 dark:text-slate-300"
                         >
-                            SantriQ dibangun sebagai platform gratis dan open
-                            source agar lembaga pendidikan Al-Qur'an dari
-                            berbagai skala dapat beralih ke pengelolaan digital
-                            tanpa beban biaya.
+                            SantriQ dibangun dan dikelola oleh Fauzan Azmi
+                            sebagai platform gratis dan open source agar lembaga
+                            pendidikan Al-Qur'an dari berbagai skala dapat
+                            beralih ke pengelolaan digital tanpa beban biaya.
                         </p>
                         <div class="mt-7 grid gap-3 sm:grid-cols-2">
                             <span
@@ -575,6 +599,74 @@ const steps = [
                                 Data tetap milik lembaga
                             </span>
                         </div>
+                        <div
+                            class="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400"
+                        >
+                            <a
+                                :href="`${requestFeature.url()}#request`"
+                                class="inline-flex min-h-[44px] items-center hover:underline"
+                            >
+                                Hubungi pengelola &rarr;
+                            </a>
+                            <a
+                                href="https://github.com/azmifauzan/santriq"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex min-h-[44px] items-center hover:underline"
+                            >
+                                Kode sumber di GitHub &rarr;
+                            </a>
+                            <Link
+                                :href="privacy()"
+                                class="inline-flex min-h-[44px] items-center hover:underline"
+                            >
+                                Kebijakan Privasi &rarr;
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                id="faq"
+                class="border-t border-emerald-950/6 py-14 sm:py-20 lg:py-24 dark:border-white/10"
+            >
+                <div class="mx-auto max-w-5xl px-5 sm:px-8 lg:px-10">
+                    <div class="mx-auto max-w-2xl text-center">
+                        <p
+                            class="text-sm font-bold tracking-widest text-emerald-600 uppercase"
+                        >
+                            Pertanyaan umum
+                        </p>
+                        <h2
+                            class="mt-3 text-3xl font-bold tracking-tight text-balance sm:text-4xl"
+                        >
+                            Pertanyaan seputar absensi QR santri
+                        </h2>
+                        <p
+                            class="mt-4 leading-7 text-slate-600 dark:text-slate-300"
+                        >
+                            Jawaban singkat untuk hal yang paling sering
+                            ditanyakan pengelola TPA/TPQ sebelum mulai memakai
+                            SantriQ.
+                        </p>
+                    </div>
+
+                    <div class="mt-12 grid gap-4 md:grid-cols-2">
+                        <article
+                            v-for="item in faqs"
+                            :key="item.question"
+                            class="rounded-3xl border border-emerald-950/8 bg-white p-6 dark:border-white/10 dark:bg-slate-900"
+                        >
+                            <h3 class="text-base font-bold">
+                                {{ item.question }}
+                            </h3>
+                            <p
+                                class="mt-2.5 text-sm leading-6 text-slate-600 dark:text-slate-300"
+                            >
+                                {{ item.answer }}
+                            </p>
+                        </article>
                     </div>
                 </div>
             </section>

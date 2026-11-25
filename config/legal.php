@@ -59,7 +59,7 @@ return [
             [
                 'title' => '6. Hak Anda',
                 'paragraphs' => [
-                    'Anda dapat meminta akses, koreksi, ekspor, atau penghapusan data melalui pengelola lembaga Anda. Permintaan yang berkaitan dengan akun atau layanan SantriQ dapat disampaikan melalui halaman GitHub resmi SantriQ.',
+                    'Anda dapat meminta akses, koreksi, ekspor, atau penghapusan data melalui pengelola lembaga Anda. Permintaan yang berkaitan dengan akun, keamanan, atau layanan SantriQ juga dapat disampaikan langsung kepada pengelola platform melalui halaman kontak di santriq.web.id/fitur#request maupun repositori GitHub resmi SantriQ.',
                 ],
             ],
             [
