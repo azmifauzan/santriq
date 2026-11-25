@@ -26,7 +26,7 @@ const inputEmail = ref(props.email);
 </script>
 
 <template>
-    <Head title="Reset password" />
+    <Head title="Atur Ulang Kata Sandi" />
 
     <Form
         v-bind="update.form()"

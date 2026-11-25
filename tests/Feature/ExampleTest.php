@@ -183,6 +183,36 @@ test('every public sitemap page renders substantive non-thin content without jav
     }
 });
 
+test('every public sitemap and auth page has a unique server-rendered title', function () {
+    $this->withoutVite();
+
+    $sitemap = $this->get(route('sitemap'))->assertOk()->getContent();
+    preg_match_all('/<loc>([^<]+)<\/loc>/', $sitemap, $matches);
+
+    $urls = [
+        ...$matches[1],
+        route('login'),
+        route('register'),
+        route('password.request'),
+    ];
+
+    $titles = [];
+
+    foreach ($urls as $url) {
+        $html = $this->get($url)->assertOk()->getContent();
+        preg_match('/<title>([^<]+)<\/title>/', $html, $titleMatch);
+        $title = html_entity_decode($titleMatch[1] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        expect($title)
+            ->not->toBe('')
+            ->not->toBe('SantriQ', "Bare brand title on {$url}");
+
+        $titles[$url] = $title;
+    }
+
+    expect(array_unique(array_values($titles)))->toHaveCount(count($titles));
+});
+
 test('the canonical url drops tracking query strings', function () {
     $this->get(route('home', ['ref' => 'artifisial']))
         ->assertSee('<link rel="canonical" href="'.route('home').'">', false);

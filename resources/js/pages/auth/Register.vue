@@ -64,7 +64,7 @@ watch(subdomain, (value) => {
 </script>
 
 <template>
-    <Head title="Daftar" />
+    <Head title="Daftar Lembaga TPQ/TPA Gratis" />
 
     <template v-if="!google">
         <GoogleAuthButton

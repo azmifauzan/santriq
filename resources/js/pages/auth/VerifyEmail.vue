@@ -41,7 +41,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head title="Email verification" />
+    <Head title="Verifikasi Alamat Email" />
 
     <div
         v-if="status === 'verification-link-sent'"

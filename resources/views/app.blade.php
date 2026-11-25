@@ -15,6 +15,13 @@
             'Feature', 'Article', 'Guide', 'Legal' => $page['props']['content']['title'].' - SantriQ',
             'ArticleIndex' => 'Template dan Panduan Administrasi TPQ/TPA Gratis - SantriQ',
             'RequestFeature' => 'Fitur Aplikasi Manajemen TPQ/TPA - SantriQ',
+            'auth/Login' => 'Masuk Akun Lembaga TPQ/TPA - SantriQ',
+            'auth/Register' => 'Daftar Lembaga TPQ/TPA Gratis - SantriQ',
+            'auth/ForgotPassword' => 'Lupa Kata Sandi Akun - SantriQ',
+            'auth/ResetPassword' => 'Atur Ulang Kata Sandi - SantriQ',
+            'auth/VerifyEmail' => 'Verifikasi Alamat Email - SantriQ',
+            'auth/ConfirmPassword' => 'Konfirmasi Kata Sandi - SantriQ',
+            'Tenant/Landing' => ($page['props']['tenant']['name'] ?? 'Lembaga').' - SantriQ',
             default => config('app.name', 'Laravel'),
         })
         @if (in_array($page['component'] ?? null, $publicPages, true))
@@ -139,12 +146,18 @@
                     ], $feature['faq']),
                 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
             </script>
+        @elseif (($page['component'] ?? null) === 'auth/Login')
+            <meta name="description" content="Masuk ke dasbor lembaga TPA/TPQ Anda di SantriQ untuk mengelola absensi QR santri, notifikasi Telegram, rapor, dan SPP.">
+        @elseif (($page['component'] ?? null) === 'auth/Register')
+            <meta name="description" content="Daftarkan lembaga TPA/TPQ Anda secara gratis di SantriQ untuk memakai absensi QR santri, notifikasi wali Telegram, rapor, dan SPP.">
+        @elseif (($page['component'] ?? null) === 'auth/ForgotPassword')
+            <meta name="description" content="Minta tautan atur ulang kata sandi untuk akun pengelola lembaga SantriQ Anda.">
         @endif
 
         {{-- Link previews on WhatsApp, Telegram, Facebook, X, etc. --}}
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="SantriQ">
-        <meta property="og:title" content="{{ $isWelcome ? $pageTitle : 'SantriQ — Kelola santri lebih mudah, dampingi lebih dekat' }}">
+        <meta property="og:title" content="{{ $pageTitle }}">
         <meta property="og:description" content="{{ $siteDescription }}">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image" content="{{ asset('og-image.jpg') }}">

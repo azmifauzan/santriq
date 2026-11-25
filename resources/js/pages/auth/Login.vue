@@ -49,7 +49,7 @@ const guardianLoginUrl = computed(() => GuardianAuthController.create());
 </script>
 
 <template>
-    <Head title="Masuk" />
+    <Head title="Masuk Akun Lembaga TPQ/TPA" />
 
     <div
         v-if="status"

@@ -17,7 +17,7 @@ defineOptions({
 </script>
 
 <template>
-    <Head title="Confirm password" />
+    <Head title="Konfirmasi Kata Sandi" />
 
     <Form
         v-bind="store.form()"
